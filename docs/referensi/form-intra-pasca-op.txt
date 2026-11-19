@@ -1,0 +1,255 @@
+                        RS Universitas Muhammadiyah Jember                                                                            DOKUMENTASI KEPERAWATAN INTRA OPERATIF
+                        Jl. Wolter Monginsidi No.91, Area Sawah/Kebun, Kranjingan, Kec.
+                        Sumbersari, Kabupaten Jember, Jawa Timur 68126                                                            No. RM                                       :[                                       ]
+                        Telp RS: (0331) 5442222 | IGD 24 Jam: (0331) 5442444
+                                                                                                                                  Nama Pasien ........................................................................................ (L / P)
+                        Call Center/WA: +62 821-3777-9669
+                        Pendaftaran Online: +62 822-2976-1496                                                                     Tgl Lahir / Umur                             : ........................................... /........................Thn
+                        Email: rsuunmuhjember@unmuhjember.ac.id                                                                   Ruang Asal / Kelas                           : ........................................... / ...............
+
+ 1. IDENTITAS TINDAKAN PEMBEDAHAN & TIM OPERASI
+
+ Tanggal Operasi                                ..... / ..... / 20......                                                            Kamar Operasi (OK)                                       OK No. .....................................
+ Diagnosis Medis                                ......................................................................................................................................................
+ Rencana / Actual Operasi                       ......................................................................................................................................................
+ Dokter Operator                                dr. .................................................                               Dokter Anestesi                                          dr ................................................ , Sp.An
+ Perawat Sirkuler                               Ns. ................................................                                Perawat Instrumen                                        Ns. ................................................
+ Jenis Anestesi                                      GA (Umum)                         Spinal (SAB)                       Epidural                  Blok Perifer                     Lokal
+
+ 2. KRONOLOGI & WAKTU KEGIATAN INTRA OPERATIF
+
+          Masuk Kamar Operasi                                   Mulai Anestesi                                  Mulai Insisi Operasi                                      Selesai Operasi                                Keluar Kamar Operasi
+
+              Pukul ........... WIB                           Pukul ........... WIB                                Pukul ........... WIB                                Pukul........... WIB                                  Pukul ........... WIB
+
+ 3. PERSIAPAN POSISI & AREA OPERASI (KEPERAWATAN INTRA OP)
+
+                                                                    Supine    Prone                       Lithotomy                  Lateral (Kiri / Kanan)                         Trendelenburg Fowler /
+ Posisi Pembedahan
+                                                                    Semi-Fowler
+                                                                   Ganjal Kepala / Leher                         Bantalan Tumit / Siku                         Safety Belt / Sabuk Pengaman Armboard
+ Proteksi Area Penekanan
+                                                                   (Penyangga Lengan)
+ Persiapan Kulit (Antiseptik)                                       Povidone Iodine                       Alkohol 70%                      Chlorhexidine
+ Pemasangan Grounding (ESU)                                   Lokasi Plate: .......................................                                Kondisi Kulit Pre/Post                                       Utuh              Lesi
+ Pemasangan Duk Steril (Draping)                                   Draping Steril Terpasang Sesuai Prosedur Kritis Aseptik & Batas Area Operasi Terisolasi
+ Pengaturan Suhu & Warming                                          Blanket Warmer                        Fluid Warmer                      Pengaturan Suhu Kamar Operasi (Standard 19°C - 24°C)
+
+ 4. RENCANA & IMPLEMENTASI KEPERAWATAN INTRA OPERATIF
+Masalah / Diagnosis Keperawatan Intra OP (Centang yang sesuai):
+  Risiko Perdarahan     Risiko Infeksi Area Pembedahan                            Risiko Cedera Posisi Pembedahan                                                   Risiko Hipotermia Perioperatif Risiko Disfungsi
+  Respon Alergi      Lainnya: ............................................................................................................
+    Waktu (WIB)                       Tindakan Keperawatan Intra Operatif (Sirkuler / Instrumen)                                                                                 Evaluasi / Respons Pasien                                           Paraf
+                             Memverifikasi identitas pasien, kelengkapan dokumen consent, dan kelengkapan
+      ......... WIB                                                                                                                                                   Data pasien sesuai, dokumen lengkap.
+                             persiapan pra-bedah.
+                             Membantu perpindahan posisi pasien ke meja operasi dan mengatur posisi
+      ......... WIB                                                                                                                                                   Posisi aman, Fiksasi terpasang baik.
+                             pembedahan secara aman.
+                             Menyiapkan set instrumen steril, bahan medis habis pakai (BMHP), dan
+      ......... WIB                                                                                                                                                   Set instrumen steril & lengkap.
+                             melakukan perhitungan awal alat/kasa.
+                             Melakukan desinfeksi lapangan operasi dan membantu prosedur draping steril.
+      ......... WIB                                                                                                                                                   Area operasi steril ter-draping.
+
+                             Memantau prinsip aseptik-steril selama operasi berlangsung dan mengelola lalu
+      ......... WIB                                                                                                                                                   Prinsip steril terjaga ketat.
+                             lintas kamar operasi.
+                             Melakukan penghitungan ulang instrumen, kasa, dan jarum sebelum penutupan
+      ......... WIB                                                                                                                                                   Hitungan awal dan akhir sesuai.
+                             rongga/insisi operasi.
+                             Membersihkan kulit sekitar area insisi, menutup luka dengan kasa steril, dan
+      ......... WIB                                                                                                                                                   Luka tertutup rapi dan bersih.
+                             merapikan alat intra op.
+
+ 5. PEMANTAUAN KONDISI PASIEN & CAIRAN INTRA OPERATIF
+
+                               INTAKE CAIRAN (Cairan Masuk)                                                                                                                 OUTPUT CAIRAN (Cairan Keluar)
+ Kristaloid (RL/NS/D5)                                                      …………………………..ml                                              Estimasi Perdarahan                                                      ……………………………..…..ml
+ Koloid/Gelatin                                                             …………………………..ml                                              Urine (Lewat Kateter)                                                    ……………………………..…..ml
+ Transfusi Darah (PRC/FFP/TC)                                               …………………………..ml                                              Cairan Suction / Washing / Drain                                         ……………………………..…..ml
+ TOTAL INTAKE INTRA OP                                                      …………………………..ml                                              TOTAL OUTPUT INTRA OP ...............................................
+                                                                                                                                                                                 ……………………………..…..ml           ml
+
+ 6. PENGHITUNGAN INSTRUMEN, KASA, DAN JARUM (SAFETY INSTRUMENT COUNT)
+
+                                                                                      Hitungan Awal                                          Tambahan Selama                                         Hitungan Akhir
+                         Item Operasi                                                                                                                                                                                                                Status
+                                                                                    (Sebelum Operasi)                                            Operasi                                         (Sebelum Tutup Insisi)
+ Kasa Steril (Gauze)                                                                                                                                                                                                                                  S     TS
+
+
+RME - KEPERAWATAN INTRA OPERATIF | RSU UNMUH JEMBER
+                                                                              Hitungan Awal                            Tambahan Selama                                       Hitungan Akhir
+                         Item Operasi                                                                                                                                                                                    Status
+                                                                            (Sebelum Operasi)                              Operasi                                       (Sebelum Tutup Insisi)
+ Kasa Laparotomi (Towel / Roll)                                                                                                                                                                                            S           TS
+ Jarum Bedah (Needles)                                                                                                                                                                                                     S           TS
+ Pisau Bedah (Bisturi / Blade)                                                                                                                                                                                             S           TS
+ Instrumen Bedah Set (Alat)                                                                                                                                                                                                S           TS
+
+Verifikasi Akhir Hitungan:          LENGKAP & SESUAI        TIDAK SESUAI / KURANG
+Bila tidak sesuai, tindakan yang dilakukan:  Pencarian Ulang Area Operasi  Lapor Operator                                                       Foto X-Ray Lapangan Operasi
+
+ 7. PENGELOLAAN SPESIMEN & CATATAN KEJADIAN KHUSUS
+
+                                                               Spesimen Operasi Tidak Ada                        Ada Spesimen Jaringan / Cairan
+                                                         Jenis Spesimen / Jaringan: ................................................................. Asal Jaringan / Organ:
+ Detail & Labeling Spesimen                              ....................................................
+                                                         Tujuan Pemeriksaan:                       Patologi Anatomi (PA)       Sitologi             Mikrobiologi / Kultur Cairan
+                                                         Pengawet:               Formalin 10%                 NaCl 0.9%    Tanpa Pengawet (Fresh)
+                                                               Tidak Ada Komplikasi / Kejadian Khusus Selama Operasi
+ Catatan Kejadian Khusus /                                     Terdapat Kejadian Khusus / Komplikasi, sebutkan: ............................................................................................
+ Komplikasi Intra OP                                     Tindakan Penanganan yang Dilakukan:
+                                                         ................................................................................................................................
+
+ 8. PENGESAHAN DOKUMENTASI INTRA OPERATIF
+
+              Perawat Sirkuler                                          Perawat Instrumen                                       Dokter Anestesi                                          Dokter Operator
+             (Circulating Nurse)                                           (Scrub Nurse)                                 (Bertanggung Jawab Anestesi)                               (Penanggung Jawab Operasi)
+
+
+
+
+     ( Ns. ..........................................)         ( Ns........................................... )     ( dr .................................. , Sp.An )            ( dr............................................ )
+      NIP/NIK: ..............................                   NIP/NIK: ..............................                SIP: .......................................               SIP: .......................................
+
+
+
+
+RME - KEPERAWATAN INTRA OPERATIF | RSU UNMUH JEMBER
+PRE OP
+
+10 diagnosis medis sebelum operasi
+
+    1. Apendisitis Akut
+    2. Kolelitiasis (Batu Empedu)
+    3. Hernia Inguinalis
+    4. Sectio Caesarea (SC)
+    5. Kanker Payudara
+    6. Atresia Ani
+    7. Ileus Obstruktif
+    8. Fraktur Femur
+    9. Kista Ovarium
+    10. Tumor Otak
+
+INTRA OP
+
+POST OP
+1. Kondisi Umum Pasien
+
+    •    Kesadaran pasien (E 1-4 V 1-5 M 1-6)
+
+    •    Kondisi umum pasien (baik, sedang, atau buruk).
+
+    •    Respons pasien setelah operasi (Stabil/lemah).
+
+2. Tanda-Tanda Vital
+
+    •    Tekanan darah (….mmHg).
+
+    •    Frekuensi nadi (….kali/menit).
+
+    •    Frekuensi pernapasan (….kali/menit).
+
+    •    Saturasi oksigen (…..SpO₂).
+
+    •    Suhu tubuh (….°C).
+
+3. Kondisi Luka Operasi
+
+    •    Lokasi luka operasi (…...)
+
+    •    Kondisi balutan (bersih, kering, atau basah).
+
+    •    Adanya perdarahan atau rembesan (ya/tidak).
+
+    •    Adanya pembengkakan atau hematoma (ya/tidak).
+
+    •    Kondisi jahitan luka (rapi/utuh/ada jahitan yang terlepas).
+
+4. Tingkat Nyeri
+
+    •    Skala nyeri (NRS 0–10).
+
+    •    Lokasi nyeri (…...)
+
+    •    Karakteristik nyeri (tajam, tumpul, atau berdenyut).
+   •   Durasi nyeri (…..)
+
+   •   Respons terhadap obat antinyeri (nyeri berkurang/tetap/bertambah)
+
+5. Kondisi Pernapasan
+
+   •   Kepatenan jalan napas (Paten/Tidak paten/Obstruksi parsial/Obstruksi total).
+
+   •   Pola pernapasan (eupnea/takepnea/bradypnea/apnea/dispnea)
+
+   •   Frekuensi pernapasan (…..x/menit)
+
+   •   Penggunaan oksigen (nasal kanul/simple mask/non rebrieting/rebriething/tanpa oksigen).
+
+   •   Jumlah LPM (1-15)
+
+6. Keseimbangan Cairan
+
+   •   Jumlah cairan masuk (….).
+
+   •   Jumlah urine keluar (….ml)
+
+   •   Jumlah cairan drain (…..ml…..warna (merah/merah
+       uda/kekuningan/kehijauan/kecoklatan)…..(tidak berbau/bau)
+
+   •   Jumlah perdarahan (…...ml)
+
+7. Pemantauan Efek Anestesi
+
+   •   Jenis anestesi yang diberikan (……)
+
+   •   Tingkat pemulihan kesadaran (composmentis/somnolen/sopor/koma).
+
+   •   Mual dan muntah (ya/tidak).
+
+   •   Menggigil atau hipotermia (ya/tidak).
+
+8. Komplikasi Post Operasi
+
+   •   Perdarahan (ya/tidak).
+
+   •   Hematoma (ya/tidak).
+
+   •   Infeksi luka operasi (ya/tidak).
+
+   •   Gangguan pernapasan (ya/tidak).
+
+   •   Hipotensi atau hipertensi (ya/tidak).
+
+   •   Mual dan muntah (ya/tidak).
+
+   •   Reaksi alergi obat (ya/tidak).
+
+9. Diagnosa keperawatan POST OP
+
+   •   Nyeri Akut
+   •   Risiko Infeksi
+   •   Gangguan Integritas Kulit/Jaringan
+   •   Risiko Disfungsi Motilitas Gastrointestinal
+   •   Gangguan Mobilitas Fisik
+       •   Gangguan Eliminasi FekaL
+       •   Risiko Perdarahan
+       •   Risiko Hipotermia
+       •   Risiko Aspirasi
+       •   Defisit Perawatan Diri
+
+10. Pemindahan Pasien
+
+       •   Kelengkapan dokumen pasien (lengkap/tidak).
+
+       •   Tujuan pemindahan (ruang rawat inap/ICU).
+
+       •   Nama perawat yang menyerahkan pasien (…..)
+
+       •   Nama perawat yang menerima pasien (…..)
+
+       •   Waktu pemindahan pasien (pukul…..)
+

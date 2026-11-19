@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 4px);
+    --radius-sm: calc(var(--radius) - 8px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-border, currentColor);
+    }
+}
+
+/* Palet Utama: Clinical Navy (#0A2540) + Pure White (#FFFFFF), Zero Gradient */
+:root {
+    --background: hsl(214 45% 97%);
+    --foreground: hsl(210 73% 15%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(210 73% 15%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(210 73% 15%);
+    --primary: hsl(210 73% 15%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(212 48% 94%);
+    --secondary-foreground: hsl(210 73% 15%);
+    --muted: hsl(213 42% 94%);
+    --muted-foreground: hsl(209 34% 30%);
+    --accent: hsl(212 52% 92%);
+    --accent-foreground: hsl(210 73% 15%);
+    --destructive: hsl(0 74% 42%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(211 35% 86%);
+    --input: hsl(210 31% 78%);
+    --ring: hsl(210 73% 15%);
+    --chart-1: hsl(210 73% 18%);
+    --chart-2: hsl(213 68% 36%);
+    --chart-3: hsl(156 62% 34%);
+    --chart-4: hsl(34 86% 42%);
+    --chart-5: hsl(0 72% 46%);
+    --radius: 1rem;
+    --sidebar-background: rgba(255, 255, 255, 0.78);
+    --sidebar-foreground: hsl(210 73% 15%);
+    --sidebar-primary: hsl(210 73% 15%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(212 48% 93%);
+    --sidebar-accent-foreground: hsl(210 73% 15%);
+    --sidebar-border: rgba(10, 37, 64, 0.11);
+    --sidebar-ring: hsl(210 73% 15%);
+}
+
+.dark {
+    --background: hsl(212 65% 8%);
+    --foreground: hsl(0 0% 100%);
+    --card: hsl(211 58% 12%);
+    --card-foreground: hsl(0 0% 100%);
+    --popover: hsl(211 58% 12%);
+    --popover-foreground: hsl(0 0% 100%);
+    --primary: hsl(0 0% 100%);
+    --primary-foreground: hsl(210 73% 15%);
+    --secondary: hsl(211 45% 18%);
+    --secondary-foreground: hsl(0 0% 100%);
+    --muted: hsl(211 42% 16%);
+    --muted-foreground: hsl(212 32% 76%);
+    --accent: hsl(211 48% 20%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 72% 52%);
+    --destructive-foreground: hsl(0 0% 100%);
+    --border: hsl(211 36% 24%);
+    --input: hsl(211 36% 28%);
+    --ring: hsl(0 0% 100%);
+    --chart-1: hsl(210 80% 70%);
+    --chart-2: hsl(213 70% 56%);
+    --chart-3: hsl(156 58% 48%);
+    --chart-4: hsl(38 88% 58%);
+    --chart-5: hsl(0 72% 58%);
+    --sidebar-background: rgba(10, 37, 64, 0.78);
+    --sidebar-foreground: hsl(0 0% 100%);
+    --sidebar-primary: hsl(0 0% 100%);
+    --sidebar-primary-foreground: hsl(210 73% 15%);
+    --sidebar-accent: hsl(211 45% 20%);
+    --sidebar-accent-foreground: hsl(0 0% 100%);
+    --sidebar-border: rgba(255, 255, 255, 0.14);
+    --sidebar-ring: hsl(0 0% 100%);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+
+    table,
+    input[type='number'],
+    .tabular-nums {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* Apple Liquid Glass Material — HANYA untuk Header, Navigasi, dan Modal (Tanpa Gradasi) */
+.liquid-glass-header {
+    background-color: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border: 1px solid rgba(10, 37, 64, 0.11);
+    box-shadow:
+        0 8px 24px -6px rgba(10, 37, 64, 0.08),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.92);
+}
+
+.dark .liquid-glass-header {
+    background-color: rgba(10, 37, 64, 0.76);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 10px 28px -6px rgba(0, 0, 0, 0.36),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+}
+
+.liquid-glass-nav {
+    background-color: rgba(255, 255, 255, 0.76);
+    backdrop-filter: blur(24px) saturate(185%);
+    -webkit-backdrop-filter: blur(24px) saturate(185%);
+    border: 1px solid rgba(10, 37, 64, 0.12);
+    box-shadow:
+        0 14px 34px -8px rgba(10, 37, 64, 0.12),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.94);
+}
+
+.dark .liquid-glass-nav {
+    background-color: rgba(10, 37, 64, 0.78);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow:
+        0 14px 34px -8px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.liquid-glass-modal {
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(10, 37, 64, 0.14);
+    box-shadow:
+        0 24px 56px -12px rgba(10, 37, 64, 0.22),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.96);
+}
+
+.dark .liquid-glass-modal {
+    background-color: rgba(10, 37, 64, 0.86);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow:
+        0 24px 56px -12px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+}
+
+.liquid-glass-overlay {
+    background-color: rgba(10, 37, 64, 0.32);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Animasi Morphing Cair ala Apple */
+.liquid-morph {
+    transition-property: background-color, border-color, color, box-shadow, transform, opacity, border-radius;
+    transition-duration: 340ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.liquid-morph-pill {
+    transition-property: background-color, color, box-shadow, transform, border-radius;
+    transition-duration: 320ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.liquid-morph-pill:active {
+    transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .liquid-morph,
+    .liquid-morph-pill {
+        transition-duration: 0.01ms !important;
+        transform: none !important;
+    }
+}

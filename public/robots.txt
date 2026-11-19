@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /login
+Allow: /og-image.png
+Allow: /sitemap.xml
+Allow: /llms.txt
+Disallow: /dashboard
+Disallow: /kasus
+Disallow: /pasien
+Disallow: /laporan
+Disallow: /audit
+Disallow: /admin
+Disallow: /pengaturan
+
+Sitemap: http://127.0.0.1:8188/sitemap.xml

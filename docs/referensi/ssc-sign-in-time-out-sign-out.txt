@@ -1,0 +1,510 @@
+1. Gambaran Struktur Menu Sign In SSC RME
+SURGICAL SAFETY CHECKLIST                                    Ruang Operasi
+SIGN IN
+Pemeriksaan Sebelum Induksi Anestesi
+   A. IDENTITAS PASIEN
+      Nama                        No. Rekam Medis
+      Terintegrasi dari RME       Terintegrasi dari RME
+      Tanggal Lahir               Ruang Operasi
+      Data Pasien                 Kamar Operasi
+
+    B. KONFIRMASI IDENTITAS DAN TINDAKAN
+       □ Identitas pasien sudah dikonfirmasi
+       □ Jenis tindakan operasi sudah dikonfirmasi
+       □ Lokasi/sisi operasi sudah dikonfirmasi
+       □ Persetujuan tindakan operasi tersedia
+       □ Penandaan lokasi operasi telah diperiksa
+
+    C. KESIAPAN ANESTESI
+       □ Pemeriksaan mesin dan obat anestesi
+       □ Pulse oximeter terpasang dan berfungsi
+       □ Ketersediaan alat bantu jalan napas
+       □ Ketersediaan alat suction
+
+    D. PEMERIKSAAN RISIKO PASIEN
+       □ Riwayat alergi
+       □ Risiko kesulitan jalan napas
+       □ Risiko aspirasi
+       □ Risiko perdarahan
+
+    E. DOKUMENTASI PETUGAS
+       1. Nama perawat sirkuler
+       2. Nama dokter anestesi
+       3. Waktu pelaksanaan Sign In
+       4. Catatan dan tindak lanjut
+       5. Status penyelesaian checklist
+
+
+
+2. Rincian Setiap Bagian Yang Harus Ada
+   A. Identitas Pasien
+       No. Komponen            Keterangan
+        1    Nama pasien          Nama lengkap pasien
+        2    Nomor RM             Nomor rekam medis pasien
+        3    Tanggal lahir        Tanggal lahir pasien
+     4   Jenis kelamin         Laki-laki/perempuan
+     5   Diagnosis medis       Diagnosis pasien
+     6   Jenis operasi         Tindakan pembedahan yang direncanakan
+     7   Lokasi operasi        Bagian tubuh yang akan dioperasi
+     8   Dokter operator       Nama dokter yang melakukan operasi
+     9   Dokter anestesi       Nama dokter yang bertanggung jawab terhadap anestesi
+    10   Ruang operasi         Nomor kamar operasi
+
+
+B. Konfirmasi Identitas dan Tindakan Operasi
+    No. Item Pemeriksaan              Pilihan Input
+     1     Identitas Pasien                 □ Sesuai □ Tidak Sesuai
+
+     2     Jenis Tindakan Operasi           □ Sesuai □ Tidak Sesuai
+
+     3     Lokasi atau Sisi Operasi         □ Sesuai □ Tidak Sesuai
+
+     4     Informed Consent Operasi         □ Ada □ Belum Ada
+
+     5     Informed Consent Anestsi         □ Ada □ Belum Ada
+
+     6     Penandaan Lokasi Operasi         □ Ada □ Tidak Ada □ Tidak Berlaku
+
+
+C. Kesiapan Alat dan Obat Anestesi
+    No. Item Pemeriksaan                    Pilihan Input
+     1     Mesin Anestesi                   □ Siap □ Tidak Siap
+
+     2     Sumber Oksigen                   □ Siap □ Tidak Siap
+
+     3     Obat – Obatan Anestesi           □ Siap □ Tidak Siap
+
+     4     Alat Bantu Jalan Napas           □ Siap □ Tidak Siap
+
+     5     Alat Suction                     □ Siap □ Tidak Siap
+
+     6     Alat Monitoring Pasien           □ Siap □ Tidak Siap
+
+     7     Obat Emergensi                   □ Siap □ Tidak Siap
+
+D. Pemeriksaan Pulse Oximeter
+    Komponen                  Data
+    Pulse Oximeter Terpasang          □ Ya □ Tidak
+
+    Alat Berfungsi                    □ Ya □ Tidak
+       SpO₂                            Hasil Pengukuran (%)
+
+       Denyut Nadi                     Hasil Pengukuran (x/menit)
+
+       Keterangan                      Catatan Tambahan
+
+
+   E. Pemeriksaan Riwayat Alergi
+       Komponen                        Data Yang Dimasukkan
+       Riwayat Alergi                  □ Ada □ Tidak Ada □ Belum Diketahui
+
+       Jenis Alergi                    Obat, Lateks, Makanan, Atau lainnya
+
+       Nama Bahan Penyebab             Nama Obat atau Bahan
+       Reaksi Alergi                   Jenis Reaksi yang Pernah Dialami
+       Tindak Lanjut                   Catatan dan Rencana Penanganan
+
+
+   F. Pemeriksaan Risiko Jalan Napas dan Aspirasi
+       Komponen                       Pilihan Input
+       Risiko Kesulitann Jalan Napas     □ Ada □ Tidak Ada
+
+       Risiko Aspirasi                   □ Ada □ Tidak Ada
+
+       Penilaian Dokter Anestesi         Kolom Hasil Pengkajian
+       Rencana Antisipasi                Kolom Keterangan
+       Kesiapan Alat Pendukung           □ Siap □ Tidak Siap
+
+
+   G. Pemeriksaan Risiko Perdarahan
+       Komponen                     Pilihan Input
+       Risiko Perdarahan                □ Ada □ Tidak Ada
+
+       Perkiraan Kehilangan Darah       Jumal dalam ml
+
+       Akses Intravena                  □ Memadai □ Tidak Memadai
+
+       Kesiapan Cairan                  □ Siap □ Tidak Siap
+
+       Kesiapan Darah                   □ Siap □ Tidak Siap □ Tidak Diindikasikan
+
+       Keterangan                       Catatan Tambahan
+
+3. Dokumentasi dan Pengesahan Sign In
+      Komponen                 Fungsi
+       Nama Perawat Sirkuler        Identitas petugas yang mengoordinasikan checklist
+       Nama Dokter Anestesi             Identitas dokter yang melakukan penilaian anestesi
+       Nama Dokter Operator             Identitas dokter penanggung jawab operasi
+       Waktu Sign In                    Mencatat waktu pemeriksaan
+       Catatan Tambahan                 Menuliskan temuan dan tindak lanjut
+       Status Checklist                 □ Belum Dimulai □ Dalam Proses □ Selesai
+
+       Konfirmasi Petugas               Pengesahan sesuai kewenangan dan kebijakan RS
+
+
+4. Gambaran Alur Kerja Sign In
+
+                                   LOGIN PETUGAS RME
+                                Perawat Sirkuler / Dokter Anestesi
+
+
+                                     PILIHAN PASIEN
+                                Mengambil data dari jadwal operasi
+
+
+                                     BUKA MENU SIGN IN
+                                    Menampilkan formulir SSC
+
+
+                                        ISI CHECKLIST
+                          Konfirmasi identitas, anestesi, dan risiko pasien
+
+
+                                    VERIVIKASI HASIL
+                   Identifikasi item yang belum terpenuhi dan tindak lanjut
+
+
+                                SIMPAN DOKUMENTASI
+                          Menyimpan hasil, waktu, dan identitas petugas
+
+
+                                SIGN IN TERDOKUMENTASI
+    Siap dilanjutkan setelah seluruh masalah keselamatan ditangani dan tim menyatakan siap
+   TIME OUT
+
+   1. Apakah seluruh anggota tim telah memperkenalkan nama dan perannya?
+           •   Perawat sirkuler ☐ Ya
+           •   Perawat Instrumen ☐ Ya
+
+           •   Perawat Anastesi ☐ Ya
+           •   Dokter Operator ☐ Ya
+
+           •   Dokter Anastesi ☐ Ya
+   2. Konfrmasi identitas pasien, jenis tindakan operasi dan lokasi operasi telah
+       dikonfirmasi ☐ Ya
+   3. Apakah antibiotik profilaksis telah diberikan dalam 60 menit terakhir jika
+       diindikasikan? ☐ Ya ☐ N/A
+       Nama anti biotik            :...............
+       Waktu Pemberian             :...............
+       Pertugas konfirmasi :...............
+
+DOKTER OPERATOR
+
+Dokter operator telah menjelaskan langkah-langkah kritis atau tahapan penting operasi,
+perkiraan durasi, dan antisipasi kehilangan darah
+
+Apakah terdapat langkah kritis atau tindakan yang tidak rutin? ☐ Ya ☐ Tidak
+
+Jika ya, apa langkah kritis tersebut?                 :.............
+
+Berapa perkiraan lama operasi?                        :.............menit
+
+Berapa perkiraan kehilangan darah?                    :.............ml
+
+DOKTER ANASTESI
+
+Dokter anestesi telah menyampaikan kondisi khusus atau kekhawatiran terkait pasien
+
+Apakah terdapat kondisi khusus pada pasien yang perlu diperhatikan? ☐ Ya ☐ Tidak
+
+Apakah terdapat risiko terkait kondisi anestesi pasien? ☐ Ya ☐ Tidak
+
+Keterangan     :................
+TIM PERAWAT
+
+Tim keperawatan telah memastikan sterilitas instrumen, termasuk hasil indikator sterilisasi
+
+Sterilitas instrumen sudah dikonfirmasi ☐ Ya
+
+Hasil indikator sterilisasi sudah diperiksa ☐ Ya
+
+Apakah terdapat masalah pada peralatan operasi? ☐ Ya ☐ Tidak
+
+Apakah terdapat kekhawatiran lain terkait kesiapan operasi? ☐ Ya ☐ Tidak
+
+PENAMPILAN PENCITRAAN MEDIS
+
+Apakah pencitraan diperlukan untuk operasi ini? ☐ Ya ☐ Tidak
+
+Jika diperlukan, apakah hasil pencitraan sudah ditampilkan? ☐ Ya ☐ Tidak
+
+Apakah hasil pencitraan sesuai dengan pasien dan lokasi operasi? ☐ Ya ☐ Tidak
+           SURGICAL SAFETY CHECKLIST (SSC)
+
+                      TAHAP SIGN OUT
+
+Materi Keperawatan dan Rancangan Formulir Web RME Kamar Operasi
+
+
+
+
+                      Bagian dari alur SSC:
+
+             SIGN IN → TIME OUT → SIGN OUT
+01. MATERI KLINIS SIGN OUT
+
+A. Pengertian dan Waktu Pelaksanaan
+
+Sign Out adalah pemeriksaan terakhir dalam SSC untuk memastikan bahwa hasil
+operasi, penghitungan alat, spesimen, kondisi peralatan, dan rencana pemulihan
+pasien telah diperiksa bersama. Sign Out dilakukan menjelang akhir operasi dan
+harus selesai sebelum pasien meninggalkan kamar operasi. Pemeriksaannya dapat
+dimulai saat luka operasi ditutup (WHO, 2009).
+
+B. Petugas yang Terlibat
+
+Pemeriksaan dilakukan melalui komunikasi antara perawat kamar operasi, dokter
+bedah, dan tenaga anestesi. Perawat instrumen membantu memastikan hasil
+penghitungan alat, kasa, dan jarum. Perawat sirkuler membantu mencatat hasil
+pemeriksaan dan memeriksa label spesimen jika ada. Dokter bedah mengonfirmasi
+tindakan yang dilakukan, sedangkan tenaga anestesi ikut membahas kondisi pasien
+setelah operasi. Pembagian tugas mengikuti prosedur yang berlaku di rumah sakit.
+
+C. Lima Komponen Pemeriksaan Sign Out
+
+   1. Konfirmasi nama prosedur operasi. Tim memastikan nama tindakan
+       yang benar-benar dilakukan. Hal ini penting karena tindakan di ruang
+       operasi bisa berbeda atau bertambah dari rencana awal. Nama prosedur yang
+       dicatat harus sesuai dengan hasil konfirmasi dokter bedah.
+   2. Penghitungan instrumen, kasa, dan jarum. Perawat memastikan alat,
+       kasa, dan jarum yang digunakan telah dihitung sesuai prosedur. Jika hasil
+       hitungan tidak cocok, tim harus mencari penyebabnya dan melakukan
+       tindakan sesuai SOP. Pemeriksaan belum dinyatakan selesai selama
+       masalah tersebut belum ditangani.
+   3. Pemeriksaan label spesimen. Spesimen adalah jaringan atau bahan dari
+       tubuh pasien yang diambil saat operasi untuk diperiksa lebih lanjut. Jika ada
+       spesimen, petugas memastikan identitas pasien dan keterangan spesimen
+       pada label sudah benar, lalu membacakannya saat konfirmasi. Jika tidak ada
+       spesimen, cukup dicatat “Tidak ada spesimen”.
+   4. Pemeriksaan masalah peralatan. Tim menanyakan apakah ada alat yang
+       rusak atau tidak berfungsi dengan baik selama operasi. Jika ada, jenis
+       masalah dan tindak lanjutnya dicatat agar alat tidak langsung digunakan
+       kembali sebelum diperiksa.
+   5. Pembahasan rencana pemulihan pasien. Dokter bedah, tenaga anestesi,
+       dan perawat menyampaikan hal yang perlu diperhatikan setelah operasi.
+       Contohnya kondisi pasien, risiko perdarahan, atau pemantauan khusus di
+       ruang pemulihan. Informasi ini membantu petugas yang melanjutkan
+       perawatan pasien.
+
+02. CONTOH FORMULIR SIGN OUT UNTUK WEB RME
+
+Pada web RME, petugas membuka data operasi pasien lalu memilih halaman Sign
+Out. Halaman ini memuat data pasien, lima pertanyaan pemeriksaan, kolom
+catatan, serta nama dan waktu petugas yang mengisi.
+
+A. Identitas Pasien
+
+Data                            Keterangan
+
+Nomor rekam medis               Diambil dari data pasien yang sudah ada di RME
+
+                                Ditampilkan dari RME, lalu dikonfirmasi oleh
+Nama dan tanggal lahir
+                                petugas
+
+Tanggal dan nama tindakan       Diambil dari data operasi pasien
+
+Nama dokter dan petugas         Sesuai tim yang menangani operasi
+
+
+
+B. Checklist Utama WHO – Sign Out
+
+   1. Perawat mengonfirmasi secara lisan (Nurse Verbally Confirms)
+
+  No     Komponen pemeriksaan WHO              Ya      Tidak       Tidak berlaku
+
+        Apakah nama tindakan operasi
+  1.    yang    telah    dilakukan   sudah     ☐         ☐              –
+        dikonfirmasi?
+             Apakah penghitungan instrumen,
+    2.       kasa, dan jarum telah selesai dan                                ☐                ☐                     –
+             jumlahnya sesuai?
+
+             Apakah spesimen telah diberi label
+    3.       dengan          benar,        termasuk          nama             ☐                ☐                    ☐
+             pasien?
+
+             Apakah terdapat masalah pada
+    4.                                                                        ☐                ☐                     –
+             peralatan yang perlu ditangani?
+
+
+
+      2. Konfirmasi bersama dokter operator, dokter anestesi, dan perawat
+
+   No                           Pertanyaan WHO                                             Sudah dikonfirmasi
+
+             Apa         saja       hal      penting          yang         perlu
+    5.       diperhatikan              dalam          pemulihan              dan                          ☐
+             penatalaksanaan pasien setelah operasi?
+
+
+
+Catatan pemulihan / masalah alat (jika ada):
+............................................................................................
+
+..............................................................................................................................
+
+Acuan: WHO Surgical Safety Checklist (2009). Pertanyaan tambahan pada
+halaman berikut disusun untuk kebutuhan proyek RME dan perlu disesuaikan
+dengan SOP rumah sakit.
+
+C. Pertanyaan Tambahan Terpilih untuk Web RME
+
+Delapan pertanyaan berikut dipilih dari rancangan sebelumnya untuk memperjelas
+pencatatan. Bagian ini adalah pengembangan formulir RME, bukan tambahan item
+wajib dari WHO.
+
+      1. Konfirmasi tindakan operasi
+     Apakah nama prosedur dalam catatan operasi sudah sesuai dengan tindakan yang
+6.   benar-benar dilakukan?
+
+     ☐ Sesuai    ☐ Belum sesuai
+
+     Jika ada perubahan atau tindakan tambahan saat operasi, apakah sudah dicatat?
+7.
+     ☐ Sudah      ☐ Belum      ☐ Tidak ada perubahan
+
+
+
+ 2. Penghitungan instrumen, kasa, dan jarum
+
+     Jika ditemukan selisih jumlah instrumen, kasa, atau jarum, apakah tindak lanjut
+8.   sesuai SOP sudah dilakukan?
+
+     ☐ Sudah      ☐ Belum      ☐ Tidak ada selisih
+
+
+
+ 3. Pemeriksaan specimen
+
+     Jika ada spesimen, apakah jenis dan asal spesimen sudah sesuai dengan labelnya?
+9
+     ☐ Sesuai    ☐ Belum sesuai      ☐ Tidak ada spesimen
+
+
+
+ 4. Masalah peralatan
+
+     Jika ada alat yang bermasalah, apakah jenis masalah dan tindak lanjutnya sudah
+10   dicatat?
+
+     ☐ Sudah      ☐ Belum      ☐ Tidak ada masalah
+
+
+
+ 5. Rencana pemulihan pasien
+
+     Jika ada kejadian penting atau komplikasi selama operasi, apakah sudah
+11   disampaikan kepada tim?
+
+     ☐ Sudah      ☐ Belum      ☐ Tidak ada komplikasi
+        Apakah kebutuhan pemantauan pascaoperasi, seperti pernapasan, perdarahan, dan
+  12    nyeri, sudah dibahas?
+
+        ☐ Sudah      ☐ Belum
+
+        Apakah kondisi alat yang masih terpasang (jika ada) dan instruksi perawatan
+  13    lanjutan sudah disampaikan?
+
+        ☐ Sudah      ☐ Belum      ☐ Tidak berlaku
+
+D. Catatan dan Penyelesaian Pemeriksaan
+
+ Masalah yang ditemukan dan tindakan yang dilakukan:
+
+ ________________________________________________________________
+ __________________
+
+ ________________________________________________________________
+ __________________
+
+ ________________________________________________________________
+ __________________
+
+Waktu Sign Out: ____________________
+
+Nama/paraf petugas: __________________________
+
+Status: ☐ Belum selesai     ☐ Perlu tindak lanjut   ☐ Selesai
+
+Keterangan Singkat untuk Tim Sistem Informasi
+
+Setiap kotak menjadi satu pertanyaan dalam web. Petugas memilih satu jawaban,
+kemudian menulis catatan jika ada masalah. Data pasien mengikuti data pada Sign
+In dan Time Out. Untuk menjaga tampilan tetap sederhana, pertanyaan tambahan
+dapat ditampilkan hanya saat diperlukan.
+03. HAL YANG PERLU DIBUAT DALAM WEB
+
+Bagian Sign Out cukup dibuat sebagai satu halaman yang terhubung dengan data
+pasien dari Sign In dan Time Out. Hal yang perlu disediakan adalah:
+
+   1. Data pasien dan tindakan operasi ditampilkan dari RME.
+   2. Lima pertanyaan dengan pilihan jawaban sesuai formulir.
+   3. Kolom catatan untuk menuliskan masalah dan tindak lanjut.
+   4. Nama petugas dan waktu pengisian.
+   5. Jawaban diisi setelah pemeriksaan, bukan tercentang otomatis.
+
+04. ALUR PENGISIAN SIGN OUT
+
+A. Urutan Penggunaan
+
+   1. Buka data pasien dan pilih menu SSC – Sign Out.
+   2. Tim mengonfirmasi lima pemeriksaan Sign Out secara lisan.
+   3. Petugas memilih jawaban serta menulis catatan jika ada masalah.
+   4. Setelah lengkap, simpan hasil ke RME pasien.
+
+B. Status Formulir
+
+Status formulir hanya menunjukkan apakah pemeriksaan Sign Out sudah selesai
+atau masih perlu dilengkapi.
+
+   1. Draf (belum selesai). Masih ada pertanyaan yang belum diisi. Formulir
+       boleh disimpan sementara.
+   2. Perlu tindak lanjut (ada masalah). Ada hasil pemeriksaan yang belum
+       sesuai, misalnya jumlah kasa berbeda. Masalah dan tindakan yang
+       dilakukan harus dicatat.
+   3. Terverifikasi (selesai). Semua pemeriksaan sudah dilakukan dan masalah
+       penting sudah ditangani. Hasil dicatat bersama nama petugas dan waktu
+       pemeriksaan.
+05. CONTOH PENGISIAN DAN HUBUNGANNYA DENGAN SSC LAIN
+
+A. Contoh Pengisian
+
+Contoh berikut menggunakan data fiktif. Seorang pasien selesai menjalani operasi
+hernia. Menjelang akhir operasi, perawat bersama tim melakukan Sign Out.
+Hasilnya, seluruh penghitungan sesuai, tidak ada spesimen, peralatan tidak
+bermasalah, dan rencana perawatan telah dibahas.
+
+Komponen                           Contoh hasil
+
+Pasien                             Pasien Contoh A – No. RM DEMO-001
+
+Prosedur operasi                   Operasi hernia – sesuai
+
+Instrumen, kasa, dan jarum         Sesuai
+
+Spesimen                           Tidak ada spesimen
+
+Masalah peralatan                  Tidak ada
+
+Rencana pemulihan                  Sudah dibahas
+
+                                   Terverifikasi setelah seluruh pemeriksaan
+Status
+                                   dilakukan
+
+
+
+B. Hubungan dengan Sign In dan Time Out
+
+Sign In, Time Out, dan Sign Out sebaiknya berada dalam satu menu SSC pada web
+RME. Ketiganya menggunakan identitas pasien dan data operasi yang sama, tetapi
+pertanyaannya berbeda sesuai waktu pemeriksaan. Dengan begitu, petugas dapat
+melihat urutan pemeriksaan dari awal sampai akhir operasi tanpa mengisi data
+pasien berulang kali.
+
+Bagian Sign In dan Time Out dapat dikerjakan oleh anggota kelompok lain. Untuk
+Sign Out, materi serta contoh formulir pada dokumen ini sudah menunjukkan
+pemeriksaan yang perlu ditampilkan di web.

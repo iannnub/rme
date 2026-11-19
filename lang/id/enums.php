@@ -1,0 +1,260 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'role' => [
+        'perawat' => 'Perawat',
+        'dokter_operator' => 'Dokter Operator',
+        'dokter_anestesi' => 'Dokter Anestesi',
+        'kepala_ruangan' => 'Kepala Ruangan',
+        'admin' => 'Admin',
+    ],
+    'nurse_type' => [
+        'sirkuler' => 'Perawat Sirkuler',
+        'instrumen' => 'Perawat Instrumen',
+        'anestesi' => 'Perawat Anestesi',
+    ],
+    'case_status' => [
+        'pre_op' => 'Pre-Operasi',
+        'siap_operasi' => 'Siap Operasi',
+        'intra_op' => 'Intra-Operasi',
+        'pasca_op' => 'Pasca-Operasi',
+        'serah_terima' => 'Serah Terima',
+        'selesai' => 'Selesai',
+    ],
+    'gender' => [
+        'L' => 'Laki-laki',
+        'P' => 'Perempuan',
+    ],
+    'signoff_section' => [
+        'preop' => 'Pre-Operasi',
+        'intraop' => 'Intra-Operasi',
+        'postop' => 'Pasca-Operasi',
+        'sign_in' => 'SSC Sign In',
+        'time_out' => 'SSC Time Out',
+        'sign_out' => 'SSC Sign Out',
+        'handover' => 'Serah Terima',
+    ],
+    'signoff_kind' => [
+        'signoff' => 'Pengesahan',
+        'verification' => 'Verifikasi',
+    ],
+    'allergy_status' => [
+        'ada' => 'Ada',
+        'tidak_ada' => 'Tidak Ada',
+        'belum_diketahui' => 'Belum Diketahui',
+    ],
+    'anxiety_level' => [
+        'tidak_cemas' => 'Tidak Cemas',
+        'ringan' => 'Ringan',
+        'sedang' => 'Sedang',
+        'berat' => 'Berat',
+    ],
+    'readiness_status' => [
+        'siap' => 'Siap',
+        'belum_siap' => 'Belum Siap',
+    ],
+    'exam_type' => [
+        'hemoglobin' => 'Hemoglobin (Hb)',
+        'leukosit' => 'Leukosit',
+        'trombosit' => 'Trombosit',
+        'gula_darah' => 'Gula Darah',
+        'ureum_kreatinin' => 'Ureum / Kreatinin',
+        'xray' => 'Foto Rontgen (X-Ray)',
+        'usg' => 'Ultrasonografi (USG)',
+        'ct_scan' => 'CT Scan',
+        'mri' => 'Magnetic Resonance Imaging (MRI)',
+        'mammografi' => 'Mammografi',
+        'panoramic' => 'Foto Panoramic Gigi',
+        'ekg' => 'Elektrokardiografi (EKG)',
+        'echo' => 'Ekokardiografi (ECHO)',
+        'treadmill' => 'Treadmill Test',
+        'lainnya' => 'Pemeriksaan Lainnya',
+    ],
+    'vital_sign_phase' => [
+        'pre' => 'Pre-Operasi',
+        'intra' => 'Intra-Operasi',
+        'post' => 'Pasca-Operasi',
+    ],
+    'consciousness' => [
+        'compos_mentis' => 'Compos Mentis',
+        'apatis' => 'Apatis',
+        'somnolen' => 'Somnolen',
+        'sopor' => 'Sopor',
+        'koma' => 'Koma',
+    ],
+    'breathing_pattern' => [
+        'eupnea' => 'Eupnea',
+        'takipnea' => 'Takipnea',
+        'bradipnea' => 'Bradipnea',
+        'apnea' => 'Apnea',
+        'dispnea' => 'Dispnea',
+    ],
+    'oxygen_device' => [
+        'tanpa_oksigen' => 'Tanpa Oksigen',
+        'nasal_kanul' => 'Nasal Kanul',
+        'simple_mask' => 'Simple Mask',
+        'non_rebreathing' => 'Non-Rebreathing Mask (NRM)',
+        'rebreathing' => 'Rebreathing Mask (RM)',
+        'ventilator' => 'Ventilator',
+    ],
+    'slki_expectation' => [
+        'meningkat' => 'Meningkat',
+        'menurun' => 'Menurun',
+        'membaik' => 'Membaik',
+    ],
+    'siki_section' => [
+        'observasi' => 'Observasi',
+        'terapeutik' => 'Terapeutik',
+        'edukasi' => 'Edukasi',
+        'kolaborasi' => 'Kolaborasi',
+    ],
+    'nursing_phase' => [
+        'pre' => 'Pre-Operasi',
+        'intra' => 'Intra-Operasi',
+        'post' => 'Pasca-Operasi',
+    ],
+    'ssc_status' => [
+        'belum_dimulai' => 'Belum Dimulai',
+        'dalam_proses' => 'Dalam Proses',
+        'selesai' => 'Selesai',
+    ],
+    'ssc_match_status' => [
+        'sesuai' => 'Sesuai',
+        'tidak_sesuai' => 'Tidak Sesuai',
+    ],
+    'ssc_consent_status' => [
+        'ada' => 'Ada',
+        'belum_ada' => 'Belum Ada',
+    ],
+    'site_marking_status' => [
+        'ada' => 'Ada',
+        'tidak_ada' => 'Tidak Ada',
+        'tidak_berlaku' => 'Tidak Berlaku',
+    ],
+    'ssc_readiness' => [
+        'siap' => 'Siap',
+        'tidak_siap' => 'Tidak Siap',
+    ],
+    'risk_presence' => [
+        'ada' => 'Ada',
+        'tidak_ada' => 'Tidak Ada',
+    ],
+    'iv_access_status' => [
+        'memadai' => 'Memadai',
+        'tidak_memadai' => 'Tidak Memadai',
+    ],
+    'blood_readiness' => [
+        'siap' => 'Siap',
+        'tidak_siap' => 'Tidak Siap',
+        'tidak_diindikasikan' => 'Tidak Diindikasikan',
+    ],
+    'sign_out_status' => [
+        'draf' => 'Draf (Belum Selesai)',
+        'perlu_tindak_lanjut' => 'Perlu Tindak Lanjut',
+        'terverifikasi' => 'Terverifikasi (Selesai)',
+    ],
+    'surgical_position' => [
+        'supine' => 'Supine',
+        'prone' => 'Prone',
+        'lithotomy' => 'Lithotomy',
+        'lateral_kiri' => 'Lateral Kiri',
+        'lateral_kanan' => 'Lateral Kanan',
+        'trendelenburg' => 'Trendelenburg',
+        'fowler' => 'Fowler',
+        'semi_fowler' => 'Semi-Fowler',
+    ],
+    'skin_integrity' => [
+        'utuh' => 'Utuh',
+        'lesi' => 'Lesi',
+    ],
+    'fluid_direction' => [
+        'intake' => 'Cairan Masuk (Intake)',
+        'output' => 'Cairan Keluar (Output)',
+    ],
+    'fluid_kind' => [
+        'kristaloid' => 'Kristaloid (RL/NS/D5)',
+        'koloid' => 'Koloid / Gelatin',
+        'transfusi' => 'Transfusi Darah (PRC/FFP/TC)',
+        'perdarahan' => 'Estimasi Perdarahan',
+        'urine' => 'Urine (Kateter)',
+        'suction_drain' => 'Cairan Suction / Washing / Drain',
+    ],
+    'fluid_color' => [
+        'merah' => 'Merah',
+        'merah_muda' => 'Merah Muda',
+        'kekuningan' => 'Kekuningan',
+        'kehijauan' => 'Kehijauan',
+        'kecoklatan' => 'Kecoklatan',
+    ],
+    'fluid_odor' => [
+        'tidak_berbau' => 'Tidak Berbau',
+        'berbau' => 'Berbau',
+    ],
+    'instrument_count_item' => [
+        'kasa_steril' => 'Kasa Steril (Gauze)',
+        'kasa_laparotomi' => 'Kasa Laparotomi (Towel / Roll)',
+        'jarum' => 'Jarum Bedah (Needles)',
+        'pisau' => 'Pisau Bedah (Bisturi / Blade)',
+        'instrumen_set' => 'Instrumen Bedah Set (Alat)',
+    ],
+    'instrument_count_status' => [
+        'S' => 'Sesuai (S)',
+        'TS' => 'Tidak Sesuai (TS)',
+    ],
+    'count_verification' => [
+        'lengkap_sesuai' => 'Lengkap & Sesuai',
+        'tidak_sesuai' => 'Tidak Sesuai / Kurang',
+    ],
+    'specimen_purpose' => [
+        'patologi_anatomi' => 'Patologi Anatomi (PA)',
+        'sitologi' => 'Sitologi',
+        'mikrobiologi_kultur' => 'Mikrobiologi / Kultur Cairan',
+    ],
+    'specimen_preservative' => [
+        'formalin_10' => 'Formalin 10%',
+        'nacl_09' => 'NaCl 0,9%',
+        'fresh' => 'Tanpa Pengawet (Fresh)',
+    ],
+    'general_condition' => [
+        'baik' => 'Baik',
+        'sedang' => 'Sedang',
+        'buruk' => 'Buruk',
+    ],
+    'patient_response' => [
+        'stabil' => 'Stabil',
+        'lemah' => 'Lemah',
+    ],
+    'airway_patency' => [
+        'paten' => 'Paten',
+        'tidak_paten' => 'Tidak Paten',
+        'obstruksi_parsial' => 'Obstruksi Parsial',
+        'obstruksi_total' => 'Obstruksi Total',
+    ],
+    'dressing_condition' => [
+        'bersih' => 'Bersih',
+        'kering' => 'Kering',
+        'basah' => 'Basah',
+    ],
+    'suture_condition' => [
+        'rapi_utuh' => 'Rapi / Utuh',
+        'terlepas' => 'Ada Jahitan Terlepas',
+    ],
+    'pain_character' => [
+        'tajam' => 'Tajam',
+        'tumpul' => 'Tumpul',
+        'berdenyut' => 'Berdenyut',
+    ],
+    'analgesic_response' => [
+        'berkurang' => 'Nyeri Berkurang',
+        'tetap' => 'Nyeri Tetap',
+        'bertambah' => 'Nyeri Bertambah',
+    ],
+    'handover_destination' => [
+        'pacu' => 'Ruang Pemulihan (PACU)',
+        'ruang_rawat_inap' => 'Ruang Rawat Inap',
+        'icu' => 'ICU',
+        'lainnya' => 'Lainnya',
+    ],
+];

@@ -1,0 +1,852 @@
+INTERVENSI
+
+SIKI
+Risiko Hipotermia (D.0140)
+
+   1. Kriteria hasil Termoregulasi (L.14134)
+      Ekspetasi: Membaik
+         •   Menggigil menurun (5)
+         •   Kulit merah menurun (5)
+         •   Kejang menurun (5)
+         •   Akrosianosis menurun (5)
+         •   Konsumsi oksigen menurun (5)
+         •   Piloereksi menurun (5)
+         •   Vasokonstriksi perifer menurun (5)
+         •   Kutis memorata menurun (5)
+         •   Pucat menurun (5)
+         •   Takikardi menurun (5)
+         •   Takipnea menurun (5)
+         •   Bradikardi menurun (5)
+         •   Dasar kuku sianotik menurun (5)
+         •   Hipoksia menurun (5)
+         •   Suhu tubuh membaik (5)
+         •   Suhu kulit membaik (5)
+         •   Kadar glukosa darah membaik (5)
+         •   Pengisiaan kapiler membaik (5)
+         •   Ventilasi membaik (5)
+         •   Tekanan darah membaik (5)
+   2. Intervensi Keperawatan
+      1. Manajemen Hipotermia (I.14507)
+      Observasi:
+         •   Monitor suhu tubuh
+         •   Identifikasi penyebab hipotermia (mis. terpapar suhu lingkungan rendah,
+             pakaian tipis, kerusakan hipotalamus, penurunan laju metabolisme, kekurangan
+             lemak subkutan)
+         •   Monitor tanda dan gejala akibat hipotermia (Hipotermia ringan takipnea,
+             disartria, menggigil, hipertensi, diuresis, Hipotermia sedang: aritmia, hipotensi,
+   spatis, koagulopati, refleks menurun; Hipotermia berat: oliguria, refleks
+   menghilang, edema paru, asam-basa abnormal)
+
+Terapeutik:
+
+   •   Sediakan lingkungan yang hangat (mis. atur suhu ruangan, inkubator)
+   •   Ganti pakaian dan/atau linen yang basah
+   •   Lakukan penghangatan pasif (mis, selimut, menutup kepala, pakaian tebal)
+   •   Lakukan penghangatan aktif eksternal (mis, kompres hangat, botol hangat,
+       selimut hangat, perawatan metode kangguru)
+   •   Lakukan penghangatan aktif internal (mis. infus cairan nangat, oksigen
+       hangat, lavase peritoneal dengan cairan hangat)
+
+   Edukasi:
+
+       •   Anjurkan makan/minum hangat
+2. Regulasi temperatur (I.14578)
+
+   Observasi:
+
+       •   Monitor suhu bayi sampai stabil (36,5°C-37,5°C)
+       •   Monitor suhu tubuh anak tiap dua jam, jika perlu
+       •   Monitor tekanan darah, frekuensi pemapasan dan nadi
+       •   Monitor warna dan suhu kulit
+       •   Monitor dan catat tanda dan gejala hipotermia atau hipertermia
+
+   Terapeutik:
+
+       •   Pasang alat pemantau suhu kontinu, jika perlu
+       •   Tingkatkan asupan cairan dan nutrisi yang adekuat
+       •   Bedong bayi segera setelah lahir untuk mencegah kehilangan panas
+       •   Masukkan bayi BBLR ke dalam plastik segera setelah lahir (mis. bahan
+           polyethylene, polyurethane)
+       •   Gunakan topi bayi untuk mencegah kehilangan panas pada bayi baru
+           lahir
+       •   Tempatkan bayi baru lahir di bawah radiant warmer
+       •   Pertahankan kelembaban Inkubator 50% atau lebih untuk mengurangi
+           kehilangan panas karena proses evaporasi
+   •   Atur suhu inkubator sesuai kebutuhan
+   •   Hangatkan terlebih dahulu bahan-bahan yang akan kontak dengan bayi
+       (mis. selimut, kain bedongan, stetoskop)
+   •   Hindari meletakkan bayi di dekat jendela terbuka atau di area aliran
+       pendingin ruangan alau kipas angina
+   •   Gunakan matras penghangat, selimut hangat, dan penghangat ruangan
+       untuk menaikkan suhu tubuh, jika perlu
+   •   Gunakarı kasur pendingin, water circulating blankets, ice pack atau gel
+       pad dan intravascular cooling catheterization untuk menurunkan suhu
+       tubuh
+   •   Sesuaikan suhu lingkungan dengan kebutuhan pasien
+
+Edukasi:
+
+   •   Jelaskan cara pencegahan heat exhaustion dan heat stroke
+   •   Jelaskan cara pencegahan hipotermi karena terpapar udara dingin
+   •   Demonstrasikan teknik perawatan metode kanguru (PMK) untuk bayi
+       BBLR
+
+Kolaborasi;
+
+   •   Kolaborasi pemberian antipiretik, jika perlu
+Risiko Aspirasi (D.0006)
+
+   1. Kriteria hasil Tingkat aspirasi ( L.01006)
+      Ekspektasi Menurun
+              •   Tingkat kesadaran meningkat (5)
+              •   Kemampuan menelan meningkat (5)
+              •   Kebersihan mulut meningkat (5)
+              •   Dispnea menurun (5)
+              •   Kelemahan otot menurun (5)
+              •   Akumulasi secret menurun (5)
+              •   Wheezing menurun (5)
+              •   Batuk menurun (5)
+              •   Penggunaan otot aksesoris menurun (5)
+              •   Sianosis menurun (5)
+              •   Gelisah menurun (5)
+              •   Frekuensi napas membaik (5)
+   2. Intervensi Keperawatan
+      1. Manajemen jalan napas (I.01011)
+          Observasi:
+             •    Monitor pola napas (frekuensi, kedalaman, usaha napas)
+             •    Monitor bunyi napas tambahan (misalnya: gurgling, mengi, wheezing,
+                  ronchi kering)
+             •    Monitor sputum (jumlah, warna, aroma
+
+          Terapeutik:
+
+             •    Pertahankan kepatenan jalan napas menggunakan head-tilt dan chin-lift
+                  (jaw-thrust jika curiga trauma fraktur servikal)
+             •    Posisikan semi-Fowler atau Fowler
+             •    Berikan minum hangat
+             •    Lakukan fisioterapi dada, jika perlu
+             •    Lakukan penghisapan lendir kurang dari 15 detik (bukan secara
+                  berkepanjangan)
+             •    Berikan oksigen, jika perlu
+      •        Keluarkan sumbatan benda padat menggunakan forsep McGill
+   Edukasi:
+
+      •        Anjurkan asupan cairan sekitar 2.000 ml/hari, jika tidak kontraindikasi
+      •        Ajarkan teknik batuk efektif
+   Kolaborasi:
+
+      •        Kolaborasi pemberian bronkodilator, ekspektoran, atau mukolitik (sesuai
+               indikasi medis)
+2. Pencegahan aspirasi (I.01018)
+   Obsevasi:
+      •        Monitor tingkat kesadaran, batuk, muntah dan kemampuan menelan
+      •        Monitor status pernapasan
+      •        Monitor bunyi napas, terutama setelah makan/minum
+      •        Periksa residu gaster sebelum memberi asupan oral
+      •        Periksa kepatenan selang nasogastrik sebelum memberi asupan oral
+
+   Terapeutik:
+
+       •       Posisikan semi Fowler (30-45 derajat) 30 menit sebelum memberi asupan
+               oral
+       •       Pertahankan posisi semi Fowler (30-45 derajat) pada pasien tidak sadar
+       •       Pertahankan kepatenan jalan napas (mis. teknik head tilt chin lift, jaw
+               thrust, in line)
+       •       Pertahankan pengembangan balon endotracheal tube (ETT)
+       •       Lakukan penghisapan jalan napas, jika produksi sekret meningkat
+       •       Sediakan suction di ruangan
+       •       Hindari memberi makan melalui selang gastrointestinal, jika residu banyak
+       •       Berikan makanan dengan ukuran kecil atau lunak
+       •       Berikan obat oral dalam bentuk cair
+
+     Edukasi:
+
+           •     Anjurkan makan secara perlahan
+           •     Ajarkan strategi mencegah aspirasi
+           •     Ajarkan teknik mengunyah atau menelan, jika perlu
+Defisit Perawatan Diri ( D.0109)
+
+   1. Kriteria hasil Perawatan diri (L.11103)
+      Ekspetasi Meningkat
+          •    Kemampuan mandi meningkat (5)
+          •    Kemampuan nengenakan pakaian meningkat (5)
+          •    Kemampuan makan meningkat (5)
+          •    Kemampuan ke toilet (BAB/BAK) meningkat (5)
+          •    Verbalisasi keinginan melakukan perawatan diri meningkat (5)
+          •    Minat melakukan perawatan diri meningkat (5)
+          •    Mempertahankan kebersihan tubuh meningkat (5)
+          •    Mempertahankan kebersihan mulut meningkat (5)
+   2. Intervensi Keperawatan
+      1. Dukungan Perawatan Diri (I.11348)
+          Observasi:
+               •       Identifikasi kebiasaan aktivitas perawatan diri sesuai usia
+               •       Monitor tingkat kemandirian
+               •       Identifikasi kebutuhan alat bantu kebersihan diri, berpakaian, berhias, dan
+                       makan
+
+           Terapeutik:
+
+               •       Sediakan lingkungan yang terapeutik (mis. suasana hangat, rileks, privasi)
+               •       Siapkan keperluan pribadi (mis. parfum, sikat gigi, dan sabun mandi)
+               •       Dampingi dalam melakukan perawatan diri sampai mandiri
+               •       Fasilitasi untuk menerima keadaan ketergantungan
+               •       Fasilitasi kemandirian, bantu jika tidak mampu melakukan perawatan diri
+               •       Jadwalkan rutinitas perawatan diri
+
+              Edukasi:
+
+                   •     Anjurkan melakukan perawatan diri secara konsisten sesuai kemampuan
+      2. Dukungan Perawatan Diri: BAB/BAK (I.11349)
+          Observasi:
+          •     Identifikasi kebiasaan BAK/BAB sesuai usia
+          •     Monitor integritas kulit pasien
+
+   Terapeutik:
+
+      •       Buka pakaian yang diperlukan untuk memudahkan eliminası
+      •       Dukung penggunaan toilet/commode/pispot/urinal secara konsisten
+      •       Jaga privasi selama eliminasi
+      •       Ganti pakalan pasien setelah eliminasi, jika perlu
+      •       Bersihkan alat bantu BAK/BAK setelah digunakan
+      •       Latih BAK/BAB sesuai jadwal, jika perlu
+      •       Sediakan alat bantu (mis. kateter eksternal, urinal), jika pertu
+
+     Edukasi:
+
+          •     Anjurkan BAK/BAB secara rutin
+          •     Anjurkan ke kamar mandi/toilet, jika perlu
+3. Dukungan Perawatan Diri: Berhias (I.11303)
+   Observasi:
+      •       Mengidentifikasi kebiasaan berhias diri sesuai usia dan budaya.
+
+      •       Mengidentifikasi kekuatan dan tingkat kemandirian pasien dalam berhias.
+
+   Terapeutik:
+
+      •       Menyiapkan perlengkapan berhias (seperti sisir, cermin, alat cukur, atau alat
+              rias).
+      •       Memberikan bantuan saat pasien belum mampu berhias secara mandiri,
+              namun tetap mendorong partisipasi aktif pasien.
+
+      •       Menciptakan lingkungan yang aman dan mendukung proses berhias.
+
+   Edukasi:
+
+      •       Menganjurkan pasien untuk melakukan berhias secara bertahap sesuai
+              kemampuan.
+      •       Melibatkan keluarga atau pendamping dalam mendampingi pasien menjaga
+              penampilan diri.
+4. Dukungan Perawatan Diri: Berpakaian (I.11350)
+   Observasi:
+
+          •     Identifikasi usia dan budaya dalam membantu berpakaian/berhias
+
+   Terapeutik:
+
+          •     Sediakan pakaian pada tempat yang mudah dijangkau
+
+          •     Sediakan pakaian pribadi, sesuai kebutuhan
+
+          •     Fasilitasi mengenakan pakaian, jika perlu
+
+          •     Fasilitasi berhias (mis: menyisir rambut, merapikan kumis/jenggot)
+
+          •     Jaga privasi selama berpakaian
+
+          •     Tawarkan untuk laundry, jika perlu
+
+          •     Berikan pujian terhadap kemampuan berpakaian secara mandiri
+
+   Edukasi:
+
+      •       Informasikan pakaian yang tersedia untuk dipilih, jika perlu
+
+      •       Ajarkan menggunakan pakaian, jika perlu
+
+5. Dukungan Perawatan Diri: Makan/Minum (I.11351)
+   Observasi:
+
+      •       Identifikasi diet yang dianjurkan
+
+      •       Monitor kemampuan menelan
+
+      •       Monitor status hidrasi pasien, jika perlu
+
+   Terapeutik:
+
+      •       Ciptakan lingkungan yang menyenangkan selama makan
+
+      •       Atur posisi yang nyaman untuk makan/minum
+
+      •       Lakukan oral hygiene sebelum makan, jika perlu
+      •   Letakkan makanan di sisi mata yang sehat
+
+      •   Sediakan sedotan untuk minum, sesuai kebutuhan
+
+      •   Siapkan makanan dengan suhu yang meningkatkan nafsu makan
+
+      •   Sediakan makanan dan minuman yang disukai
+
+      •   Berikan bantuan saat makan/minum sesuai tingkat kemandirian, jika perlu
+
+      •   Motivasi untuk makan di ruang makan, jika tersedia
+
+   Edukasi:
+
+      •   Jelaskan posisi makanan pada pasien yang mengalami gangguan
+          penglihatan dengan menggunakan arah jarum jam (mis: sayur di jam 12,
+          rendang di jam 3)
+
+   Kolaborasi:
+
+      •   Kolaborasi pemberian obat (mis: analgesik, antiemetik), sesuai indikasi
+
+6. Dukungan Perawatan Diri: Mandi (I.11352)
+   Observasi:
+
+      •   Identifikasi usia dan budaya dalam membantu kebersihan diri
+
+      •   Identifikasi jenis bantuan yang dibutuhkan
+
+      •   Monitor kebersihan tubuh (mis: rambut, mulut, kulit, kuku)
+
+      •   Monitor integritas kulit
+
+   Terapeutik
+
+      •   Sediakan peralatan mandi (mis: sabun, sikat gigi, shampoo, pelembab
+          kulit)
+
+      •   Sediakan lingkungan yang aman dan nyaman
+
+      •   Fasilitasi menggosok gigi, sesuai kebutuhan
+
+      •   Fasilitasi mandi, sesuai kebutuhan
+   •   Pertahankan kebiasaan kebersihan diri
+
+   •   Berikan bantuan sesuai tingkat kemandirian
+
+Edukasi:
+
+   •   Jelaskan manfaat mandi dan dampak tidak mandi terhadap Kesehatan
+
+   •   Ajarkan kepada keluarga cara memandikan pasien, jika perlu
+Nyeri akut (D.0077)
+1. Kriteria hasil tingkat nyeri (L. 08066)
+   Ekspetasi: menurun
+   •   Keluhan nyeri menurun (5)
+   •   Meringis menurun (5)
+   •   Sikap protektif menurun (5)
+   •   Gelisah menurun (5)
+   •   Kesulitan tidur menurun (5)
+   •   Menarik diri menurun (5)
+   •   Berfokus pada diri sendiri menurun (5)
+   •   Diaforesis menurun (5)
+   •   Perasaan depresi (tertekan) menurun (5)
+   •   Perasaan takut mengalami menurun (5)
+   •   cedera berulang menurun (5)
+   •   Anoreksia menurun (5)
+   •   Perineum terasa tertekan menurun (5)
+   •   Uterus teraba membulat menurun (5)
+   •   Ketegangan otot menurun (5)
+   •   Pupil dilatasi menurun (5)
+   •   Muntah menurun (5)
+   •   Mual menurun (5)
+   •   Frekuensi nadi membaik (5)
+   •   Pola napas membaik (5)
+   •   Tekanan darah membaik (5)
+   •   Proses berpikir membaik (5)
+   •   Fokus membaik (5)
+   •   Fungsi berkemih membaik (5)
+   •   Perilaku membaik (5)
+   •   Nafsu makan membaik (5)
+   •   Pola tidur membaik (5)
+2. Intervensi
+   a. Manajemen Nyeri (I.08238)
+   1) Observasi
+      •   Identifikasi lokasi, karakteristik, durasi, frekuensi, kualitas,
+          intensitas nyeri
+      •   Identifikasi skala nyeri
+      •   Identifikasi faktor yang memperberat dan memperingan nyeri
+      •   Identifikasi pengaruh nyeri pada kualitas hidup
+      •   Monitor efek samping penggunaan analgetik
+   2) Terapeutik
+      •   Berikan Teknik nonfarmakologis untuk mengurangi nyeri (mis:
+          hypnosis, akupresur, terapi music, biofeedback, aromaterapi,
+          kompres hangat/dingin)
+      •   Kontrol lingkungan yang memperberat rasa nyeri (mis: suhu
+          ruangan, pencahayaan, kebisingan)
+      •   Fasilitasi istirahat dan tidur
+   3) Edukasi
+      •   Jelaskan penyebab, periode, dan pemicu nyeri
+      •   Jelaskan strategi meredakan nyeri
+      •   Anjurkan memonitor nyeri secara mandiri
+   4) Terapeutik
+      •   Kolaborasi pemberian analgetik, jika perlu
+
+
+b. Pemberian Analgesik (I.08243)
+   1) Observasi
+      •   Identifikasi karakteristik nyeri (mis: pencetus, pereda, kualitas,
+          lokasi, intensitas, frekuensi, durasi) Rasa
+      •   Identifikasi Riwayat alergi obat
+      •   Identifikasi kesesuaian jenis analgesik (mis: narkotika, non-
+          narkotik, atau NSAID) dengan tingkat keparahan nyeri
+      •   Monitor tanda-tanda vital sebelum dan sesudah pemberian
+          analgesic
+      •   Monitor efektifitas analgesik
+   2) Terapeutik
+               •   Diskusikan jenis analgesik yang disukai untuk mencapai
+                   analgesia optimal, jika perlu
+               •   Pertimbangkan penggunaan infus kontinu, atau bolus opioid
+                   untuk mempertahankan kadar dalam serum
+               •   Dokumentasikan respons terhadap efek analgesik dan efek yang
+                   tidak diinginkan
+            3) Edukasi
+               •   Jelaskan efek terapi dan efek samping obat
+            4) Kolaborasi
+               •   Kolaborasi pemberian dosis dan jenis analgesik, sesuai indikasi
+
+Resiko infeksi (D.0142)
+
+  1. Kriteria hasil tingkat infeksi (L. 14137)
+     Ekspetasi : menurun
+
+     •   demam menurun (5)
+
+     •   Kemerahan menurun(5)
+
+     •   Nyeri menurun (5)
+
+     •   Bengkak menurun (5)
+
+     •   Vesikel menurun (5)
+
+     •   Cairan berbau busuk menurun (5)
+
+     •   Sputum bewarna hijau menurun (5)
+
+     •   Drainase purulent menurun (5)
+
+     •   Pyuria menurun (5)
+
+     •   Periode malaise (5)
+
+     •   Periode menggigil (5)
+
+     •   Letargi menurun (5)
+
+     •   Gangguan kognitif menurun (5)
+   •   Kadar sel darah putih membaik (5)
+
+2. Intervensi
+   a. Pencegahan infeksi (I. 15439)
+          1) Observasi
+                •    Monitor tanda dan gejala infeksi lokal dan sistemik
+         2) Terapeutik
+                •    Batasi jumlah pengunjung
+                •    Berikan perawatan kulit pada area edema
+                •    Cuci tangan sebelum dan sesudah kontak dengan pasien dan
+                     lingkungan pasien
+                •    Pertahankan teknik aseptic pada pasien berisiko tinggi
+         3) Edukasi
+                •    Jelaskan tanda dan gejala infeksi
+                •    Ajarkan cara memeriksa kondisi luka atau luka operasi
+                •    Anjurkan meningkatkan asupan nutrisi
+                •    Anjurkan meningkatkan asupan cairan
+
+
+   b.Perawatan luka (I.14564)
+         1) Observasi
+            •       Monitor karakteristik luka (mis, drainase, warna, ukuran, bau)
+            •       Monitor tanda-tanda infeksi
+
+         2) Terapeutik
+
+                •   Lepaskan balutan dan plester secara perlahan Cukur rambut di
+                    sekitar daerah luka, jika perlu
+                •   Bersihkan dengan cairan NaCl atau pembersih nontoksik, sesuai
+                    kebutuhan
+                •   Bersihkan jaringan nekrotik
+                •   Berikan salep yang sesuai ke kulit/lesi, jika perlu
+                •   Pasang balutan sesuai jenis luka
+                •   Pertahankan teknik steril saat melakukan perawatan luka
+                •   Ganti balutan sesuai jumlah eksudat dan drainase
+                      •   Jadwalkan perubahan posisi setiap 2 jam atau sesuai kondisi
+                          pasien
+                      •   Berikan diet dengan kalori 30-35 kkal/kgBB/hari dan protein
+                          1.25-1,5 g/kgBB/hari
+                 3) Edukasi
+                          •   Jelaskan tanda dan gejala infeksi
+                          •   Anjurkan mengkonsumsi makanan tinggi kalori dan protein
+                              Ajarkan prosedur perawatan luka secara mandiri
+                     4) Kolaborasi
+                          •   Kolaborasi prosedur debridement (mis, enzimatik, biologis,
+                              mekanis, autolitik), jika perlu
+
+
+   Gangguan Integritas Kulit/Jaringan (D.0129)
+A. Luaran Utama: Integritas Kulit dan Jaringan (L.14125)
+   Ekspetasi: Meningkat
+   Kriteria Hasil:
+    •   Elasitisitas meningkat (5)
+    •   Hidrasi meningkat (5)
+    •   Perfusi jaringan meningkat (5)
+    •   Kerusakan jaringan menurun (5)
+    •   Kerusakan kulit menurun (5)
+    •   Nyeri menurun (5)
+    •   Perdarahan menurun (5)
+    •   Kemerahan menurun (5)
+    •   Hematoma menurun (5)
+    •   Pigmentasi abnormal menurun (5)
+    •   Nekrosis menurun (5)
+    •   Abrasi kornea menurun (5)
+    •   Suhu kulit membaik (5)
+    •   Sensasi membaik (5)
+    •   Tekstur membaik (5)
+    •   Pertumbuhan rambut membaik (5)
+    •   Jaringan parut membaik (5)
+B. Intervensi Keperawatan: Perawatan Integritas Kulit (I.11353)
+   Tindakan
+1. Observasi
+    - Identifikasi penyebab gangguan integritas kulit (mis. perubahan sirkulasi, perubahan
+        status nutrisi, penurunan kelembaban, suhu lingkungan ekstrem, penurunan mobilitas)
+2. Terapeutik
+    - Ubah posisi setiap 2 jam jika tirah baring
+    - Lakukan pemijatan pada area penonjolan tulang, jika perlu
+    - Bersihkan perineal dengan air hangat, terutama selama periode diare
+    - Gunakan produk berbahan petrolium atau minyak pada kulit kering
+    - Gunakan produk berbahan ringan/alami dan hipoalergik pada kulit sensitif
+    - Hindari produk berbahan dasar alkohol pada kulit kering
+3. Edukasi
+    - Anjurkan menggunakan pelembap (mis. lotion, serum)
+    - Anjurkan minum air yang cukup
+    - Anjurkan meningkatkan asupan nutrisi
+    - Anjurkan meningkatkan asupan buah dan sayur
+    - Anjurkan menghindari terpapar suhu ekstrem
+    - Anjurkan menggunakan tabir surya SPF minimal 30 saat berada di luar rumah
+    - Anjurkan mandi dan menggunakan sabun secukupnya
+
+
+   Risiko Disfungsi Motilitas Gastrointestinal (D.0033)
+A. Luaran Utama: Motilitas Gastrointestinal (L.03023)
+   Ekspetasi: Membaik
+   Kriteria Hasil:
+    •    Nyeri menurun (5)
+    •    Kram abdomen menurun (5)
+    •    Mual menurun (5)
+    •    Muntah menurun (5)
+    •    Regurgitasi menurun (5)
+    •    Distensi abdomen menurun (5)
+    •    Suara peristaltik membaik (5)
+    •    Pengosongan lambung membaik (5)
+   •    Flatus membaik (5)
+   •    Frekuensi BAB membaik (5)
+   •    Konsistensi feses membaik (5)
+B. Intervensi Keperawatan: Edukasi Diet (I.12369)
+   Tindakan
+1. Observasi
+   - Identifikasi kemampuan pasien dan keluarga menerima informasi
+   - Identifikasi tingkat pengetahuan saat ini
+   - Identifikasi kebiasaan pola makan saat ini dan masa lalu
+   - Identifikasi persepsi pasien dan keluarga tentang diet yang diprogramkan
+   - Identifikasi keterbatasan finansial untuk meyediakan makanan
+2. Terapeutik
+   - Persiapkan materi, media dan alat peraga
+   - Jadwaikan waktu yang tepat untuk memberikan pendidikan kesehatan
+   - Berikan kesempatan pasien dan keluarga bertanya
+   - Sediakan rencana makan tertulis, jika perlu
+3. Edukasi
+   - Jelaskan tujuan kepatuhan diet terhadap kesehatan
+   - Informasikan makanan yang diperbolehkan dan dilarang
+   - Informasikan kemungkinan interaksi obat dan makanan, jika perlu
+   - Anjurkan mempertahankan posisi semi Fowler (30-45 derajat) 20-30 menit setelah
+       makan
+   - Anjurkan mengganti bahan makanan sesuai dengan diet yang diprogramkan
+   - Anjurkan melakukan olahraga sesuai toleransi
+   - Ajarkan cara membaca label dan memilih makanan yang sesuai
+   - Ajarkan cara merencanakan makanan yang sesuai program
+   - Rekomendasikan resep makanan yang sesuai dengan diet, jika perlu
+4. Kolaborasi
+   - Rujuk ke ahli gizi dan sertakan keluarga, jika perlu
+A. Gangguan Mobilitas Fisik (D.0054)
+   Luaran Utama           : Mobilitas Fisik (L.05042)
+   Ekspektasi             : Meningkat
+   Kriteria Hasil         :
+    1. Pergerakan Ektremitas Meningkat
+    2. Kekuatan Otot Meningkat
+    3. Rentang Gerak Sendi (ROM) Meningkat
+    4. Nyeri Menurun
+    5. Cemas Menurun
+    6. Kaku Sendi Menurun
+    7. Gerakan Tidak Terkoordinasi Menuru
+    8. Gerakan Terbatas
+    9. Kelemahan Fisik
+   Intervensi Kep.        : Dukungan Ambusali (L.06171)
+   Tindakan:
+    1. Observasi
+        a. Identifikasi adanya nyeri atau keluhan fisik
+        b. Identifikasi toleransi fisik melalui ambusali
+        c. Monitor frekuensi jantung dan tekanan darah sebelum memulai ambusali
+        d. Monitor kondisi umum selama melakukan ambusali
+
+    2. Terapeutik
+       e. Fasilitasi aktivitas ambulasi dengan alat bantu (mis, tongkat, kruk)
+       f. Fasilitasi melakukan mobilisasi fisik, jika perlu
+       g. Libatkan keluarga untuk membantu pasien dalam meningkatkan ambulasi
+
+    3. Edukasi
+       h. Jelaskan tujuan dan prosedur ambulasi
+       i. Anjurkan melakukan ambulasi dini
+       j. Ajarkan ambulasi sederhana yang harus dilakukan (mis. berjalan dari temapt
+          tidur ke lu roda, berjalan dari tempat tidur ke kamar mandi, berjalan sesuai
+          toleransi)
+
+B. Inkontinensia Fekal (D.0041)
+   Luaran Utama          : Kontinensia Fekal (L.04035)
+   Ekspektasi            : Membaik
+   Kriteria Hasil        :
+       1. Kemampuan mengontrol pengeluaran fases meningkat
+       2. Penggunaan laksatif menurun
+       3. Penggunaan enema menurun
+       4. Kemampuan menunda pengeluaran fases membaik
+       5. Frekuensi BAK membaik
+       6. Kondisi kulit perianal membaik
+   Intervensi Kep.       : Latihan Eliminasi Fekal (I.04150)
+    1. Observasi
+           a. Monitor peristaltik usus secara teraturTerapeutik
+    2. Terapeutik
+          a. Anjurkan waktu yang konsisten untuk buang air besar
+          b. Berikan privasi, kenyamanan dan posisi yang meningkatkan proses
+             defekasi
+          c. Gunakan enema rendah, jika perlu
+          d. Anjurkan dilatasi rektal digital, jika perlu
+          e. Ubah program latihan elimanisi fekal, jika perlu
+    3. Edukasi
+          a. Anjurkan mengkonsumsi makanan tertentu, sesuai program atau hasil
+             konsultasi
+          b. Anjurkan asupan cairan yang adekuat sesuai kebutuhan
+           c. Anjurkan olah raga sesuai toleransi
+    4. Kolaborasi
+          a. Kolaborasi penggunaan supositoria, jika perlu
+
+C. Resiko Perdarahan (D.0012)
+   Luaran Utama           : Tingkat Perdarahan (L.02017)
+   Ekspektasi             : Menurun
+   Kriteria Hasil         :
+    1. Membran Mukosa Lembab Meningkat
+    2. Kelembapan Kulit Meningkat
+    3. Kognitif Meningkat
+    4. Hemoptisis Menurun
+    5. Hematemesis Menuru
+    6. Perdarahan Anus Menurun
+    7. Distensi Abdomen Menurun
+    8. Perdarahan Vagina Menurun
+    9. Perdarahan Pasca Operasi Menurun
+    10. Hemoglobin Membaik
+    11. Hematokrit Membaik
+    12. Tekanan Darah Membaik
+    13. Frekuensi Nadi Membaik
+    14. Suhu Tubuh Membaik
+   Intervensi Kep         : Pencegahan Perdarahan (I.02067)
+    1. Observasi
+        a. Monitor tanda dan gejala perdarahan
+        b. Monitor nilai hematokrit/hemoglobin sebelum dan setelah kehilangan darah
+        c. Monitor tanda-tanda vital ortostatik
+        d. Monitor koagulasi (mis. prothrombin time (PT), partial thromboplastin time
+            (PTT), fibrinogen,degradasi fibrin dan/atau platelet)
+
+    2. Terapeutik
+       e. Pertahankan bed rest selama perdarahan
+       f. Batasi tindakan invasif, jika perlu
+       g. Gunakan kasur pencegah dekubitus
+    h. Hindari pengukuran suhu rektal
+
+3. Edukasi
+   i. Jelaskan tanda dan gejala perdarahan
+   j. Anjurkan menggunakan kaus kaki saat ambulasi
+   k. Anjurkan meningkatkan asupan cairan untuk menghindari konstipasi
+   l. Anjurkan menghindari aspirin atau antikoagulan
+   m. Anjurkan meningkatkan asupan makanan dan vitamin K
+   n. Anjurkan segera melapor jika terjadi perdarahan
+
+4. Kolaborasi
+   o. Kolaborasi pemberian obat pengontrol perdarahan, jika perlu
+   p. Kolaborasi pemberian produk darah, jika perlu
+   q. Kolaborasi pemberian pelunak tinja, jika perlu
+A. Gangguan Mobilitas Fisik (D.0054)
+   Luaran Utama           : Mobilitas Fisik (L.05042)
+   Ekspektasi             : Meningkat
+   Kriteria Hasil         :
+    1. Pergerakan Ektremitas Meningkat
+    2. Kekuatan Otot Meningkat
+    3. Rentang Gerak Sendi (ROM) Meningkat
+    4. Nyeri Menurun
+    5. Cemas Menurun
+    6. Kaku Sendi Menurun
+    7. Gerakan Tidak Terkoordinasi Menuru
+    8. Gerakan Terbatas
+    9. Kelemahan Fisik
+   Intervensi Kep.        : Dukungan Ambusali (L.06171)
+   Tindakan:
+    1. Observasi
+        a. Identifikasi adanya nyeri atau keluhan fisik
+        b. Identifikasi toleransi fisik melalui ambusali
+        c. Monitor frekuensi jantung dan tekanan darah sebelum memulai ambusali
+        d. Monitor kondisi umum selama melakukan ambusali
+
+    2. Terapeutik
+       e. Fasilitasi aktivitas ambulasi dengan alat bantu (mis, tongkat, kruk)
+       f. Fasilitasi melakukan mobilisasi fisik, jika perlu
+       g. Libatkan keluarga untuk membantu pasien dalam meningkatkan ambulasi
+
+    3. Edukasi
+       h. Jelaskan tujuan dan prosedur ambulasi
+       i. Anjurkan melakukan ambulasi dini
+       j. Ajarkan ambulasi sederhana yang harus dilakukan (mis. berjalan dari temapt
+          tidur ke lu roda, berjalan dari tempat tidur ke kamar mandi, berjalan sesuai
+          toleransi)
+
+B. Gangguan Eliminasi Fekal
+   Luaran Utama        :
+   Ekspektasi          :
+   Kriteria Hasil      :
+   Intervensi Kep.     :
+    1. Observasi
+        a.
+    2. Terapeutik
+    3. Edukasi
+    4. Kolaborasi
+
+C. Resiko Perdarahan (D.0012)
+   Luaran Utama         : Tingkat Perdarahan (L.02017)
+Ekspektasi             : Menurun
+Kriteria Hasil         :
+ 1. Membran Mukosa Lembab Meningkat
+ 2. Kelembapan Kulit Meningkat
+ 3. Kognitif Meningkat
+ 4. Hemoptisis Menurun
+ 5. Hematemesis Menuru
+ 6. Perdarahan Anus Menurun
+ 7. Distensi Abdomen Menurun
+ 8. Perdarahan Vagina Menurun
+ 9. Perdarahan Pasca Operasi Menurun
+ 10. Hemoglobin Membaik
+ 11. Hematokrit Membaik
+ 12. Tekanan Darah Membaik
+ 13. Frekuensi Nadi Membaik
+ 14. Suhu Tubuh Membaik
+Intervensi Kep         : Pencegahan Perdarahan (I.02067)
+ 1. Observasi
+     a. Monitor tanda dan gejala perdarahan
+     b. Monitor nilai hematokrit/hemoglobin sebelum dan setelah kehilangan darah
+     c. Monitor tanda-tanda vital ortostatik
+     d. Monitor koagulasi (mis. prothrombin time (PT), partial thromboplastin time
+         (PTT), fibrinogen,degradasi fibrin dan/atau platelet)
+
+2. Terapeutik
+   e. Pertahankan bed rest selama perdarahan
+   f. Batasi tindakan invasif, jika perlu
+   g. Gunakan kasur pencegah dekubitus
+   h. Hindari pengukuran suhu rektal
+
+3. Edukasi
+   i. Jelaskan tanda dan gejala perdarahan
+   j. Anjurkan menggunakan kaus kaki saat ambulasi
+   k. Anjurkan meningkatkan asupan cairan untuk menghindari konstipasi
+   l. Anjurkan menghindari aspirin atau antikoagulan
+   m. Anjurkan meningkatkan asupan makanan dan vitamin K
+   n. Anjurkan segera melapor jika terjadi perdarahan
+
+4. Kolaborasi
+   o. Kolaborasi pemberian obat pengontrol perdarahan, jika perlu
+   p. Kolaborasi pemberian produk darah, jika perlu
+   q. Kolaborasi pemberian pelunak tinja, jika perlu
+1. Gangguan Integritas Kulit/Jaringan (D.0129)
+   Luaran Utama: Integritas Kulit dan Jaringan (L.14125)
+   Ekspetasi: Meningkat
+   Kriteria Hasil:
+   1. Elasitisitas meningkat (5)
+   2. Hidrasi meningkat (5)
+   3. Perfusi jaringan meningkat (5)
+   4. Kerusakan jaringan menurun (5)
+   5. Kerusakan kulit menurun (5)
+   6. Nyeri menurun (5)
+   7. Perdarahan menurun (5)
+   8. Kemerahan menurun (5)
+   9. Hematoma menurun (5)
+   10. Pigmentasi abnormal menurun (5)
+   11. Nekrosis menurun (5)
+   12. Abrasi kornea menurun (5)
+   13. Suhu kulit membaik (5)
+   14. Sensasi membaik (5)
+   15. Tekstur membaik (5)
+   16. Pertumbuhan rambut membaik (5)
+   17. Jaringan parut membaik (5)
+
+   Intervensi Keperawatan: Perawatan Integritas Kulit (I.11353)
+   Tindakan
+   Observasi
+   - Identifikasi penyebab gangguan integritas kulit (mis. perubahan sirkulasi, perubahan
+     status nutrisi, penurunan kelembaban, suhu lingkungan ekstrem, penurunan mobilitas)
+
+   Terapeutik
+   - Ubah posisi setiap 2 jam jika tirah baring
+   - Lakukan pemijatan pada area penonjolan tulang, jika perlu
+   - Bersihkan perineal dengan air hangat, terutama selama periode diare
+   - Gunakan produk berbahan petrolium atau minyak pada kulit kering
+   - Gunakan produk berbahan ringan/alami dan hipoalergik pada kulit sensitif
+   - Hindari produk berbahan dasar alkohol pada kulit kering
+   Edukasi
+    - Anjurkan menggunakan pelembap (mis. lotion, serum)
+    - Anjurkan minum air yang cukup
+    - Anjurkan meningkatkan asupan nutrisi
+    - Anjurkan meningkatkan asupan buah dan sayur
+    - Anjurkan menghindari terpapar suhu ekstrem
+    - Anjurkan menggunakan tabir surya SPF minimal 30 saat berada di luar rumah
+    - Anjurkan mandi dan menggunakan sabun secukupnya
+2. Risiko Disfungsi Motilitas Gastrointestinal (D.0033)
+   Luaran Utama: Motilitas Gastrointestinal (L.03023)
+   Ekspetasi: Membaik
+   Kriteria Hasil:
+    1. Nyeri menurun (5)
+    2. Kram abdomen menurun (5)
+    3. Mual menurun (5)
+    4. Muntah menurun (5)
+    5. Regurgitasi menurun (5)
+    6. Distensi abdomen menurun (5)
+    7. Suara peristaltik membaik (5)
+    8. Pengosongan lambung membaik (5)
+    9. Flatus membaik (5)
+    10. Frekuensi BAB membaik (5)
+    11. Konsistensi feses membaik (5)
+
+   Intervensi Keperawatan: Edukasi Diet (I.12369)
+   Tindakan
+   Observasi
+    - Identifikasi kemampuan pasien dan keluarga menerima informasi
+    - Identifikasi tingkat pengetahuan saat ini
+    - Identifikasi kebiasaan pola makan saat ini dan masa lalu
+    - Identifikasi persepsi pasien dan keluarga tentang diet yang diprogramkan
+    - Identifikasi keterbatasan finansial untuk meyediakan makanan
+
+   Terapeutik
+    - Persiapkan materi, media dan alat peraga
+- Jadwaikan waktu yang tepat untuk memberikan pendidikan kesehatan
+- Berikan kesempatan pasien dan keluarga bertanya
+- Sediakan rencana makan tertulis, jika perlu
+
+Edukasi
+- Jelaskan tujuan kepatuhan diet terhadap kesehatan
+- Informasikan makanan yang diperbolehkan dan dilarang
+- Informasikan kemungkinan interaksi obat dan makanan, jika perlu
+- Anjurkan mempertahankan posisi semi Fowler (30-45 derajat) 20-30 menit setelah
+  makan
+- Anjurkan mengganti bahan makanan sesuai dengan diet yang diprogramkan
+- Anjurkan melakukan olahraga sesuai toleransi
+- Ajarkan cara membaca label dan memilih makanan yang sesuai
+- Ajarkan cara merencanakan makanan yang sesuai program
+- Rekomendasikan resep makanan yang sesuai dengan diet, jika perlu
+
+Kolaborasi
+- Rujuk ke ahli gizi dan sertakan keluarga, jika perlu

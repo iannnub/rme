@@ -1,0 +1,13 @@
+# RME Keperawatan Kamar Operasi (OKA)
+
+> Sistem Rekam Medis Elektronik (RME) Keperawatan Kamar Operasi untuk dokumentasi asuhan keperawatan perioperatif (Pra-Operasi, Persiapan & Cek Alat, Surgical Safety Checklist WHO, Intra-Operasi, Pasca-Operasi, dan Serah Terima Pasien) sesuai standar SKPL & RSU Universitas Muhammadiyah Jember.
+
+## Kebijakan Akses & Privasi Data Klinis
+- Hanya halaman autentikasi (`/login`) yang bersifat publik.
+- Seluruh route klinis (`/dashboard`, `/kasus/*`, `/pasien/*`, `/laporan`, `/audit`, `/admin/*`) berada di balik autentikasi sesi, otorisasi Policy RBAC, dan dilindungi dengan `noindex, nofollow` serta `Disallow` pada `robots.txt` untuk menjaga kerahasiaan rekam medis pasien.
+
+## Modul Utama
+- **Pre-Operasi**: Asesmen awal, TTV, penunjang, 10 checklist kesiapan, SDKI/SLKI/SIKI, pengesahan perawat, dan verifikasi dokter.
+- **Persiapan & SSC Sign In**: Penetapan ruang operasi & tim 5 petugas, cek ketersediaan/kesterilan alat, dan SSC Sign In bagian A-G.
+- **Intra-Operasi, Time Out & Sign Out**: Kronologi waktu dengan kunci keselamatan, grafik TTV, obat, balans cairan, tindakan keperawatan, hitung instrumen 5 item (S/TS), spesimen, dan pengesahan 4 pihak.
+- **Pasca-Operasi & Serah Terima**: Observasi pulih sadar (GCS, TTV, nyeri NRS, luka/drain), penilaian layak pindah, dan ringkasan serah terima otomatis 12 item.
