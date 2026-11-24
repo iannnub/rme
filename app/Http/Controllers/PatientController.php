@@ -40,8 +40,12 @@ class PatientController extends Controller
                 'age_label' => $patient->ageLabel(),
                 'gender' => $patient->gender->value,
                 'gender_label' => $patient->gender->label(),
+                'identity_number' => $patient->identity_number,
                 'address' => $patient->address,
                 'phone' => $patient->phone,
+                'guardian_name' => $patient->guardian_name,
+                'guardian_relation' => $patient->guardian_relation,
+                'guardian_phone' => $patient->guardian_phone,
                 'surgery_cases_count' => $patient->surgery_cases_count ?? 0,
             ]);
 

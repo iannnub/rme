@@ -17,6 +17,7 @@ use App\Models\SurgeryCase;
 use App\Models\User;
 use App\Models\VitalSign;
 use App\Support\AuditContext;
+use App\Support\PreopClinicalDefaults;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -78,6 +79,9 @@ class StorePostopObservation
                     'shivering_hypothermia' => (bool) ($data['shivering_hypothermia'] ?? false),
                     'complications' => $complications,
                     'notes' => $this->nullableString($data['notes'] ?? null),
+                    'clinical_details' => is_array($data['clinical_details'] ?? null)
+                        ? PreopClinicalDefaults::mergePostopClinical($data['clinical_details'])
+                        : null,
                     'created_by' => $actor->id,
                 ]);
 

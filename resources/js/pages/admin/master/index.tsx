@@ -67,7 +67,7 @@ export default function AdminMasterIndex({ title, description, itemLabel, routeP
         const record: Record<string, string> = {};
         fields.forEach((field) => {
             const value = source?.[field.name];
-            record[field.name] = typeof value === 'string' ? value : '';
+            record[field.name] = typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
         });
         return record;
     };

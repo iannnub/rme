@@ -30,6 +30,8 @@ type MasterOption = {
     id: number;
     name: string;
     code?: string;
+    default_medical_diagnosis_id?: number | null;
+    default_procedure_name?: string | null;
 };
 
 type CreateCaseFormData = {
@@ -41,10 +43,18 @@ type CreateCaseFormData = {
     gender: string;
     address: string;
     phone: string;
+    identity_number: string;
+    guardian_name: string;
+    guardian_relation: string;
+    guardian_phone: string;
     admitted_at: string;
+    igd_visit_number: string;
+    igd_admitted_at: string;
     origin_ward: string;
     origin_class: string;
     scheduled_at: string;
+    urgency_status: string;
+    dpjp_name: string;
     medical_diagnosis_id: string;
     medical_diagnosis_other: string;
     surgery_type_id: string;
@@ -88,10 +98,18 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
         gender: genders[0]?.value ?? 'L',
         address: '',
         phone: '',
+        identity_number: '',
+        guardian_name: '',
+        guardian_relation: '',
+        guardian_phone: '',
         admitted_at: localDateTimeInput(0),
-        origin_ward: '',
+        igd_visit_number: '',
+        igd_admitted_at: localDateTimeInput(-1),
+        origin_ward: 'IGD',
         origin_class: '',
         scheduled_at: localDateTimeInput(2),
+        urgency_status: 'emergency',
+        dpjp_name: '',
         medical_diagnosis_id: '',
         medical_diagnosis_other: '',
         surgery_type_id: '',
@@ -307,6 +325,50 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                     </div>
 
                                     <div className="grid gap-2">
+                                        <Label htmlFor="identity_number">No. Identitas / NIK (Opsional)</Label>
+                                        <Input
+                                            id="identity_number"
+                                            value={form.data.identity_number}
+                                            onChange={(e) => form.setData('identity_number', e.target.value)}
+                                            placeholder="16 digit NIK / KTP"
+                                        />
+                                        <InputError message={form.errors.identity_number} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="guardian_name">Nama Keluarga / Penanggung Jawab (Opsional)</Label>
+                                        <Input
+                                            id="guardian_name"
+                                            value={form.data.guardian_name}
+                                            onChange={(e) => form.setData('guardian_name', e.target.value)}
+                                            placeholder="Nama penanggung jawab"
+                                        />
+                                        <InputError message={form.errors.guardian_name} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="guardian_relation">Hubungan dengan Pasien (Opsional)</Label>
+                                        <Input
+                                            id="guardian_relation"
+                                            value={form.data.guardian_relation}
+                                            onChange={(e) => form.setData('guardian_relation', e.target.value)}
+                                            placeholder="contoh: Istri, Suami, Orang Tua, Anak"
+                                        />
+                                        <InputError message={form.errors.guardian_relation} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="guardian_phone">No. Telepon Keluarga (Opsional)</Label>
+                                        <Input
+                                            id="guardian_phone"
+                                            value={form.data.guardian_phone}
+                                            onChange={(e) => form.setData('guardian_phone', e.target.value)}
+                                            placeholder="08xxxxxxxxxx"
+                                        />
+                                        <InputError message={form.errors.guardian_phone} />
+                                    </div>
+
+                                    <div className="grid gap-2 sm:col-span-2">
                                         <Label htmlFor="address">Alamat (Opsional)</Label>
                                         <Input
                                             id="address"
@@ -323,13 +385,38 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
 
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg">2. Jadwal & Rencana Awal Operasi</CardTitle>
-                            <CardDescription>Status kasus otomatis dimulai pada tahap Pre-Operasi dan nomor kasus dibuat otomatis.</CardDescription>
+                            <CardTitle className="text-lg">2. Jadwal, Asal IGD & Rencana Awal Operasi</CardTitle>
+                            <CardDescription>
+                                Pilih Jenis Operasi terlebih dahulu untuk mengaktifkan diagnosis pasangan, form klinis khusus, dan daftar alat
+                                standar.
+                            </CardDescription>
                         </CardHeader>
 
                         <CardContent className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="admitted_at">Tanggal & Jam Masuk</Label>
+                                <Label htmlFor="igd_visit_number">Nomor Kunjungan IGD (Opsional)</Label>
+                                <Input
+                                    id="igd_visit_number"
+                                    value={form.data.igd_visit_number}
+                                    onChange={(e) => form.setData('igd_visit_number', e.target.value)}
+                                    placeholder="contoh: IGD-20261123-001"
+                                />
+                                <InputError message={form.errors.igd_visit_number} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="igd_admitted_at">Tanggal & Jam Masuk IGD (Opsional)</Label>
+                                <Input
+                                    id="igd_admitted_at"
+                                    type="datetime-local"
+                                    value={form.data.igd_admitted_at}
+                                    onChange={(e) => form.setData('igd_admitted_at', e.target.value)}
+                                />
+                                <InputError message={form.errors.igd_admitted_at} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="admitted_at">Tanggal & Jam Masuk Kamar Operasi</Label>
                                 <Input
                                     id="admitted_at"
                                     type="datetime-local"
@@ -341,7 +428,7 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="scheduled_at">Jadwal Operasi</Label>
+                                <Label htmlFor="scheduled_at">Jadwal / Rencana Operasi</Label>
                                 <Input
                                     id="scheduled_at"
                                     type="datetime-local"
@@ -353,12 +440,12 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="origin_ward">Ruang Perawatan Asal</Label>
+                                <Label htmlFor="origin_ward">Asal Pasien / Ruang</Label>
                                 <Input
                                     id="origin_ward"
                                     value={form.data.origin_ward}
                                     onChange={(e) => form.setData('origin_ward', e.target.value)}
-                                    placeholder="contoh: Ruang Mawar 1 / IGD"
+                                    placeholder="contoh: IGD"
                                     required
                                 />
                                 <InputError message={form.errors.origin_ward} />
@@ -370,10 +457,80 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                     id="origin_class"
                                     value={form.data.origin_class}
                                     onChange={(e) => form.setData('origin_class', e.target.value)}
-                                    placeholder="contoh: Kelas 1 / VIP"
+                                    placeholder="contoh: Kelas 1 / VIP / Non-Kelas"
                                 />
                                 <InputError message={form.errors.origin_class} />
                             </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="urgency_status">Status Tindakan Operasi</Label>
+                                <Select value={form.data.urgency_status} onValueChange={(value) => form.setData('urgency_status', value)}>
+                                    <SelectTrigger id="urgency_status">
+                                        <SelectValue placeholder="Pilih status tindakan" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="emergency">Operasi Darurat (Emergency)</SelectItem>
+                                        <SelectItem value="elektif">Operasi Elektif (Terjadwal)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={form.errors.urgency_status} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="dpjp_name">Dokter Penanggung Jawab (DPJP)</Label>
+                                <Input
+                                    id="dpjp_name"
+                                    value={form.data.dpjp_name}
+                                    onChange={(e) => form.setData('dpjp_name', e.target.value)}
+                                    placeholder="Nama dokter penanggung jawab"
+                                />
+                                <InputError message={form.errors.dpjp_name} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="surgery_type_id">Jenis Operasi</Label>
+                                <Select
+                                    value={form.data.surgery_type_id || 'none'}
+                                    onValueChange={(value) => {
+                                        const nextVal = value === 'none' ? '' : value;
+                                        const chosen = surgeryTypes.find((item) => String(item.id) === nextVal);
+                                        form.setData((prev) => ({
+                                            ...prev,
+                                            surgery_type_id: nextVal,
+                                            medical_diagnosis_id: chosen?.default_medical_diagnosis_id
+                                                ? String(chosen.default_medical_diagnosis_id)
+                                                : prev.medical_diagnosis_id,
+                                        }));
+                                    }}
+                                >
+                                    <SelectTrigger id="surgery_type_id">
+                                        <SelectValue placeholder="Pilih jenis operasi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Belum ditentukan</SelectItem>
+                                        {surgeryTypes.map((item) => (
+                                            <SelectItem key={item.id} value={String(item.id)}>
+                                                {item.name}
+                                            </SelectItem>
+                                        ))}
+                                        <SelectItem value="other">Lainnya (ketik manual)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={form.errors.surgery_type_id} />
+                            </div>
+
+                            {form.data.surgery_type_id === 'other' && (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="surgery_type_other">Jenis Operasi (Lainnya)</Label>
+                                    <Input
+                                        id="surgery_type_other"
+                                        value={form.data.surgery_type_other}
+                                        onChange={(e) => form.setData('surgery_type_other', e.target.value)}
+                                        placeholder="Ketik jenis operasi"
+                                    />
+                                    <InputError message={form.errors.surgery_type_other} />
+                                </div>
+                            )}
 
                             <div className="grid gap-2">
                                 <Label htmlFor="medical_diagnosis_id">Diagnosis Medis</Label>
@@ -410,40 +567,26 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                 </div>
                             )}
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="surgery_type_id">Jenis Operasi</Label>
-                                <Select
-                                    value={form.data.surgery_type_id || 'none'}
-                                    onValueChange={(value) => form.setData('surgery_type_id', value === 'none' ? '' : value)}
-                                >
-                                    <SelectTrigger id="surgery_type_id">
-                                        <SelectValue placeholder="Pilih jenis operasi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="none">Belum ditentukan</SelectItem>
-                                        {surgeryTypes.map((item) => (
-                                            <SelectItem key={item.id} value={String(item.id)}>
-                                                {item.name}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectItem value="other">Lainnya (ketik manual)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={form.errors.surgery_type_id} />
-                            </div>
-
-                            {form.data.surgery_type_id === 'other' && (
-                                <div className="grid gap-2">
-                                    <Label htmlFor="surgery_type_other">Jenis Operasi (Lainnya)</Label>
-                                    <Input
-                                        id="surgery_type_other"
-                                        value={form.data.surgery_type_other}
-                                        onChange={(e) => form.setData('surgery_type_other', e.target.value)}
-                                        placeholder="Ketik jenis operasi"
-                                    />
-                                    <InputError message={form.errors.surgery_type_other} />
-                                </div>
-                            )}
+                            {(() => {
+                                const selectedSurgery = surgeryTypes.find((item) => String(item.id) === form.data.surgery_type_id);
+                                if (!selectedSurgery) {
+                                    return null;
+                                }
+                                const isNeuro =
+                                    selectedSurgery.code?.toLowerCase() === 'bedah_saraf' || selectedSurgery.name.toLowerCase().includes('saraf');
+                                return (
+                                    <div className="border-primary/30 bg-muted/60 rounded-xl border p-4 text-sm sm:col-span-2">
+                                        <p className="text-foreground font-semibold">
+                                            Profil Form Aktif: {selectedSurgery.name} ({isNeuro ? 'Epidural Hematoma (EDH)' : 'Fraktur Femur'})
+                                        </p>
+                                        <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                                            {isNeuro
+                                                ? 'Otomatis mengaktifkan form neurologis EDH (GCS E/V/M, pupil, CT scan kepala, persiapan kraniotomi), 50 daftar alat & BHP bedah saraf, detail evakuasi EDH intra-operasi, dan pemantauan neurologis pasca-operasi.'
+                                                : 'Otomatis mengaktifkan form fraktur femur & neurovaskular distal (5P, rontgen femur, persiapan ORIF/implan), 66 daftar alat & implan ortopedi, detail reduksi & implan intra-operasi, dan instruksi mobilisasi pasca-operasi.'}
+                                        </p>
+                                    </div>
+                                );
+                            })()}
 
                             <div className="grid gap-2">
                                 <Label htmlFor="surgery_site">Lokasi Operasi (Opsional)</Label>

@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $case_id
  * @property bool $ready_to_transfer
  * @property string|null $pre_transfer_condition_notes
+ * @property array<string, mixed>|null $followup_plan
  * @property Carbon|null $assessed_at
  * @property int|null $assessed_by
  * @property int $created_by
@@ -29,6 +30,7 @@ class PostopSummary extends Model
         'case_id',
         'ready_to_transfer',
         'pre_transfer_condition_notes',
+        'followup_plan',
         'assessed_at',
         'assessed_by',
         'created_by',
@@ -41,6 +43,7 @@ class PostopSummary extends Model
     {
         return [
             'ready_to_transfer' => 'boolean',
+            'followup_plan' => 'array',
             'assessed_at' => 'datetime',
         ];
     }

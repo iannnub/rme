@@ -1,3 +1,7 @@
+import { PreopAnesthesiaCard } from '@/components/cases/preop/PreopAnesthesiaCard';
+import { PreopNeuroDetailsCard } from '@/components/cases/preop/PreopNeuroDetailsCard';
+import { PreopOrthoDetailsCard } from '@/components/cases/preop/PreopOrthoDetailsCard';
+import { type PreopClinicalDetails, type UpdateClinicalFieldFn } from '@/components/cases/preop/types';
 import { ConcurrencyAlert } from '@/components/concurrency-alert';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,6 +27,8 @@ type MasterItem = {
     id: number;
     name: string;
     code?: string;
+    default_medical_diagnosis_id?: number | null;
+    default_procedure_name?: string | null;
 };
 
 type SupportingExamItem = {
@@ -115,6 +121,7 @@ interface PreopPageProps {
         evaluation_completeness: string;
         readiness_status: string;
         evaluation_notes: string;
+        clinical_details: PreopClinicalDetails;
     };
     vitalSigns: {
         id?: number;
@@ -245,6 +252,7 @@ export default function PreopPage({
         evaluation_completeness: assessment.evaluation_completeness,
         readiness_status: assessment.readiness_status,
         evaluation_notes: assessment.evaluation_notes,
+        clinical_details: assessment.clinical_details,
 
         // TTV
         vital_signs: {
@@ -264,6 +272,24 @@ export default function PreopPage({
         // Penunjang
         supporting_exams: exams,
     });
+
+    const updateClinicalField: UpdateClinicalFieldFn = (section, field, value) => {
+        mainForm.setData('clinical_details', {
+            ...mainForm.data.clinical_details,
+            [section]: {
+                ...mainForm.data.clinical_details[section],
+                [field]: value,
+            },
+        });
+    };
+
+    const selectedSurgeryType = options.surgeryTypes.find((t) => String(t.id) === mainForm.data.surgery_type_id);
+    const activeSurgeryProfile: 'bedah_saraf' | 'bedah_ortopedi' | null =
+        selectedSurgeryType?.code?.toLowerCase() === 'bedah_saraf' || selectedSurgeryType?.name.toLowerCase().includes('saraf')
+            ? 'bedah_saraf'
+            : selectedSurgeryType?.code?.toLowerCase() === 'bedah_ortopedi' || selectedSurgeryType?.name.toLowerCase().includes('ortopedi')
+              ? 'bedah_ortopedi'
+              : caseHeader.surgery_profile;
 
     const signForm = useForm({
         password: '',
@@ -395,7 +421,7 @@ export default function PreopPage({
                                 type="button"
                                 variant={signoffState.nurseSignoff ? 'outline' : 'default'}
                                 onClick={() => setSignDialogOpen(true)}
-                                className="border-primary/40 text-primary hover:bg-primary/10 gap-2"
+                                className={signoffState.nurseSignoff ? 'border-primary/40 text-primary hover:bg-primary/10 gap-2' : 'gap-2'}
                             >
                                 <FileCheck className="h-4 w-4" />
                                 {signoffState.nurseSignoff ? 'Sahkan Ulang Perawat' : 'Sahkan Pra-Operasi'}
@@ -540,7 +566,16 @@ export default function PreopPage({
                                 <Label htmlFor="surg_type">Jenis Operasi</Label>
                                 <Select
                                     value={mainForm.data.surgery_type_id}
-                                    onValueChange={(val) => mainForm.setData('surgery_type_id', val)}
+                                    onValueChange={(val) => {
+                                        const chosen = options.surgeryTypes.find((t) => String(t.id) === val);
+                                        mainForm.setData((prev) => ({
+                                            ...prev,
+                                            surgery_type_id: val,
+                                            medical_diagnosis_id: chosen?.default_medical_diagnosis_id
+                                                ? String(chosen.default_medical_diagnosis_id)
+                                                : prev.medical_diagnosis_id,
+                                        }));
+                                    }}
                                     disabled={!canManage}
                                 >
                                     <SelectTrigger id="surg_type">
@@ -1064,8 +1099,9 @@ export default function PreopPage({
                                                     type="button"
                                                     variant="ghost"
                                                     size="icon"
+                                                    aria-label="Hapus baris pemeriksaan penunjang"
                                                     onClick={() => removeExamRow(index)}
-                                                    className="text-destructive h-8 w-8"
+                                                    className="text-destructive"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -1429,6 +1465,19 @@ export default function PreopPage({
                             </div>
                         </CardContent>
                     </Card>
+
+                    {activeSurgeryProfile === 'bedah_saraf' ? (
+                        <PreopNeuroDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                    ) : activeSurgeryProfile === 'bedah_ortopedi' ? (
+                        <PreopOrthoDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                    ) : (
+                        <>
+                            <PreopNeuroDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                            <PreopOrthoDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                        </>
+                    )}
+
+                    <PreopAnesthesiaCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
 
                     {/* Tombol Simpan Bawah Form */}
                     {canManage && (

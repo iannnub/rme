@@ -27,6 +27,7 @@ use App\Enums\VitalSignPhase;
 use App\Http\Requests\Intraop\SaveInstrumentCountsRequest;
 use App\Http\Requests\Intraop\SaveIntraopChronologyRequest;
 use App\Http\Requests\Intraop\SaveIntraopPositionRequest;
+use App\Http\Requests\Intraop\SaveIntraopProcedureDetailsRequest;
 use App\Http\Requests\Intraop\SaveIntraopSpecimenComplicationRequest;
 use App\Http\Requests\Intraop\SignIntraopRequest;
 use App\Http\Requests\Intraop\StoreIntraopFluidRequest;
@@ -46,6 +47,7 @@ use App\Models\NursingDiagnosis;
 use App\Models\SurgeryCase;
 use App\Models\VitalSign;
 use App\Support\OptimisticLock;
+use App\Support\PreopClinicalDefaults;
 use App\Support\SurgeryCasePresenter;
 use BackedEnum;
 use Illuminate\Http\RedirectResponse;
@@ -200,11 +202,13 @@ class IntraopController extends Controller
                 'updated_at' => OptimisticLock::token($surgeryCase),
                 'anesthesia_type_id' => $surgeryCase->anesthesia_type_id,
                 'operation_plan_actual' => $surgeryCase->operation_plan_actual ?? '',
+                'postop_diagnosis' => $surgeryCase->postop_diagnosis ?? '',
                 'entered_or_at' => $surgeryCase->entered_or_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'anesthesia_start_at' => $surgeryCase->anesthesia_start_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'incision_at' => $surgeryCase->incision_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'surgery_end_at' => $surgeryCase->surgery_end_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'left_or_at' => $surgeryCase->left_or_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
+                'anesthesia_end_at' => $surgeryCase->anesthesia_end_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'sign_in_completed' => $signInCompleted,
                 'time_out_completed' => $timeOutCompleted,
             ],
@@ -295,6 +299,11 @@ class IntraopController extends Controller
                 'has_complication' => $record !== null && $record->has_complication,
                 'complication_description' => $record !== null ? ($record->complication_description ?? '') : '',
                 'complication_handling' => $record !== null ? ($record->complication_handling ?? '') : '',
+            ],
+            'procedureDetails' => [
+                'updated_at' => OptimisticLock::token($record),
+                'details' => PreopClinicalDefaults::mergeIntraopProcedure($record?->procedure_details),
+                'implants' => $record !== null ? ($record->implants ?? []) : [],
             ],
             'caseNursingDiagnoses' => $surgeryCase->caseNursingDiagnoses
                 ->where('phase', NursingPhase::Intra)
@@ -538,6 +547,19 @@ class IntraopController extends Controller
         return back()->with('success', 'Data spesimen dan kejadian khusus intra-operasi berhasil disimpan.');
     }
 
+    public function updateProcedureDetails(
+        SaveIntraopProcedureDetailsRequest $request,
+        SurgeryCase $surgeryCase,
+        SaveIntraopRecord $action,
+    ): RedirectResponse {
+        $user = $request->user();
+        abort_if($user === null, 403);
+
+        $action->saveProcedureDetails($surgeryCase, $request->validated(), $user);
+
+        return back()->with('success', 'Data rincian tindakan operasi & implan berhasil disimpan.');
+    }
+
     public function addDiagnosis(
         AddCaseNursingDiagnosisRequest $request,
         SurgeryCase $surgeryCase,
@@ -561,7 +583,7 @@ class IntraopController extends Controller
         ManageCaseNursingDiagnosis $action,
     ): RedirectResponse {
         $this->authorize('updateIntraop', $surgeryCase);
-        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id, 404);
+        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id || $caseNursingDiagnosis->phase !== NursingPhase::Intra, 404);
 
         $user = $request->user();
         abort_if($user === null, 403);
@@ -580,6 +602,9 @@ class IntraopController extends Controller
         $this->authorize('updateIntraop', $surgeryCase);
         $user = $request->user();
         abort_if($user === null, 403);
+
+        $caseDiagnosis = $caseInterventionItem->caseNursingDiagnosis;
+        abort_if($caseDiagnosis === null || $caseDiagnosis->case_id !== $surgeryCase->id || $caseDiagnosis->phase !== NursingPhase::Intra, 404);
 
         $action->toggleIntervention($caseInterventionItem, $user);
 

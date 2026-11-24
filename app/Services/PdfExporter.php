@@ -7,6 +7,7 @@ use App\Enums\NursingPhase;
 use App\Enums\VitalSignPhase;
 use App\Models\Setting;
 use App\Models\SurgeryCase;
+use App\Support\PreopClinicalDefaults;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPdfWrapper;
 
@@ -82,6 +83,11 @@ class PdfExporter
             'hospital' => Setting::hospitalProfile(),
             'printedAt' => now('Asia/Jakarta')->format('d M Y H:i').' WIB',
             'case' => $case,
+            'surgeryProfile' => $case->surgeryProfile()?->value,
+            'preopClinical' => PreopClinicalDefaults::merge($case->preopAssessment?->clinical_details),
+            'intraopProcedure' => PreopClinicalDefaults::mergeIntraopProcedure($case->intraopRecord?->procedure_details),
+            'intraopImplants' => $case->intraopRecord !== null ? ($case->intraopRecord->implants ?? []) : [],
+            'postopFollowup' => PreopClinicalDefaults::mergePostopFollowup($case->postopSummary?->followup_plan),
             'completeness' => $this->completenessCalculator->calculate($case),
             'preVitals' => $case->vitalSigns->where('phase', VitalSignPhase::Pre)->sortBy('recorded_at')->values(),
             'intraVitals' => $case->vitalSigns->where('phase', VitalSignPhase::Intra)->sortBy('recorded_at')->values(),

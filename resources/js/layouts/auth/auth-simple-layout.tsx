@@ -12,6 +12,12 @@ interface AuthLayoutProps {
 export default function AuthSimpleLayout({ children, title, description }: AuthLayoutProps) {
     return (
         <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-4 sm:p-6 md:p-10">
+            <a
+                href="#main-content"
+                className="focus:bg-primary focus:text-primary-foreground sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:shadow-lg"
+            >
+                Lewati ke konten utama
+            </a>
             <header className="liquid-glass-header liquid-morph fixed inset-x-3 top-3 z-30 mx-auto flex max-w-4xl items-center justify-between rounded-2xl px-4 py-2.5 sm:px-6">
                 <Link href={route('home')} className="flex items-center gap-2.5 font-semibold">
                     <div className="bg-primary text-primary-foreground flex h-9 w-9 items-center justify-center rounded-xl">
@@ -24,7 +30,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                 </span>
             </header>
 
-            <main id="main-content" className="w-full max-w-md pt-16">
+            <main id="main-content" tabIndex={-1} className="w-full max-w-md pt-16 focus:outline-none">
                 <div className="bg-card border-border flex flex-col gap-6 rounded-3xl border p-6 shadow-xs sm:p-8">
                     <div className="flex flex-col items-center gap-3">
                         <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-2xl shadow-2xs">

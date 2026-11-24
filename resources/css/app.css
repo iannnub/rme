@@ -88,7 +88,7 @@
     --destructive: hsl(0 74% 42%);
     --destructive-foreground: hsl(0 0% 100%);
     --border: hsl(211 35% 86%);
-    --input: hsl(210 31% 78%);
+    --input: hsl(211 13% 53%);
     --ring: hsl(210 73% 15%);
     --chart-1: hsl(210 73% 18%);
     --chart-2: hsl(213 68% 36%);
@@ -124,7 +124,7 @@
     --destructive: hsl(0 72% 52%);
     --destructive-foreground: hsl(0 0% 100%);
     --border: hsl(211 36% 24%);
-    --input: hsl(211 36% 28%);
+    --input: hsl(211 24% 48%);
     --ring: hsl(0 0% 100%);
     --chart-1: hsl(210 80% 70%);
     --chart-2: hsl(213 70% 56%);
@@ -158,7 +158,7 @@
     }
 }
 
-/* Apple Liquid Glass Material — HANYA untuk Header, Navigasi, dan Modal (Tanpa Gradasi) */
+/* Apple Liquid Glass Material - HANYA untuk Header, Navigasi, dan Modal (Tanpa Gradasi) */
 .liquid-glass-header {
     background-color: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(22px) saturate(180%);

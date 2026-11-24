@@ -96,11 +96,13 @@ class ManageCaseNursingDiagnosis
 
         $newDone = ! $item->is_done;
 
-        $item->update([
-            'is_done' => $newDone,
-            'done_at' => $newDone ? now() : null,
-            'done_by' => $newDone ? $actor->id : null,
-        ]);
+        AuditContext::run(function () use ($item, $newDone, $actor): void {
+            $item->update([
+                'is_done' => $newDone,
+                'done_at' => $newDone ? now() : null,
+                'done_by' => $newDone ? $actor->id : null,
+            ]);
+        }, 'Pembaruan status intervensi keperawatan SIKI', $case?->id, $actor);
 
         return $item;
     }

@@ -18,7 +18,13 @@ import { useState, type FormEvent } from 'react';
 type RoomOption = { id: number; code: string; name: string };
 type DoctorOption = { id: number; name: string; sip: string | null };
 type NurseOption = { id: number; name: string; nurse_type: string | null; nurse_type_label: string };
-type InstrumentOption = { id: number; name: string; category: string | null };
+type InstrumentOption = {
+    id: number;
+    name: string;
+    category: string | null;
+    surgery_profile?: string | null;
+    description?: string | null;
+};
 
 type RoomConflictInfo = {
     case_id: number;
@@ -32,6 +38,7 @@ type InstrumentCheckItem = {
     instrument_id: number;
     instrument_name: string;
     instrument_category: string | null;
+    instrument_description?: string | null;
     is_available: boolean;
     is_sterile: boolean;
     is_functional: boolean;
@@ -99,6 +106,7 @@ export default function PreparationPage({
     const [pickerOpen, setPickerOpen] = useState(false);
     const [selectedInstrumentIds, setSelectedInstrumentIds] = useState<number[]>([]);
     const [instrumentSearch, setInstrumentSearch] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [advancing, setAdvancing] = useState(false);
 
     const selectedRoomConflict = teamForm.data.room_id ? (activeIntraOpRooms[teamForm.data.room_id] ?? null) : roomConflict;
@@ -118,11 +126,35 @@ export default function PreparationPage({
     };
 
     const existingInstrumentIds = new Set(instrumentsForm.data.items.map((item) => item.instrument_id));
+    const instrumentCategories = Array.from(new Set(options.instruments.map((inst) => inst.category).filter((cat): cat is string => Boolean(cat))));
 
     const openPicker = () => {
         setSelectedInstrumentIds([]);
         setInstrumentSearch('');
+        setCategoryFilter('all');
         setPickerOpen(true);
+    };
+
+    const loadStandardInstruments = () => {
+        const missing = options.instruments
+            .filter((inst) => !existingInstrumentIds.has(inst.id))
+            .map(
+                (inst): InstrumentCheckItem => ({
+                    instrument_id: inst.id,
+                    instrument_name: inst.name,
+                    instrument_category: inst.category,
+                    instrument_description: inst.description ?? null,
+                    is_available: true,
+                    is_sterile: true,
+                    is_functional: true,
+                    is_rusty: false,
+                    note: '',
+                }),
+            );
+
+        if (missing.length > 0) {
+            instrumentsForm.setData('items', [...instrumentsForm.data.items, ...missing]);
+        }
     };
 
     const togglePickerSelection = (id: number) => {
@@ -137,6 +169,7 @@ export default function PreparationPage({
                     instrument_id: inst.id,
                     instrument_name: inst.name,
                     instrument_category: inst.category,
+                    instrument_description: inst.description ?? null,
                     is_available: true,
                     is_sterile: true,
                     is_functional: true,
@@ -178,11 +211,18 @@ export default function PreparationPage({
     };
 
     const filteredMasterInstruments = options.instruments.filter((inst) => {
+        if (categoryFilter !== 'all' && inst.category !== categoryFilter) {
+            return false;
+        }
         const q = instrumentSearch.trim().toLowerCase();
         if (!q) {
             return true;
         }
-        return inst.name.toLowerCase().includes(q) || (inst.category ?? '').toLowerCase().includes(q);
+        return (
+            inst.name.toLowerCase().includes(q) ||
+            (inst.category ?? '').toLowerCase().includes(q) ||
+            (inst.description ?? '').toLowerCase().includes(q)
+        );
     });
 
     const instrumentErrors = instrumentsForm.errors as Record<string, string | undefined>;
@@ -468,22 +508,41 @@ export default function PreparationPage({
                 {/* Bagian 2: Cek Ketersediaan dan Kesterilan Alat */}
                 <Card>
                     <CardHeader>
-                        <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
-                                <CardTitle className="flex items-center gap-2 text-base">
-                                    <Wrench className="text-primary h-5 w-5" />
-                                    B. Cek Ketersediaan dan Kesterilan Alat
-                                </CardTitle>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2 text-base">
+                                        <Wrench className="text-primary h-5 w-5" />
+                                        B. Cek Ketersediaan dan Kesterilan Alat
+                                    </CardTitle>
+                                    {caseHeader.surgery_profile_label && (
+                                        <Badge variant="outline" className="rounded-lg text-xs">
+                                            Profil: {caseHeader.surgery_profile_label} ({options.instruments.length} standar)
+                                        </Badge>
+                                    )}
+                                </div>
                                 <CardDescription>
-                                    Periksa alat dari master data. Jika ada alat yang tidak tersedia, tidak steril, tidak berfungsi, atau berkarat,
-                                    catatan tindak lanjut wajib diisi.
+                                    Daftar alat disaring sesuai profil operasi. Jika ada alat bermasalah (tidak tersedia/steril/berfungsi atau
+                                    berkarat), catatan tindak lanjut wajib diisi.
                                 </CardDescription>
                             </div>
                             {permissions.canEdit && (
-                                <Button type="button" variant="outline" className="min-h-11" onClick={openPicker}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Tambah Alat
-                                </Button>
+                                <div className="flex flex-wrap gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        className="min-h-11"
+                                        onClick={loadStandardInstruments}
+                                        disabled={options.instruments.every((i) => existingInstrumentIds.has(i.id))}
+                                    >
+                                        <ClipboardCheck className="mr-2 h-4 w-4" />
+                                        Muat Semua Alat Standar
+                                    </Button>
+                                    <Button type="button" variant="outline" className="min-h-11" onClick={openPicker}>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Tambah Alat
+                                    </Button>
+                                </div>
                             )}
                         </div>
                     </CardHeader>
@@ -541,6 +600,9 @@ export default function PreparationPage({
                                                                     </Badge>
                                                                 )}
                                                             </div>
+                                                            {item.instrument_description && (
+                                                                <div className="text-muted-foreground text-[11px]">{item.instrument_description}</div>
+                                                            )}
                                                             {item.checked_at && (
                                                                 <div className="text-muted-foreground mt-0.5 text-[11px]">
                                                                     Dicek: {item.checked_by_name} ({item.checked_at})
@@ -648,11 +710,43 @@ export default function PreparationPage({
 
                     <div className="space-y-3">
                         <Input
-                            placeholder="Cari nama atau kategori alat..."
+                            placeholder="Cari nama, kategori, atau fungsi alat..."
                             value={instrumentSearch}
                             onChange={(e) => setInstrumentSearch(e.target.value)}
                             className="min-h-11"
                         />
+
+                        {instrumentCategories.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setCategoryFilter('all')}
+                                    className={cn(
+                                        'min-h-11 rounded-lg border px-3 py-1 text-xs font-medium transition-colors',
+                                        categoryFilter === 'all'
+                                            ? 'border-primary bg-primary text-primary-foreground'
+                                            : 'border-border bg-background text-muted-foreground hover:bg-muted',
+                                    )}
+                                >
+                                    Semua ({options.instruments.length})
+                                </button>
+                                {instrumentCategories.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => setCategoryFilter(cat)}
+                                        className={cn(
+                                            'min-h-11 rounded-lg border px-3 py-1 text-xs font-medium transition-colors',
+                                            categoryFilter === cat
+                                                ? 'border-primary bg-primary text-primary-foreground'
+                                                : 'border-border bg-background text-muted-foreground hover:bg-muted',
+                                        )}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="max-h-72 space-y-1.5 overflow-y-auto rounded-md border p-2">
                             {filteredMasterInstruments.length === 0 ? (
@@ -678,6 +772,7 @@ export default function PreparationPage({
                                             <div className="flex-1">
                                                 <div className="font-medium">{inst.name}</div>
                                                 {inst.category && <div className="text-muted-foreground text-xs">{inst.category}</div>}
+                                                {inst.description && <div className="text-muted-foreground text-[11px]">{inst.description}</div>}
                                             </div>
                                             {alreadyAdded && (
                                                 <Badge variant="outline" className="text-xs">

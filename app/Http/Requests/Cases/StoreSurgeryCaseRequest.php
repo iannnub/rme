@@ -20,15 +20,23 @@ class StoreSurgeryCaseRequest extends FormRequest
     {
         $nullableFields = [
             'patient_id',
+            'igd_visit_number',
+            'igd_admitted_at',
             'origin_class',
+            'urgency_status',
             'medical_diagnosis_id',
             'medical_diagnosis_other',
             'surgery_type_id',
             'surgery_type_other',
             'surgery_site',
             'anesthesia_type_id',
+            'dpjp_name',
+            'identity_number',
             'address',
             'phone',
+            'guardian_name',
+            'guardian_relation',
+            'guardian_phone',
         ];
 
         $merged = [
@@ -74,11 +82,18 @@ class StoreSurgeryCaseRequest extends FormRequest
             'patient_name' => ['nullable', 'required_if:patient_mode,new', 'string', 'max:255'],
             'birth_date' => ['nullable', 'required_if:patient_mode,new', 'date', 'before_or_equal:today'],
             'gender' => ['nullable', 'required_if:patient_mode,new', Rule::enum(Gender::class)],
+            'identity_number' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:500'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'guardian_name' => ['nullable', 'string', 'max:150'],
+            'guardian_relation' => ['nullable', 'string', 'max:80'],
+            'guardian_phone' => ['nullable', 'string', 'max:30'],
+            'igd_visit_number' => ['nullable', 'string', 'max:80'],
             'admitted_at' => ['required', 'date'],
+            'igd_admitted_at' => ['nullable', 'date'],
             'origin_ward' => ['required', 'string', 'max:150'],
             'origin_class' => ['nullable', 'string', 'max:100'],
+            'urgency_status' => ['nullable', 'in:emergency,elektif'],
             'scheduled_at' => ['required', 'date'],
             'medical_diagnosis_id' => ['nullable', 'exists:medical_diagnoses,id'],
             'medical_diagnosis_other' => ['nullable', 'string', 'max:255'],
@@ -86,6 +101,7 @@ class StoreSurgeryCaseRequest extends FormRequest
             'surgery_type_other' => ['nullable', 'string', 'max:255'],
             'surgery_site' => ['nullable', 'string', 'max:255'],
             'anesthesia_type_id' => ['nullable', 'exists:anesthesia_types,id'],
+            'dpjp_name' => ['nullable', 'string', 'max:150'],
         ];
     }
 }

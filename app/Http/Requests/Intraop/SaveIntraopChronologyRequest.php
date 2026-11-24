@@ -25,11 +25,13 @@ class SaveIntraopChronologyRequest extends FormRequest
             'expected_updated_at' => ['nullable', 'string'],
             'anesthesia_type_id' => ['nullable', 'integer', 'exists:anesthesia_types,id'],
             'operation_plan_actual' => ['nullable', 'string', 'max:255'],
+            'postop_diagnosis' => ['nullable', 'string', 'max:255'],
             'entered_or_at' => ['nullable', 'date'],
             'anesthesia_start_at' => ['nullable', 'date'],
             'incision_at' => ['nullable', 'date'],
             'surgery_end_at' => ['nullable', 'date'],
             'left_or_at' => ['nullable', 'date'],
+            'anesthesia_end_at' => ['nullable', 'date'],
         ];
     }
 }

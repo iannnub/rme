@@ -25,7 +25,7 @@ Spesifikasi sistem desain resmi aplikasi **RME Keperawatan Kamar Operasi (OKA)**
 | **Secondary / Muted Ink** | `--muted-foreground` | `#334E68` | `209 34% 30%` | **8.64 : 1** (AAA) | Keterangan bantu, timestamp, sub-label |
 | **Secondary Surface** | `--secondary` | `#E8EFF7` | `212 48% 94%` | - | Latar chip sekunder, hover baris tabel, pill non-aktif |
 | **Border Hairline** | `--border` | `#D5E0EC` | `211 35% 88%` | - | Garis pemisah kartu, tabel, dan input |
-| **Input Border** | `--input` | `#BCCCDC` | `210 31% 80%` | **> 3.1 : 1** (vs teks/fokus) | Tepian kolom input form klinis |
+| **Input Border** | `--input` | `#788796` | `211 13% 53%` | **3.68 : 1** (vs `#FFFFFF`) | Tepian kolom input form klinis |
 | **Destructive (Clinical Alert)** | `--destructive` | `#B91C1C` | `0 74% 42%` | **6.45 : 1** (AA+) | Peringatan alergi, selisih hitungan instrumen (`TS`), pesan galat |
 
 ---

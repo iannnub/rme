@@ -44,16 +44,19 @@ class AuditLogController extends Controller
         $dateTo = trim((string) $request->string('date_to'));
         $search = trim((string) $request->string('q'));
 
+        $tz = config('app.timezone');
+        $appTimezone = is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta';
+
         $logs = AuditActivity::query()
             ->with(['causer', 'surgeryCase'])
             ->when($caseId !== null, fn ($q) => $q->where('case_id', $caseId))
             ->when($userId !== null, fn ($q) => $q->where('causer_id', $userId))
             ->when(in_array($event, ['created', 'updated', 'deleted', 'restored'], true), fn ($q) => $q->where('event', $event))
-            ->when($dateFrom !== '', function ($q) use ($dateFrom): void {
-                $q->where('created_at', '>=', Carbon::parse($dateFrom, 'Asia/Jakarta')->startOfDay()->utc());
+            ->when($dateFrom !== '', function ($q) use ($dateFrom, $appTimezone): void {
+                $q->where('created_at', '>=', Carbon::parse($dateFrom, 'Asia/Jakarta')->startOfDay()->timezone($appTimezone));
             })
-            ->when($dateTo !== '', function ($q) use ($dateTo): void {
-                $q->where('created_at', '<=', Carbon::parse($dateTo, 'Asia/Jakarta')->endOfDay()->utc());
+            ->when($dateTo !== '', function ($q) use ($dateTo, $appTimezone): void {
+                $q->where('created_at', '<=', Carbon::parse($dateTo, 'Asia/Jakarta')->endOfDay()->timezone($appTimezone));
             })
             ->when($search !== '', function ($q) use ($search): void {
                 $q->where(function ($sub) use ($search): void {

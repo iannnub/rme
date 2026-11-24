@@ -50,24 +50,37 @@ class InstrumentController extends BaseMasterController
         return [
             ['key' => 'name', 'label' => 'Nama Alat / Instrumen'],
             ['key' => 'category', 'label' => 'Kategori'],
+            ['key' => 'surgery_profile_label', 'label' => 'Jenis Operasi'],
+            ['key' => 'description', 'label' => 'Keterangan / Fungsi'],
         ];
     }
 
     protected function fields(): array
     {
         return [
-            ['name' => 'name', 'label' => 'Nama Alat / Instrumen', 'required' => true, 'placeholder' => 'contoh: Set Dasar Bedah', 'maxLength' => 255],
-            ['name' => 'category', 'label' => 'Kategori (Opsional)', 'required' => false, 'placeholder' => 'contoh: Instrumen Bedah', 'maxLength' => 100],
+            ['name' => 'name', 'label' => 'Nama Alat / Instrumen', 'required' => true, 'placeholder' => 'contoh: Set instrumen kraniotomi', 'maxLength' => 255],
+            ['name' => 'category', 'label' => 'Kategori (Opsional)', 'required' => false, 'placeholder' => 'contoh: Alat & Instrumen Bedah Saraf', 'maxLength' => 100],
+            ['name' => 'surgery_profile', 'label' => 'Profil Jenis Operasi (semua / bedah_saraf / bedah_ortopedi)', 'required' => false, 'placeholder' => 'semua', 'maxLength' => 30],
+            ['name' => 'description', 'label' => 'Keterangan / Fungsi (Opsional)', 'required' => false, 'placeholder' => 'contoh: Mengangkat periosteum', 'maxLength' => 255],
         ];
     }
 
     protected function transformItem(Model $item): array
     {
         /** @var Instrument $item */
+        $profileLabel = match ($item->surgery_profile) {
+            'bedah_saraf' => 'Bedah Saraf (EDH)',
+            'bedah_ortopedi' => 'Bedah Ortopedi (Fraktur Femur)',
+            default => 'Semua (Saraf & Ortopedi)',
+        };
+
         return [
             'id' => $item->id,
             'name' => $item->name,
             'category' => $item->category,
+            'surgery_profile' => $item->surgery_profile,
+            'surgery_profile_label' => $profileLabel,
+            'description' => $item->description,
             'is_active' => $item->is_active,
         ];
     }

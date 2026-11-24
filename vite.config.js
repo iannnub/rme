@@ -18,4 +18,27 @@ export default defineConfig({
     esbuild: {
         jsx: 'automatic',
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    const normalized = id.replaceAll('\\', '/');
+                    if (!normalized.includes('/node_modules/')) {
+                        return undefined;
+                    }
+                    if (
+                        normalized.includes('/react/') ||
+                        normalized.includes('/react-dom/') ||
+                        normalized.includes('/@inertiajs/react/')
+                    ) {
+                        return 'vendor-react';
+                    }
+                    if (normalized.includes('/@radix-ui/')) {
+                        return 'vendor-radix';
+                    }
+                    return undefined;
+                },
+            },
+        },
+    },
 });

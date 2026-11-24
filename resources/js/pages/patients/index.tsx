@@ -24,6 +24,10 @@ type PatientItem = {
     gender_label: string;
     address: string | null;
     phone: string | null;
+    identity_number: string | null;
+    guardian_name: string | null;
+    guardian_relation: string | null;
+    guardian_phone: string | null;
     surgery_cases_count: number;
 };
 
@@ -39,6 +43,10 @@ type PatientFormData = {
     gender: string;
     address: string;
     phone: string;
+    identity_number: string;
+    guardian_name: string;
+    guardian_relation: string;
+    guardian_phone: string;
 };
 
 interface PatientsIndexProps {
@@ -76,6 +84,10 @@ export default function PatientsIndex({ patients, filters, genders, canManage }:
         gender: genders[0]?.value ?? 'L',
         address: '',
         phone: '',
+        identity_number: '',
+        guardian_name: '',
+        guardian_relation: '',
+        guardian_phone: '',
     });
 
     const handleSearch: FormEventHandler = (e) => {
@@ -93,6 +105,10 @@ export default function PatientsIndex({ patients, filters, genders, canManage }:
             gender: genders[0]?.value ?? 'L',
             address: '',
             phone: '',
+            identity_number: '',
+            guardian_name: '',
+            guardian_relation: '',
+            guardian_phone: '',
         });
         setFormOpen(true);
     };
@@ -107,6 +123,10 @@ export default function PatientsIndex({ patients, filters, genders, canManage }:
             gender: patient.gender,
             address: patient.address ?? '',
             phone: patient.phone ?? '',
+            identity_number: patient.identity_number ?? '',
+            guardian_name: patient.guardian_name ?? '',
+            guardian_relation: patient.guardian_relation ?? '',
+            guardian_phone: patient.guardian_phone ?? '',
         });
         setFormOpen(true);
     };
@@ -351,6 +371,52 @@ export default function PatientsIndex({ patients, filters, genders, canManage }:
                                         placeholder="08xxxxxxxxxx"
                                     />
                                     <InputError message={form.errors.phone} />
+                                </div>
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="patient_identity_number">No. Identitas / NIK (Opsional)</Label>
+                                    <Input
+                                        id="patient_identity_number"
+                                        value={form.data.identity_number}
+                                        onChange={(e) => form.setData('identity_number', e.target.value)}
+                                        placeholder="16 digit NIK / KTP"
+                                    />
+                                    <InputError message={form.errors.identity_number} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="patient_guardian_name">Nama Keluarga / Penanggung Jawab (Opsional)</Label>
+                                    <Input
+                                        id="patient_guardian_name"
+                                        value={form.data.guardian_name}
+                                        onChange={(e) => form.setData('guardian_name', e.target.value)}
+                                        placeholder="Nama keluarga pasien"
+                                    />
+                                    <InputError message={form.errors.guardian_name} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="patient_guardian_relation">Hubungan dengan Pasien (Opsional)</Label>
+                                    <Input
+                                        id="patient_guardian_relation"
+                                        value={form.data.guardian_relation}
+                                        onChange={(e) => form.setData('guardian_relation', e.target.value)}
+                                        placeholder="contoh: Istri, Suami, Orang Tua, Anak"
+                                    />
+                                    <InputError message={form.errors.guardian_relation} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="patient_guardian_phone">No. Telepon Keluarga (Opsional)</Label>
+                                    <Input
+                                        id="patient_guardian_phone"
+                                        value={form.data.guardian_phone}
+                                        onChange={(e) => form.setData('guardian_phone', e.target.value)}
+                                        placeholder="08xxxxxxxxxx"
+                                    />
+                                    <InputError message={form.errors.guardian_phone} />
                                 </div>
                             </div>
 

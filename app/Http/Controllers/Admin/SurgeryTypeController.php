@@ -50,14 +50,16 @@ class SurgeryTypeController extends BaseMasterController
         return [
             ['key' => 'name', 'label' => 'Nama Jenis Operasi'],
             ['key' => 'specialty', 'label' => 'Spesialisasi'],
+            ['key' => 'default_procedure_name', 'label' => 'Nama Tindakan Bawaan'],
         ];
     }
 
     protected function fields(): array
     {
         return [
-            ['name' => 'name', 'label' => 'Nama Jenis Operasi', 'required' => true, 'placeholder' => 'contoh: Apendektomi', 'maxLength' => 255],
-            ['name' => 'specialty', 'label' => 'Spesialisasi (Opsional)', 'required' => false, 'placeholder' => 'contoh: Bedah Umum', 'maxLength' => 100],
+            ['name' => 'name', 'label' => 'Nama Jenis Operasi', 'required' => true, 'placeholder' => 'contoh: Bedah Saraf', 'maxLength' => 255],
+            ['name' => 'specialty', 'label' => 'Spesialisasi (Opsional)', 'required' => false, 'placeholder' => 'contoh: Bedah Saraf', 'maxLength' => 100],
+            ['name' => 'default_procedure_name', 'label' => 'Nama Tindakan Bawaan (Opsional)', 'required' => false, 'placeholder' => 'contoh: Kraniotomi evakuasi hematoma', 'maxLength' => 255],
         ];
     }
 
@@ -66,8 +68,10 @@ class SurgeryTypeController extends BaseMasterController
         /** @var SurgeryType $item */
         return [
             'id' => $item->id,
+            'code' => $item->code,
             'name' => $item->name,
             'specialty' => $item->specialty,
+            'default_procedure_name' => $item->default_procedure_name,
             'is_active' => $item->is_active,
         ];
     }

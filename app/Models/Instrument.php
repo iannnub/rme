@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SurgeryProfile;
 use Database\Factories\InstrumentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
  * @property int $id
  * @property string $name
  * @property string|null $category
+ * @property string $surgery_profile
+ * @property string|null $description
  * @property bool $is_active
  */
 class Instrument extends Model
@@ -23,6 +26,8 @@ class Instrument extends Model
     protected $fillable = [
         'name',
         'category',
+        'surgery_profile',
+        'description',
         'is_active',
     ];
 
@@ -52,5 +57,18 @@ class Instrument extends Model
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeForProfile(Builder $query, ?SurgeryProfile $profile): Builder
+    {
+        if ($profile === null) {
+            return $query;
+        }
+
+        return $query->whereIn('surgery_profile', [$profile->value, 'semua']);
     }
 }

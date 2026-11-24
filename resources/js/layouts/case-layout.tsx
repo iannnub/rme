@@ -33,6 +33,14 @@ export type CaseHeaderData = {
     origin_class: string | null;
     diagnosis: string;
     surgery_type: string;
+    surgery_profile: 'bedah_saraf' | 'bedah_ortopedi' | null;
+    surgery_profile_label: string | null;
+    urgency_status: string | null;
+    urgency_label: string | null;
+    igd_visit_number: string | null;
+    igd_admitted_at: string | null;
+    dpjp_name: string | null;
+    postop_diagnosis: string | null;
     surgery_site: string;
     anesthesia_type: string;
     allergy: string | null;
@@ -49,6 +57,10 @@ export type CaseHeaderData = {
         age_label: string;
         gender: string;
         gender_label: string;
+        identity_number: string | null;
+        guardian_name: string | null;
+        guardian_relation: string | null;
+        guardian_phone: string | null;
     };
     team: {
         surgeon: string | null;
@@ -122,6 +134,14 @@ export default function CaseLayout({ caseHeader, activeTab, children }: CaseLayo
                                         {caseHeader.patient.age_label} • {caseHeader.patient.gender_label}
                                     </span>
                                     <CaseStatusBadge status={caseHeader.status} label={caseHeader.status_label} />
+                                    {caseHeader.urgency_label && (
+                                        <Badge
+                                            variant={caseHeader.urgency_status === 'emergency' ? 'destructive' : 'secondary'}
+                                            className="rounded-lg"
+                                        >
+                                            {caseHeader.urgency_label}
+                                        </Badge>
+                                    )}
                                     {caseHeader.allergy && (
                                         <Badge variant="destructive" className="gap-1 rounded-lg">
                                             <AlertTriangle className="h-3 w-3" aria-hidden="true" />
@@ -136,6 +156,16 @@ export default function CaseLayout({ caseHeader, activeTab, children }: CaseLayo
                                     <span>
                                         Diagnosis: <strong className="text-foreground">{caseHeader.diagnosis}</strong>
                                     </span>
+                                    {caseHeader.dpjp_name && (
+                                        <span>
+                                            DPJP: <strong className="text-foreground">{caseHeader.dpjp_name}</strong>
+                                        </span>
+                                    )}
+                                    {caseHeader.igd_visit_number && (
+                                        <span>
+                                            No. IGD: <strong className="text-foreground tabular-nums">{caseHeader.igd_visit_number}</strong>
+                                        </span>
+                                    )}
                                     <span>
                                         Operasi: <strong className="text-foreground">{caseHeader.surgery_type}</strong>
                                     </span>
@@ -161,7 +191,7 @@ export default function CaseLayout({ caseHeader, activeTab, children }: CaseLayo
                         {/* Stepper */}
                         <nav
                             aria-label="Tahapan kasus operasi"
-                            className="flex gap-1.5 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 sm:gap-2 sm:overflow-visible sm:pb-0"
+                            className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] sm:grid sm:grid-cols-5 sm:gap-2 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden"
                         >
                             {caseHeader.stages.map((stage, index) => (
                                 <Link
@@ -197,7 +227,10 @@ export default function CaseLayout({ caseHeader, activeTab, children }: CaseLayo
                         </nav>
 
                         {/* Floating Liquid Glass Pill Tabs */}
-                        <nav aria-label="Menu bagian rekam kasus" className="bg-secondary/75 flex gap-1 overflow-x-auto rounded-2xl p-1">
+                        <nav
+                            aria-label="Menu bagian rekam kasus"
+                            className="bg-secondary/75 flex gap-1 overflow-x-auto rounded-2xl p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        >
                             {tabs.map((tab) => {
                                 const isActive = activeTab === tab.key;
 

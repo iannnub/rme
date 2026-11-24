@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $has_complication
  * @property string|null $complication_description
  * @property string|null $complication_handling
+ * @property array<string, mixed>|null $procedure_details
+ * @property list<array<string, mixed>>|null $implants
  * @property int $created_by
  */
 class IntraopRecord extends Model
@@ -80,6 +82,8 @@ class IntraopRecord extends Model
         'has_complication',
         'complication_description',
         'complication_handling',
+        'procedure_details',
+        'implants',
         'created_by',
     ];
 
@@ -100,6 +104,8 @@ class IntraopRecord extends Model
             'count_verification' => CountVerification::class,
             'count_discrepancy_actions' => 'array',
             'has_complication' => 'boolean',
+            'procedure_details' => 'array',
+            'implants' => 'array',
         ];
     }
 

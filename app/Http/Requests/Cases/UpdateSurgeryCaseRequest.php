@@ -18,13 +18,18 @@ class UpdateSurgeryCaseRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $nullableFields = [
+            'igd_visit_number',
+            'igd_admitted_at',
             'origin_class',
+            'urgency_status',
             'medical_diagnosis_id',
             'medical_diagnosis_other',
             'surgery_type_id',
             'surgery_type_other',
             'surgery_site',
             'anesthesia_type_id',
+            'dpjp_name',
+            'postop_diagnosis',
         ];
 
         $merged = [
@@ -62,9 +67,12 @@ class UpdateSurgeryCaseRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'igd_visit_number' => ['nullable', 'string', 'max:80'],
             'admitted_at' => ['required', 'date'],
+            'igd_admitted_at' => ['nullable', 'date'],
             'origin_ward' => ['required', 'string', 'max:150'],
             'origin_class' => ['nullable', 'string', 'max:100'],
+            'urgency_status' => ['nullable', 'in:emergency,elektif'],
             'scheduled_at' => ['required', 'date'],
             'medical_diagnosis_id' => ['nullable', 'exists:medical_diagnoses,id'],
             'medical_diagnosis_other' => ['nullable', 'string', 'max:255'],
@@ -72,6 +80,8 @@ class UpdateSurgeryCaseRequest extends FormRequest
             'surgery_type_other' => ['nullable', 'string', 'max:255'],
             'surgery_site' => ['nullable', 'string', 'max:255'],
             'anesthesia_type_id' => ['nullable', 'exists:anesthesia_types,id'],
+            'dpjp_name' => ['nullable', 'string', 'max:150'],
+            'postop_diagnosis' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

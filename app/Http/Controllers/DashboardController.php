@@ -64,8 +64,10 @@ class DashboardController extends Controller
      */
     private function buildNurseDashboard(User $user): array
     {
-        $startToday = now('Asia/Jakarta')->startOfDay()->utc();
-        $endToday = now('Asia/Jakarta')->endOfDay()->utc();
+        $tz = config('app.timezone');
+        $appTimezone = is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta';
+        $startToday = now('Asia/Jakarta')->startOfDay()->timezone($appTimezone);
+        $endToday = now('Asia/Jakarta')->endOfDay()->timezone($appTimezone);
 
         $myActiveCases = SurgeryCase::query()
             ->with(['patient', 'room', 'sscSignIn', 'sscTimeOut', 'sscSignOut', 'signoffs'])

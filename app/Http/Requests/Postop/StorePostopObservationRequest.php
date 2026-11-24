@@ -84,6 +84,8 @@ class StorePostopObservationRequest extends FormRequest
             'complications' => ['nullable', 'array'],
             'complications.*' => ['string', Rule::in(PostopObservation::COMPLICATION_OPTIONS)],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'clinical_details' => ['nullable', 'array'],
+            'clinical_details.*' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

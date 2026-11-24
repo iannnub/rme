@@ -18,8 +18,12 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property Carbon $birth_date
  * @property Gender $gender
+ * @property string|null $identity_number
  * @property string|null $address
  * @property string|null $phone
+ * @property string|null $guardian_name
+ * @property string|null $guardian_relation
+ * @property string|null $guardian_phone
  * @property int|null $created_by
  */
 class Patient extends Model
@@ -32,8 +36,12 @@ class Patient extends Model
         'name',
         'birth_date',
         'gender',
+        'identity_number',
         'address',
         'phone',
+        'guardian_name',
+        'guardian_relation',
+        'guardian_phone',
         'created_by',
     ];
 

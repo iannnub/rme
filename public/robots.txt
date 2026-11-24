@@ -11,4 +11,22 @@ Disallow: /audit
 Disallow: /admin
 Disallow: /pengaturan
 
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
 Sitemap: http://127.0.0.1:8188/sitemap.xml

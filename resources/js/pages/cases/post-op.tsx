@@ -35,6 +35,7 @@ type ObservationRow = {
     shivering_hypothermia: boolean;
     complications: string[];
     notes: string | null;
+    clinical_details: Record<string, string>;
     creator_name: string;
 };
 
@@ -83,6 +84,7 @@ interface PostopPageProps {
     summary: {
         ready_to_transfer: boolean;
         pre_transfer_condition_notes: string;
+        followup_plan: Record<string, string>;
         assessed_at: string;
         assessed_by_name: string | null;
     };
@@ -185,13 +187,51 @@ export default function PostopPage({
         shivering_hypothermia: false as boolean,
         complications: [] as string[],
         notes: '',
+        clinical_details: {
+            pupil_size_right: '',
+            pupil_size_left: '',
+            pupil_light_reaction: '',
+            extremity_motor: '',
+            foot_skin_color: '',
+            foot_skin_temp: '',
+            crt: '',
+            peripheral_pulse: '',
+            foot_sensation: '',
+            toe_movement: '',
+            tingling_numbness: '',
+            anesthesia_recovery_score: '',
+            medications_given: '',
+            doctor_postop_instructions: '',
+            neuro_followup_monitoring: '',
+            mobilization_instruction: '',
+            weight_bearing_instruction: '',
+            splint_immobilization: '',
+            radiology_plan: '',
+        },
     });
 
     const summaryForm = useForm({
         ready_to_transfer: summary.ready_to_transfer,
         pre_transfer_condition_notes: summary.pre_transfer_condition_notes,
+        followup_plan: { ...summary.followup_plan },
         assessed_at: summary.assessed_at,
     });
+
+    const updateObsClinical = (key: string, value: string) => {
+        obsForm.setData('clinical_details', {
+            ...obsForm.data.clinical_details,
+            [key]: value,
+        });
+    };
+
+    const updateFollowupPlan = (key: string, value: string) => {
+        summaryForm.setData('followup_plan', {
+            ...summaryForm.data.followup_plan,
+            [key]: value,
+        });
+    };
+
+    const isNeuro = caseHeader.surgery_profile === 'bedah_saraf';
 
     const diagForm = useForm({
         nursing_diagnosis_id: '',
@@ -232,6 +272,7 @@ export default function PostopPage({
                     'drain_ml',
                     'bleeding_ml',
                     'notes',
+                    'clinical_details',
                 );
                 obsForm.setData('recorded_at', nowWibLocalInput());
                 setShowNewForm(false);
@@ -819,6 +860,287 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
+                                <div className="space-y-3 border-t pt-3">
+                                    <h4 className="text-foreground text-xs font-semibold">
+                                        {isNeuro
+                                            ? 'Pemantauan Khusus Bedah Saraf (Neurologis, Pemulihan & Instruksi)'
+                                            : 'Pemantauan Khusus Bedah Ortopedi (Neurovaskular 5P, Pemulihan & Mobilisasi)'}
+                                    </h4>
+                                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                                        {isNeuro ? (
+                                            <>
+                                                <div>
+                                                    <Label htmlFor="obs_pupil_size_right" className="text-xs">
+                                                        Ukuran Pupil Kanan (mm)
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_pupil_size_right"
+                                                        value={obsForm.data.clinical_details.pupil_size_right}
+                                                        onChange={(e) => updateObsClinical('pupil_size_right', e.target.value)}
+                                                        placeholder="contoh: 3 mm"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_pupil_size_left" className="text-xs">
+                                                        Ukuran Pupil Kiri (mm)
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_pupil_size_left"
+                                                        value={obsForm.data.clinical_details.pupil_size_left}
+                                                        onChange={(e) => updateObsClinical('pupil_size_left', e.target.value)}
+                                                        placeholder="contoh: 3 mm"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_pupil_light_reaction" className="text-xs">
+                                                        Reaksi Pupil thd Cahaya
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_pupil_light_reaction"
+                                                        value={obsForm.data.clinical_details.pupil_light_reaction}
+                                                        onChange={(e) => updateObsClinical('pupil_light_reaction', e.target.value)}
+                                                        placeholder="Isokor +/+ cepat"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_extremity_motor" className="text-xs">
+                                                        Kekuatan Motorik Ekstremitas
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_extremity_motor"
+                                                        value={obsForm.data.clinical_details.extremity_motor}
+                                                        onChange={(e) => updateObsClinical('extremity_motor', e.target.value)}
+                                                        placeholder="5/5 kanan & 5/5 kiri"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_neuro_anesthesia_recovery_score" className="text-xs">
+                                                        Skor Pemulihan Anestesi (Aldrete)
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_neuro_anesthesia_recovery_score"
+                                                        value={obsForm.data.clinical_details.anesthesia_recovery_score}
+                                                        onChange={(e) => updateObsClinical('anesthesia_recovery_score', e.target.value)}
+                                                        placeholder="contoh: Aldrete 9/10"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_neuro_medications_given" className="text-xs">
+                                                        Obat Diberikan
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_neuro_medications_given"
+                                                        value={obsForm.data.clinical_details.medications_given}
+                                                        onChange={(e) => updateObsClinical('medications_given', e.target.value)}
+                                                        placeholder="Analgesik/antiemetik"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <Label htmlFor="obs_neuro_doctor_postop_instructions" className="text-xs">
+                                                        Instruksi Pasca-Operasi Dokter
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_neuro_doctor_postop_instructions"
+                                                        value={obsForm.data.clinical_details.doctor_postop_instructions}
+                                                        onChange={(e) => updateObsClinical('doctor_postop_instructions', e.target.value)}
+                                                        placeholder="Head up 30 derajat, kontrol CT scan bila perlu"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_neuro_followup_monitoring" className="text-xs">
+                                                        Pemantauan Neurologis Lanjutan
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_neuro_followup_monitoring"
+                                                        value={obsForm.data.clinical_details.neuro_followup_monitoring}
+                                                        onChange={(e) => updateObsClinical('neuro_followup_monitoring', e.target.value)}
+                                                        placeholder="Observasi GCS/pupil tiap 15-30 mnt"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    <Label htmlFor="obs_foot_skin_color" className="text-xs">
+                                                        Warna Kulit Kaki
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_foot_skin_color"
+                                                        value={obsForm.data.clinical_details.foot_skin_color}
+                                                        onChange={(e) => updateObsClinical('foot_skin_color', e.target.value)}
+                                                        placeholder="Kemerahan / tidak pucat"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_foot_skin_temp" className="text-xs">
+                                                        Suhu Kulit Kaki / Akral
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_foot_skin_temp"
+                                                        value={obsForm.data.clinical_details.foot_skin_temp}
+                                                        onChange={(e) => updateObsClinical('foot_skin_temp', e.target.value)}
+                                                        placeholder="Hangat"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_crt" className="text-xs">
+                                                        CRT Kaki
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_crt"
+                                                        value={obsForm.data.clinical_details.crt}
+                                                        onChange={(e) => updateObsClinical('crt', e.target.value)}
+                                                        placeholder="< 2 detik"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_peripheral_pulse" className="text-xs">
+                                                        Denyut Nadi Kaki
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_peripheral_pulse"
+                                                        value={obsForm.data.clinical_details.peripheral_pulse}
+                                                        onChange={(e) => updateObsClinical('peripheral_pulse', e.target.value)}
+                                                        placeholder="Dorsalis pedis kuat"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_foot_sensation" className="text-xs">
+                                                        Sensasi Kaki
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_foot_sensation"
+                                                        value={obsForm.data.clinical_details.foot_sensation}
+                                                        onChange={(e) => updateObsClinical('foot_sensation', e.target.value)}
+                                                        placeholder="Raba baik"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_toe_movement" className="text-xs">
+                                                        Gerakan Jari Kaki
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_toe_movement"
+                                                        value={obsForm.data.clinical_details.toe_movement}
+                                                        onChange={(e) => updateObsClinical('toe_movement', e.target.value)}
+                                                        placeholder="Dapat fleksi/ekstensi aktif"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_tingling_numbness" className="text-xs">
+                                                        Kesemutan / Mati Rasa
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_tingling_numbness"
+                                                        value={obsForm.data.clinical_details.tingling_numbness}
+                                                        onChange={(e) => updateObsClinical('tingling_numbness', e.target.value)}
+                                                        placeholder="Tidak ada kesemutan/baal"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_ortho_anesthesia_recovery_score" className="text-xs">
+                                                        Skor Pemulihan Anestesi
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_ortho_anesthesia_recovery_score"
+                                                        value={obsForm.data.clinical_details.anesthesia_recovery_score}
+                                                        onChange={(e) => updateObsClinical('anesthesia_recovery_score', e.target.value)}
+                                                        placeholder="Aldrete 9/10 / Bromage 0"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_ortho_medications_given" className="text-xs">
+                                                        Obat Diberikan
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_ortho_medications_given"
+                                                        value={obsForm.data.clinical_details.medications_given}
+                                                        onChange={(e) => updateObsClinical('medications_given', e.target.value)}
+                                                        placeholder="Analgesik/antibiotik pasca-op"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <Label htmlFor="obs_ortho_doctor_postop_instructions" className="text-xs">
+                                                        Instruksi Pasca-Operasi Dokter
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_ortho_doctor_postop_instructions"
+                                                        value={obsForm.data.clinical_details.doctor_postop_instructions}
+                                                        onChange={(e) => updateObsClinical('doctor_postop_instructions', e.target.value)}
+                                                        placeholder="Elevasi tungkai, pantau sindrom kompartemen"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_mobilization_instruction" className="text-xs">
+                                                        Instruksi Mobilisasi
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_mobilization_instruction"
+                                                        value={obsForm.data.clinical_details.mobilization_instruction}
+                                                        onChange={(e) => updateObsClinical('mobilization_instruction', e.target.value)}
+                                                        placeholder="Latihan gerak bertahap"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_weight_bearing_instruction" className="text-xs">
+                                                        Instruksi Penumpuan Berat Badan
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_weight_bearing_instruction"
+                                                        value={obsForm.data.clinical_details.weight_bearing_instruction}
+                                                        onChange={(e) => updateObsClinical('weight_bearing_instruction', e.target.value)}
+                                                        placeholder="Non-weight bearing (NWB)"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_splint_immobilization" className="text-xs">
+                                                        Pemasangan Bidai / Imobilisasi
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_splint_immobilization"
+                                                        value={obsForm.data.clinical_details.splint_immobilization}
+                                                        onChange={(e) => updateObsClinical('splint_immobilization', e.target.value)}
+                                                        placeholder="Elastis verban / back slab"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label htmlFor="obs_radiology_plan" className="text-xs">
+                                                        Rencana Pemeriksaan Radiologi Ulang
+                                                    </Label>
+                                                    <Input
+                                                        id="obs_radiology_plan"
+                                                        value={obsForm.data.clinical_details.radiology_plan}
+                                                        onChange={(e) => updateObsClinical('radiology_plan', e.target.value)}
+                                                        placeholder="Foto rontgen femur AP/Lat kontrol"
+                                                        className="min-h-11"
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
                                 <div className="flex justify-end">
                                     <Button type="submit" className="min-h-11" disabled={obsForm.processing}>
                                         <Save className="mr-2 h-4 w-4" />
@@ -869,6 +1191,32 @@ export default function PostopPage({
                                                 <TableCell className="text-xs">{o.wound_summary}</TableCell>
                                                 <TableCell className="text-xs">
                                                     <div>{o.anesthesia_recovery}</div>
+                                                    {o.clinical_details?.anesthesia_recovery_score && (
+                                                        <div className="text-muted-foreground">
+                                                            Skor: {o.clinical_details.anesthesia_recovery_score}
+                                                        </div>
+                                                    )}
+                                                    {isNeuro
+                                                        ? (o.clinical_details?.pupil_size_right || o.clinical_details?.extremity_motor) && (
+                                                              <div className="text-muted-foreground mt-0.5">
+                                                                  Pupil: {o.clinical_details.pupil_size_right || '-'}/
+                                                                  {o.clinical_details.pupil_size_left || '-'}{' '}
+                                                                  {o.clinical_details.pupil_light_reaction
+                                                                      ? `(${o.clinical_details.pupil_light_reaction})`
+                                                                      : ''}
+                                                                  {o.clinical_details.extremity_motor
+                                                                      ? ` • Motorik: ${o.clinical_details.extremity_motor}`
+                                                                      : ''}
+                                                              </div>
+                                                          )
+                                                        : (o.clinical_details?.crt ||
+                                                              o.clinical_details?.peripheral_pulse ||
+                                                              o.clinical_details?.foot_skin_color) && (
+                                                              <div className="text-muted-foreground mt-0.5">
+                                                                  NV: {o.clinical_details.foot_skin_color || '-'}, CRT {o.clinical_details.crt || '-'}
+                                                                  , Nadi {o.clinical_details.peripheral_pulse || '-'}
+                                                              </div>
+                                                          )}
                                                     {(o.nausea_vomiting || o.shivering_hypothermia || o.complications.length > 0) && (
                                                         <div className="mt-0.5 text-amber-700">
                                                             {[
@@ -887,13 +1235,14 @@ export default function PostopPage({
                                                             type="button"
                                                             variant="ghost"
                                                             size="icon"
+                                                            aria-label="Hapus observasi pasca-operasi"
                                                             onClick={() =>
                                                                 router.delete(route('cases.postop.observations.destroy', [caseHeader.id, o.id]), {
                                                                     preserveScroll: true,
                                                                 })
                                                             }
                                                         >
-                                                            <Trash2 className="text-destructive h-4 w-4" />
+                                                            <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
                                                         </Button>
                                                     </TableCell>
                                                 )}
@@ -1075,6 +1424,121 @@ export default function PostopPage({
                                     />
                                     {summary.assessed_by_name && (
                                         <p className="text-muted-foreground text-xs">Dinilai oleh: {summary.assessed_by_name}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-3 rounded-lg border p-3">
+                                <h4 className="text-foreground text-xs font-semibold">Rencana Tindak Lanjut &amp; Instruksi Pasca-Operasi</h4>
+                                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                    <div className="space-y-1">
+                                        <Label htmlFor="followup_medications_given" className="text-xs">
+                                            Obat yang Diberikan
+                                        </Label>
+                                        <Input
+                                            id="followup_medications_given"
+                                            value={summaryForm.data.followup_plan.medications_given ?? ''}
+                                            onChange={(e) => updateFollowupPlan('medications_given', e.target.value)}
+                                            disabled={!permissions.canEdit}
+                                            placeholder="Analgesik, antibiotik, antiemetik..."
+                                            className="min-h-11"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="followup_iv_fluid_plan" className="text-xs">
+                                            Rencana Cairan Infus Lanjutan
+                                        </Label>
+                                        <Input
+                                            id="followup_iv_fluid_plan"
+                                            value={summaryForm.data.followup_plan.iv_fluid_plan ?? ''}
+                                            onChange={(e) => updateFollowupPlan('iv_fluid_plan', e.target.value)}
+                                            disabled={!permissions.canEdit}
+                                            placeholder="NaCl 0.9% / RL 20 tpm"
+                                            className="min-h-11"
+                                        />
+                                    </div>
+                                    <div className="space-y-1 md:col-span-2">
+                                        <Label htmlFor="followup_doctor_postop_instructions" className="text-xs">
+                                            Instruksi Pasca-Operasi Dokter
+                                        </Label>
+                                        <Input
+                                            id="followup_doctor_postop_instructions"
+                                            value={summaryForm.data.followup_plan.doctor_postop_instructions ?? ''}
+                                            onChange={(e) => updateFollowupPlan('doctor_postop_instructions', e.target.value)}
+                                            disabled={!permissions.canEdit}
+                                            placeholder="Instruksi DPJP untuk ruang perawatan / ICU"
+                                            className="min-h-11"
+                                        />
+                                    </div>
+                                    {isNeuro ? (
+                                        <div className="space-y-1 md:col-span-2">
+                                            <Label htmlFor="followup_neuro_followup_monitoring" className="text-xs">
+                                                Rencana Pemantauan Neurologis Lanjutan
+                                            </Label>
+                                            <Input
+                                                id="followup_neuro_followup_monitoring"
+                                                value={summaryForm.data.followup_plan.neuro_followup_monitoring ?? ''}
+                                                onChange={(e) => updateFollowupPlan('neuro_followup_monitoring', e.target.value)}
+                                                disabled={!permissions.canEdit}
+                                                placeholder="Monitor GCS, pupil, TTV tiap 15-30 mnt selama 24 jam pertama"
+                                                className="min-h-11"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="followup_mobilization_instruction" className="text-xs">
+                                                    Instruksi Mobilisasi
+                                                </Label>
+                                                <Input
+                                                    id="followup_mobilization_instruction"
+                                                    value={summaryForm.data.followup_plan.mobilization_instruction ?? ''}
+                                                    onChange={(e) => updateFollowupPlan('mobilization_instruction', e.target.value)}
+                                                    disabled={!permissions.canEdit}
+                                                    placeholder="Latihan isometric quadriceps & gerak pasif"
+                                                    className="min-h-11"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="followup_weight_bearing_instruction" className="text-xs">
+                                                    Instruksi Penumpuan Berat Badan
+                                                </Label>
+                                                <Input
+                                                    id="followup_weight_bearing_instruction"
+                                                    value={summaryForm.data.followup_plan.weight_bearing_instruction ?? ''}
+                                                    onChange={(e) => updateFollowupPlan('weight_bearing_instruction', e.target.value)}
+                                                    disabled={!permissions.canEdit}
+                                                    placeholder="Non-weight bearing (NWB) s/d evaluasi kontrol"
+                                                    className="min-h-11"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="followup_splint_immobilization" className="text-xs">
+                                                    Pemasangan Bidai / Imobilisasi
+                                                </Label>
+                                                <Input
+                                                    id="followup_splint_immobilization"
+                                                    value={summaryForm.data.followup_plan.splint_immobilization ?? ''}
+                                                    onChange={(e) => updateFollowupPlan('splint_immobilization', e.target.value)}
+                                                    disabled={!permissions.canEdit}
+                                                    placeholder="Pertahankan elastis verban / posisi elevasi"
+                                                    className="min-h-11"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <Label htmlFor="followup_radiology_plan" className="text-xs">
+                                                    Rencana Pemeriksaan Radiologi Ulang
+                                                </Label>
+                                                <Input
+                                                    id="followup_radiology_plan"
+                                                    value={summaryForm.data.followup_plan.radiology_plan ?? ''}
+                                                    onChange={(e) => updateFollowupPlan('radiology_plan', e.target.value)}
+                                                    disabled={!permissions.canEdit}
+                                                    placeholder="Rontgen femur AP/Lateral kontrol di ruangan"
+                                                    className="min-h-11"
+                                                />
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             </div>

@@ -65,7 +65,6 @@ export default function Login({ status }: LoginProps) {
                             type="text"
                             required
                             autoFocus
-                            tabIndex={1}
                             autoComplete="username"
                             value={data.login}
                             onChange={(e) => setData('login', e.target.value)}
@@ -81,7 +80,6 @@ export default function Login({ status }: LoginProps) {
                             name="password"
                             type="password"
                             required
-                            tabIndex={2}
                             autoComplete="current-password"
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
@@ -94,7 +92,6 @@ export default function Login({ status }: LoginProps) {
                         <Checkbox
                             id="remember"
                             name="remember"
-                            tabIndex={3}
                             checked={data.remember}
                             onCheckedChange={(checked) => setData('remember', checked === true)}
                         />
@@ -103,7 +100,7 @@ export default function Login({ status }: LoginProps) {
                         </Label>
                     </div>
 
-                    <Button type="submit" className="mt-1 w-full" tabIndex={4} disabled={processing}>
+                    <Button type="submit" className="mt-1 w-full" disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Masuk
                     </Button>

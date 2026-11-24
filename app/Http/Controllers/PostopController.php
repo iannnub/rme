@@ -36,6 +36,7 @@ use App\Models\NursingDiagnosis;
 use App\Models\PostopObservation;
 use App\Models\SurgeryCase;
 use App\Models\VitalSign;
+use App\Support\PreopClinicalDefaults;
 use App\Support\SurgeryCasePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -141,6 +142,7 @@ class PostopController extends Controller
                 'shivering_hypothermia' => $o->shivering_hypothermia,
                 'complications' => $o->complications ?? [],
                 'notes' => $o->notes,
+                'clinical_details' => PreopClinicalDefaults::mergePostopClinical($o->clinical_details),
                 'creator_name' => $o->creator !== null ? $o->creator->name : '-',
             ])->values()->all(),
             'vitalSigns' => $postVitals->map(fn (VitalSign $v): array => [
@@ -168,11 +170,13 @@ class PostopController extends Controller
             'summary' => $summary === null ? [
                 'ready_to_transfer' => false,
                 'pre_transfer_condition_notes' => '',
+                'followup_plan' => PreopClinicalDefaults::mergePostopFollowup(null),
                 'assessed_at' => now('Asia/Jakarta')->format('Y-m-d\TH:i'),
                 'assessed_by_name' => null,
             ] : [
                 'ready_to_transfer' => $summary->ready_to_transfer,
                 'pre_transfer_condition_notes' => $summary->pre_transfer_condition_notes ?? '',
+                'followup_plan' => PreopClinicalDefaults::mergePostopFollowup($summary->followup_plan),
                 'assessed_at' => $summary->assessed_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? now('Asia/Jakarta')->format('Y-m-d\TH:i'),
                 'assessed_by_name' => $summary->assessor !== null ? $summary->assessor->name : null,
             ],
@@ -300,7 +304,7 @@ class PostopController extends Controller
         ManageCaseNursingDiagnosis $action,
     ): RedirectResponse {
         $this->authorize('updatePostop', $surgeryCase);
-        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id, 404);
+        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id || $caseNursingDiagnosis->phase !== NursingPhase::Post, 404);
 
         $user = $request->user();
         abort_if($user === null, 403);
@@ -319,6 +323,9 @@ class PostopController extends Controller
         $this->authorize('updatePostop', $surgeryCase);
         $user = $request->user();
         abort_if($user === null, 403);
+
+        $caseDiagnosis = $caseInterventionItem->caseNursingDiagnosis;
+        abort_if($caseDiagnosis === null || $caseDiagnosis->case_id !== $surgeryCase->id || $caseDiagnosis->phase !== NursingPhase::Post, 404);
 
         $action->toggleIntervention($caseInterventionItem, $user);
 

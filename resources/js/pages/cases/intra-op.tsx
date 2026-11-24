@@ -1,3 +1,8 @@
+import {
+    IntraopProcedureDetailsCard,
+    type IntraopImplantRow,
+    type IntraopProcedureDetails,
+} from '@/components/cases/intraop/IntraopProcedureDetailsCard';
 import { VitalSignChart, type VitalSignPoint } from '@/components/cases/vital-sign-chart';
 import { ConcurrencyAlert } from '@/components/concurrency-alert';
 import InputError from '@/components/input-error';
@@ -19,6 +24,7 @@ import {
     AlertTriangle,
     ArrowRight,
     CheckCircle2,
+    ClipboardList,
     Clock,
     Droplets,
     FileCheck2,
@@ -29,7 +35,6 @@ import {
     Plus,
     Save,
     ShieldCheck,
-    Sparkles,
     Stethoscope,
     Trash2,
 } from 'lucide-react';
@@ -127,11 +132,13 @@ interface IntraopPageProps {
         updated_at: string | null;
         anesthesia_type_id: number | null;
         operation_plan_actual: string;
+        postop_diagnosis: string;
         entered_or_at: string;
         anesthesia_start_at: string;
         incision_at: string;
         surgery_end_at: string;
         left_or_at: string;
+        anesthesia_end_at: string;
         sign_in_completed: boolean;
         time_out_completed: boolean;
     };
@@ -171,6 +178,11 @@ interface IntraopPageProps {
         has_complication: boolean;
         complication_description: string;
         complication_handling: string;
+    };
+    procedureDetails: {
+        updated_at: string | null;
+        details: IntraopProcedureDetails;
+        implants: IntraopImplantRow[];
     };
     caseNursingDiagnoses: CaseDiagnosisItem[];
     signoffCards: SignoffCard[];
@@ -235,6 +247,7 @@ export default function IntraopPage({
     nursingActions,
     instrumentCounts,
     specimenComplication,
+    procedureDetails,
     caseNursingDiagnoses,
     signoffCards,
     options,
@@ -244,11 +257,13 @@ export default function IntraopPage({
     const chronoForm = useForm({
         anesthesia_type_id: chronology.anesthesia_type_id ? String(chronology.anesthesia_type_id) : '',
         operation_plan_actual: chronology.operation_plan_actual,
+        postop_diagnosis: chronology.postop_diagnosis,
         entered_or_at: chronology.entered_or_at,
         anesthesia_start_at: chronology.anesthesia_start_at,
         incision_at: chronology.incision_at,
         surgery_end_at: chronology.surgery_end_at,
         left_or_at: chronology.left_or_at,
+        anesthesia_end_at: chronology.anesthesia_end_at,
     });
 
     // 3. Posisi & Area
@@ -545,7 +560,7 @@ export default function IntraopPage({
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={submitChronology} className="space-y-4">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                 <div className="space-y-1.5">
                                     <Label htmlFor="anesthesia_type_id">Jenis Anestesi</Label>
                                     <Select
@@ -576,9 +591,21 @@ export default function IntraopPage({
                                         className="min-h-11"
                                     />
                                 </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="postop_diagnosis">Diagnosis Pasca-Operasi</Label>
+                                    <Input
+                                        id="postop_diagnosis"
+                                        value={chronoForm.data.postop_diagnosis}
+                                        onChange={(e) => chronoForm.setData('postop_diagnosis', e.target.value)}
+                                        disabled={!permissions.canEditIntraop}
+                                        placeholder="Diagnosis akhir setelah operasi"
+                                        className="min-h-11"
+                                    />
+                                    <InputError message={chronoForm.errors.postop_diagnosis} />
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                                 {[
                                     { key: 'entered_or_at', label: '1. Masuk OK', locked: false, lockReason: '' },
                                     {
@@ -595,8 +622,15 @@ export default function IntraopPage({
                                     },
                                     { key: 'surgery_end_at', label: '4. Selesai Operasi', locked: false, lockReason: '' },
                                     { key: 'left_or_at', label: '5. Keluar OK', locked: false, lockReason: '' },
+                                    { key: 'anesthesia_end_at', label: '6. Selesai Anestesi', locked: false, lockReason: '' },
                                 ].map((item) => {
-                                    const k = item.key as 'entered_or_at' | 'anesthesia_start_at' | 'incision_at' | 'surgery_end_at' | 'left_or_at';
+                                    const k = item.key as
+                                        | 'entered_or_at'
+                                        | 'anesthesia_start_at'
+                                        | 'incision_at'
+                                        | 'surgery_end_at'
+                                        | 'left_or_at'
+                                        | 'anesthesia_end_at';
                                     return (
                                         <div key={item.key} className="space-y-1.5 rounded-lg border p-3">
                                             <div className="flex items-center justify-between gap-1">
@@ -611,7 +645,7 @@ export default function IntraopPage({
                                                 value={chronoForm.data[k]}
                                                 onChange={(e) => chronoForm.setData(k, e.target.value)}
                                                 disabled={!permissions.canEditIntraop || item.locked}
-                                                className="min-h-10 text-xs"
+                                                className="min-h-11 text-xs"
                                             />
                                             {permissions.canEditIntraop && (
                                                 <Button
@@ -939,7 +973,7 @@ export default function IntraopPage({
                             </div>
                             {permissions.canEditIntraop && (
                                 <Button type="button" variant="outline" className="min-h-11" onClick={applyTemplates}>
-                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    <ClipboardList className="mr-2 h-4 w-4" aria-hidden="true" />
                                     Tambah dari Template (7 Item PDF)
                                 </Button>
                             )}
@@ -949,19 +983,26 @@ export default function IntraopPage({
                         {permissions.canEditIntraop && (
                             <form onSubmit={submitNursingAction} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-12">
                                 <div className="md:col-span-3">
+                                    <Label htmlFor="action_performed_at" className="sr-only">
+                                        Waktu tindakan
+                                    </Label>
                                     <Input
+                                        id="action_performed_at"
                                         type="datetime-local"
                                         value={actionForm.data.performed_at}
                                         onChange={(e) => actionForm.setData('performed_at', e.target.value)}
-                                        className="min-h-10 text-xs"
+                                        className="min-h-11 text-xs"
                                     />
                                 </div>
                                 <div className="md:col-span-2">
+                                    <Label htmlFor="action_performed_by_role" className="sr-only">
+                                        Peran perawat pelaksana
+                                    </Label>
                                     <Select
                                         value={actionForm.data.performed_by_role}
                                         onValueChange={(v) => actionForm.setData('performed_by_role', v)}
                                     >
-                                        <SelectTrigger className="min-h-10 text-xs">
+                                        <SelectTrigger id="action_performed_by_role" className="min-h-11 text-xs">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -971,25 +1012,38 @@ export default function IntraopPage({
                                     </Select>
                                 </div>
                                 <div className="md:col-span-3">
+                                    <Label htmlFor="action_text" className="sr-only">
+                                        Tindakan keperawatan
+                                    </Label>
                                     <Input
+                                        id="action_text"
                                         value={actionForm.data.action}
                                         onChange={(e) => actionForm.setData('action', e.target.value)}
                                         placeholder="Tindakan keperawatan *"
-                                        className="min-h-10 text-xs"
+                                        className="min-h-11 text-xs"
                                     />
                                     <InputError message={actionForm.errors.action} />
                                 </div>
                                 <div className="md:col-span-3">
+                                    <Label htmlFor="action_evaluation" className="sr-only">
+                                        Evaluasi atau respons pasien
+                                    </Label>
                                     <Input
+                                        id="action_evaluation"
                                         value={actionForm.data.evaluation}
                                         onChange={(e) => actionForm.setData('evaluation', e.target.value)}
                                         placeholder="Evaluasi / respons pasien"
-                                        className="min-h-10 text-xs"
+                                        className="min-h-11 text-xs"
                                     />
                                 </div>
                                 <div className="md:col-span-1">
-                                    <Button type="submit" className="min-h-10 w-full" disabled={actionForm.processing}>
-                                        <Plus className="h-4 w-4" />
+                                    <Button
+                                        type="submit"
+                                        aria-label="Tambah tindakan keperawatan"
+                                        className="min-h-11 w-full"
+                                        disabled={actionForm.processing}
+                                    >
+                                        <Plus className="h-4 w-4" aria-hidden="true" />
                                     </Button>
                                 </div>
                             </form>
@@ -1032,13 +1086,14 @@ export default function IntraopPage({
                                                             type="button"
                                                             variant="ghost"
                                                             size="icon"
+                                                            aria-label="Hapus tindakan keperawatan"
                                                             onClick={() =>
                                                                 router.delete(route('cases.intraop.actions.destroy', [caseHeader.id, act.id]), {
                                                                     preserveScroll: true,
                                                                 })
                                                             }
                                                         >
-                                                            <Trash2 className="text-destructive h-4 w-4" />
+                                                            <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
                                                         </Button>
                                                     </TableCell>
                                                 )}
@@ -1241,13 +1296,14 @@ export default function IntraopPage({
                                                                 type="button"
                                                                 variant="ghost"
                                                                 size="icon"
+                                                                aria-label="Hapus pemantauan TTV"
                                                                 onClick={() =>
                                                                     router.delete(route('cases.intraop.vitals.destroy', [caseHeader.id, v.id]), {
                                                                         preserveScroll: true,
                                                                     })
                                                                 }
                                                             >
-                                                                <Trash2 className="text-destructive h-4 w-4" />
+                                                                <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
                                                             </Button>
                                                         </TableCell>
                                                     )}
@@ -1334,6 +1390,7 @@ export default function IntraopPage({
                                                                     type="button"
                                                                     variant="ghost"
                                                                     size="icon"
+                                                                    aria-label="Hapus obat intra-operasi"
                                                                     onClick={() =>
                                                                         router.delete(
                                                                             route('cases.intraop.medications.destroy', [caseHeader.id, m.id]),
@@ -1341,7 +1398,7 @@ export default function IntraopPage({
                                                                         )
                                                                     }
                                                                 >
-                                                                    <Trash2 className="text-destructive h-4 w-4" />
+                                                                    <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
                                                                 </Button>
                                                             </TableCell>
                                                         )}
@@ -1444,13 +1501,14 @@ export default function IntraopPage({
                                                                     type="button"
                                                                     variant="ghost"
                                                                     size="icon"
+                                                                    aria-label="Hapus catatan cairan"
                                                                     onClick={() =>
                                                                         router.delete(route('cases.intraop.fluids.destroy', [caseHeader.id, f.id]), {
                                                                             preserveScroll: true,
                                                                         })
                                                                     }
                                                                 >
-                                                                    <Trash2 className="text-destructive h-4 w-4" />
+                                                                    <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
                                                                 </Button>
                                                             </TableCell>
                                                         )}
@@ -1743,13 +1801,21 @@ export default function IntraopPage({
                                 <div className="flex justify-end">
                                     <Button type="submit" className="min-h-11" disabled={specForm.processing}>
                                         <Save className="mr-2 h-4 w-4" />
-                                        Simpan Spesimen & Komplikasi
+                                        Simpan Spesimen &amp; Komplikasi
                                     </Button>
                                 </div>
                             )}
                         </form>
                     </CardContent>
                 </Card>
+
+                {/* 8B. Detail Tindakan Khusus & Data Implan (Sesuai Profil Operasi) */}
+                <IntraopProcedureDetailsCard
+                    caseId={caseHeader.id}
+                    surgeryProfile={caseHeader.surgery_profile}
+                    initialData={procedureDetails}
+                    canEdit={permissions.canEditComplication}
+                />
 
                 {/* 9. Pengesahan Dokumentasi Intra-Operatif (4 Pihak) */}
                 <Card>

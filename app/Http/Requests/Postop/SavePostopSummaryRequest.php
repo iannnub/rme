@@ -25,6 +25,8 @@ class SavePostopSummaryRequest extends FormRequest
             'ready_to_transfer' => ['required', 'boolean'],
             'pre_transfer_condition_notes' => ['nullable', 'string', 'max:2000'],
             'assessed_at' => ['nullable', 'date'],
+            'followup_plan' => ['nullable', 'array'],
+            'followup_plan.*' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

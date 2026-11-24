@@ -36,8 +36,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                     <div className="lg:hidden">
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="mr-2">
-                                    <Menu className="h-5 w-5" />
+                                <Button variant="ghost" size="icon" aria-label="Buka menu navigasi" className="mr-2">
+                                    <Menu className="h-5 w-5" aria-hidden="true" />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="bg-sidebar flex h-full w-64 flex-col items-stretch justify-between">

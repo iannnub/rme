@@ -56,7 +56,10 @@ class ReportController extends Controller
                 'handover',
                 'signoffs',
             ])
-            ->whereBetween('scheduled_at', [$startOfMonth->copy()->utc(), $endOfMonth->copy()->utc()])
+            ->whereBetween('scheduled_at', [
+                $startOfMonth->copy()->timezone(is_string($tz = config('app.timezone')) && $tz !== '' ? $tz : 'Asia/Jakarta'),
+                $endOfMonth->copy()->timezone(is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta'),
+            ])
             ->orderByDesc('scheduled_at')
             ->get();
 
@@ -121,7 +124,10 @@ class ReportController extends Controller
         $trendEnd = $endOfMonth->copy();
 
         $trendCases = SurgeryCase::query()
-            ->whereBetween('scheduled_at', [$trendStart->copy()->utc(), $trendEnd->copy()->utc()])
+            ->whereBetween('scheduled_at', [
+                $trendStart->copy()->timezone(is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta'),
+                $trendEnd->copy()->timezone(is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta'),
+            ])
             ->get(['scheduled_at', 'status']);
 
         $trendBuckets = [];

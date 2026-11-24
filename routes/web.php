@@ -158,6 +158,9 @@ Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
         Route::put('kasus/{surgeryCase}/intra-op/spesimen-komplikasi', [IntraopController::class, 'updateSpecimenComplication'])
             ->whereNumber('surgeryCase')
             ->name('cases.intraop.specimen-complication');
+        Route::put('kasus/{surgeryCase}/intra-op/detail-tindakan', [IntraopController::class, 'updateProcedureDetails'])
+            ->whereNumber('surgeryCase')
+            ->name('cases.intraop.procedure-details');
         Route::post('kasus/{surgeryCase}/intra-op/sahkan', [IntraopController::class, 'sign'])
             ->whereNumber('surgeryCase')
             ->name('cases.intraop.sign');

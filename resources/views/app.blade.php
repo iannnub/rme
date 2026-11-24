@@ -7,7 +7,7 @@
         @php
             $isPublicLogin = request()->routeIs('login') || request()->is('login');
             $seoTitle = 'Masuk - RME Keperawatan Kamar Operasi (OKA)';
-            $seoDescription = 'Sistem Rekam Medis Elektronik (RME) Keperawatan Kamar Operasi untuk dokumentasi asuhan perioperatif, Surgical Safety Checklist WHO, dan serah terima pasien.';
+            $seoDescription = 'Sistem RME Keperawatan Kamar Operasi untuk dokumentasi asuhan perioperatif, Surgical Safety Checklist WHO, dan serah terima pasien.';
             $canonicalUrl = request()->url();
             $ogImageUrl = request()->getSchemeAndHttpHost() . '/og-image.png';
             $jsonLd = [
@@ -35,28 +35,33 @@
         <meta name="description" content="{{ $seoDescription }}">
         <meta name="robots" content="{{ $isPublicLogin ? 'index, follow' : 'noindex, nofollow' }}">
         <meta name="theme-color" content="#0A2540">
-        <link rel="canonical" href="{{ $canonicalUrl }}">
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+        <link rel="alternate icon" href="/favicon.ico">
 
-        <meta property="og:type" content="website">
-        <meta property="og:site_name" content="RME OKA">
-        <meta property="og:locale" content="id_ID">
-        <meta property="og:url" content="{{ $canonicalUrl }}">
-        <meta property="og:title" content="{{ $seoTitle }}">
-        <meta property="og:description" content="{{ $seoDescription }}">
-        <meta property="og:image" content="{{ $ogImageUrl }}">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta property="og:image:alt" content="RME Keperawatan Kamar Operasi (OKA) - Sistem Dokumentasi Perioperatif">
+        @if ($isPublicLogin)
+            <link rel="canonical" href="{{ $canonicalUrl }}">
 
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="{{ $seoTitle }}">
-        <meta name="twitter:description" content="{{ $seoDescription }}">
-        <meta name="twitter:image" content="{{ $ogImageUrl }}">
+            <meta property="og:type" content="website">
+            <meta property="og:site_name" content="RME OKA">
+            <meta property="og:locale" content="id_ID">
+            <meta property="og:url" content="{{ $canonicalUrl }}">
+            <meta property="og:title" content="{{ $seoTitle }}">
+            <meta property="og:description" content="{{ $seoDescription }}">
+            <meta property="og:image" content="{{ $ogImageUrl }}">
+            <meta property="og:image:width" content="1200">
+            <meta property="og:image:height" content="630">
+            <meta property="og:image:alt" content="RME Keperawatan Kamar Operasi (OKA) - Sistem Dokumentasi Perioperatif">
 
-        <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="{{ $seoTitle }}">
+            <meta name="twitter:description" content="{{ $seoDescription }}">
+            <meta name="twitter:image" content="{{ $ogImageUrl }}">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700" rel="stylesheet" />
+            <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        @endif
+
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700&display=swap" rel="stylesheet" />
 
         @routes
         @viteReactRefresh

@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
 use App\Enums\SignOutStatus;
+use App\Enums\SurgeryProfile;
 use App\Models\AnesthesiaType;
 use App\Models\CaseSignoff;
 use App\Models\Handover;
@@ -34,9 +35,11 @@ test('master seeder dan demo seeder bersifat idempoten serta menghasilkan seluru
 
     expect(Room::query()->count())->toBe(3);
     expect(AnesthesiaType::query()->count())->toBe(5);
-    expect(MedicalDiagnosis::query()->count())->toBe(10);
-    expect(SurgeryType::query()->count())->toBe(10);
-    expect(Instrument::query()->count())->toBe(10);
+    expect(MedicalDiagnosis::query()->count())->toBe(2);
+    expect(SurgeryType::query()->count())->toBe(2);
+    expect(Instrument::query()->count())->toBe(81);
+    expect(Instrument::forProfile(SurgeryProfile::BedahSaraf)->count())->toBe(50);
+    expect(Instrument::forProfile(SurgeryProfile::BedahOrtopedi)->count())->toBe(66);
     expect(Setting::query()->count())->toBe(4);
     expect(User::query()->count())->toBe(8);
     expect(Patient::query()->count())->toBe(4);

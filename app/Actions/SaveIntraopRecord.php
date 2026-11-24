@@ -9,6 +9,7 @@ use App\Models\SurgeryCase;
 use App\Models\User;
 use App\Support\AuditContext;
 use App\Support\OptimisticLock;
+use App\Support\PreopClinicalDefaults;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -192,6 +193,75 @@ class SaveIntraopRecord
 
                 return $record->fresh() ?? $record;
             }, 'Memperbarui pengelolaan spesimen dan catatan kejadian khusus intra-operasi', $case->id, $actor);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function saveProcedureDetails(SurgeryCase $case, array $data, User $actor): IntraopRecord
+    {
+        if ($case->status === CaseStatus::Selesai) {
+            throw ValidationException::withMessages([
+                'status' => ['Kasus yang sudah selesai tidak dapat diubah rincian tindakan operasinya.'],
+            ]);
+        }
+
+        OptimisticLock::assertFresh(
+            $case->intraopRecord()->first(),
+            $data['expected_updated_at'] ?? null,
+        );
+
+        $details = PreopClinicalDefaults::mergeIntraopProcedure(
+            is_array($data['procedure_details'] ?? null) ? $data['procedure_details'] : null
+        );
+
+        $implantsInput = is_array($data['implants'] ?? null) ? $data['implants'] : null;
+        $implantsNormalized = null;
+        if ($implantsInput !== null) {
+            $implantsNormalized = [];
+            foreach ($implantsInput as $row) {
+                if (! is_array($row)) {
+                    continue;
+                }
+                $clean = [
+                    'implant_type' => $this->nullableString($row['implant_type'] ?? null) ?? '',
+                    'size' => $this->nullableString($row['size'] ?? null) ?? '',
+                    'planned_qty' => $this->nullableString($row['planned_qty'] ?? null) ?? '',
+                    'brand' => $this->nullableString($row['brand'] ?? null) ?? '',
+                    'serial_lot' => $this->nullableString($row['serial_lot'] ?? null) ?? '',
+                    'placement_site' => $this->nullableString($row['placement_site'] ?? null) ?? '',
+                    'used_qty' => $this->nullableString($row['used_qty'] ?? null) ?? '',
+                    'unused_doc' => $this->nullableString($row['unused_doc'] ?? null) ?? '',
+                ];
+                if (implode('', $clean) !== '') {
+                    $implantsNormalized[] = $clean;
+                }
+            }
+        }
+
+        return DB::transaction(function () use ($case, $details, $implantsNormalized, $actor): IntraopRecord {
+            return AuditContext::run(function () use ($case, $details, $implantsNormalized, $actor): IntraopRecord {
+                $payload = [
+                    'procedure_details' => $details,
+                ];
+                if ($implantsNormalized !== null) {
+                    $payload['implants'] = $implantsNormalized;
+                }
+
+                $record = $case->intraopRecord;
+                if ($record !== null) {
+                    $record->update($payload);
+
+                    return $record->fresh() ?? $record;
+                }
+
+                return IntraopRecord::query()->create([
+                    ...$payload,
+                    'case_id' => $case->id,
+                    'created_by' => $actor->id,
+                ]);
+            }, 'Memperbarui data tindakan operasi spesifik & implan intra-operasi', $case->id, $actor);
         });
     }
 

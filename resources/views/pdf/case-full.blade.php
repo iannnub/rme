@@ -27,14 +27,14 @@
             content: "Halaman " counter(page);
         }
         .header {
-            border-bottom: 2px solid #0f766e;
+            border-bottom: 2px solid #0a2540;
             padding-bottom: 6px;
             margin-bottom: 10px;
         }
         .header-title {
             font-size: 13px;
             font-weight: bold;
-            color: #0f766e;
+            color: #0a2540;
         }
         .header-sub {
             font-size: 8.5px;
@@ -47,14 +47,15 @@
             margin: 8px 0;
             text-transform: uppercase;
             letter-spacing: 0.4px;
+            color: #0a2540;
         }
         h2 {
             font-size: 10px;
-            background: #f0fdfa;
-            border-left: 3px solid #0f766e;
+            background: #f1f5f9;
+            border-left: 3px solid #0a2540;
             padding: 4px 6px;
             margin: 10px 0 5px 0;
-            color: #134e4a;
+            color: #0a2540;
         }
         table {
             width: 100%;
@@ -112,37 +113,65 @@
     <div class="doc-title">Rekam Medis Elektronik Keperawatan Kamar Operasi (Lengkap)</div>
 
     {{-- 1. IDENTITAS PASIEN & KASUS --}}
+    @php
+        $isNeuroPdf = $surgeryProfile === 'bedah_saraf';
+        $pInc = $preopClinical['incident'] ?? [];
+        $pNeuro = $preopClinical['neurological'] ?? [];
+        $pExt = $preopClinical['extremity_physical'] ?? [];
+        $pNv = $preopClinical['neurovascular'] ?? [];
+        $pVit = $preopClinical['vital_extra'] ?? [];
+        $pSup = $preopClinical['supporting_detail'] ?? [];
+        $pPrep = $preopClinical['prep_extra'] ?? [];
+        $pAnPre = $preopClinical['anesthesia_pre'] ?? [];
+        $pAnExec = $preopClinical['anesthesia_exec'] ?? [];
+    @endphp
     <h2>1. Identitas Pasien & Informasi Kasus Operasi</h2>
     <table>
         <tr>
             <th style="width: 18%;">No. Kasus</th>
             <td style="width: 32%;">{{ $case->case_number }}</td>
-            <th style="width: 18%;">Status Kasus</th>
-            <td style="width: 32%;">{{ $case->status->label() }} (Kelengkapan: {{ $completeness['percentage'] }}%)</td>
+            <th style="width: 18%;">Status &amp; Urgensi</th>
+            <td style="width: 32%;">{{ $case->status->label() }} ({{ $completeness['percentage'] }}%) • {{ $case->urgency_status === 'elektif' ? 'Elektif' : 'Operasi Darurat (Emergency)' }}</td>
         </tr>
         <tr>
             <th>Nama Pasien</th>
             <td>{{ $case->patient?->name ?? '-' }}</td>
-            <th>No. Rekam Medis</th>
-            <td>{{ $case->patient?->rm_number ?? '-' }}</td>
+            <th>No. Rekam Medis / NIK</th>
+            <td>{{ $case->patient?->rm_number ?? '-' }} / {{ $case->patient?->identity_number ?: '-' }}</td>
         </tr>
         <tr>
             <th>Tgl Lahir / Usia</th>
             <td>{{ $case->patient?->birth_date?->format('d M Y') ?? '-' }} ({{ $case->patient?->ageLabel() ?? '-' }})</td>
-            <th>Jenis Kelamin</th>
-            <td>{{ $case->patient?->gender?->label() ?? '-' }}</td>
+            <th>Jenis Kelamin &amp; Alamat</th>
+            <td>{{ $case->patient?->gender?->label() ?? '-' }} • {{ $case->patient?->address ?: '-' }}</td>
         </tr>
         <tr>
-            <th>Ruang Asal / Kelas</th>
+            <th>Keluarga / Wali</th>
+            <td>
+                {{ $case->patient?->guardian_name ?: '-' }}
+                @if($case->patient?->guardian_relation) ({{ $case->patient->guardian_relation }}) @endif
+                @if($case->patient?->guardian_phone) • Telp: {{ $case->patient->guardian_phone }} @endif
+            </td>
+            <th>No. Kunjungan &amp; Masuk IGD</th>
+            <td>{{ $case->igd_visit_number ?: '-' }} • {{ $case->igd_admitted_at?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? '-' }} WIB</td>
+        </tr>
+        <tr>
+            <th>Asal Pasien / Kelas</th>
             <td>{{ $case->origin_ward }} {{ $case->origin_class ? "({$case->origin_class})" : '' }}</td>
-            <th>Jadwal Operasi</th>
-            <td>{{ $case->scheduled_at->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB</td>
+            <th>Masuk OK / Jadwal</th>
+            <td>{{ $case->admitted_at->timezone('Asia/Jakarta')->format('d M Y H:i') }} / {{ $case->scheduled_at->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB</td>
         </tr>
         <tr>
-            <th>Diagnosis Medis</th>
+            <th>Diagnosis Pra-Op</th>
             <td>{{ $case->diagnosisDisplay() }}</td>
-            <th>Jenis & Lokasi Operasi</th>
+            <th>Diagnosis Pasca-Op</th>
+            <td>{{ $case->postop_diagnosis ?: '-' }}</td>
+        </tr>
+        <tr>
+            <th>Jenis &amp; Lokasi Operasi</th>
             <td>{{ $case->surgeryTypeDisplay() }} - {{ $case->surgery_site ?? '-' }}</td>
+            <th>DPJP</th>
+            <td>{{ $case->dpjp_name ?: '-' }}</td>
         </tr>
         <tr>
             <th>Kamar Operasi</th>
@@ -159,7 +188,7 @@
     </table>
 
     {{-- 2. PRE-OPERASI --}}
-    <h2>2. Pengkajian & Persiapan Pre-Operasi</h2>
+    <h2>2. Pengkajian & Persiapan Pre-Operasi ({{ $isNeuroPdf ? 'Profil Bedah Saraf - EDH' : 'Profil Bedah Ortopedi - Fraktur Femur' }})</h2>
     @if($case->preopAssessment)
         @php $pre = $case->preopAssessment; @endphp
         <table>
@@ -178,8 +207,88 @@
             <tr>
                 <th>Asesmen Psikologis</th>
                 <td>Kecemasan: {{ $pre->anxiety_level->label() }}<br>Kesiapan Mental: {{ $pre->mental_readiness ?: '-' }}</td>
-                <th>Status Kesiapan</th>
-                <td><strong>{{ $pre->readiness_status->label() }}</strong><br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
+                <th>Status Kesiapan &amp; GDS</th>
+                <td><strong>{{ $pre->readiness_status->label() }}</strong> • GDS: {{ $pVit['gds'] ?: '-' }}<br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th style="width: 22%;">Riwayat Kejadian / Trauma</th>
+                <td>
+                    Penyebab: {{ $pInc['injury_cause'] ?: '-' }} • Waktu: {{ $pInc['incident_datetime'] ?: '-' }} • Lokasi: {{ $pInc['incident_location'] ?: '-' }}<br>
+                    Hilang Kesadaran: {{ $pInc['loss_of_consciousness'] ?: '-' }} • Pengencer Darah: {{ $pInc['anticoagulant_use'] ?: '-' }}
+                    @if($isNeuroPdf)
+                        <br>Sakit Kepala: {{ $pInc['headache_history'] ?: '-' }} • Mual/Muntah: {{ $pInc['nausea_vomiting'] ?: '-' }} • Kejang: {{ $pInc['seizure_history'] ?: '-' }}
+                    @else
+                        <br>Lokasi Nyeri: {{ $pInc['pain_location'] ?: '-' }}
+                    @endif
+                </td>
+            </tr>
+            @if($isNeuroPdf)
+                <tr>
+                    <th>Pemeriksaan Neurologis</th>
+                    <td>
+                        Kesadaran: {{ $pNeuro['consciousness_level'] ?: '-' }} (GCS E{{ $pNeuro['gcs_e'] ?: '-' }} V{{ $pNeuro['gcs_v'] ?: '-' }} M{{ $pNeuro['gcs_m'] ?: '-' }})<br>
+                        Pupil Ka/Ki: {{ $pNeuro['pupil_size_right'] ?: '-' }} / {{ $pNeuro['pupil_size_left'] ?: '-' }} (Cahaya: {{ $pNeuro['pupil_light_reaction'] ?: '-' }})<br>
+                        Motorik Ka/Ki: {{ $pNeuro['motor_right'] ?: '-' }} / {{ $pNeuro['motor_left'] ?: '-' }} • Sensorik: {{ $pNeuro['sensory_response'] ?: '-' }}<br>
+                        Kejang: {{ $pNeuro['seizure_status'] ?: '-' }} • Perubahan Pemantauan: {{ $pNeuro['neuro_change_during_monitoring'] ?: '-' }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Hasil CT Scan Kepala</th>
+                    <td>
+                        {{ $pSup['ct_scan_result'] ?: '-' }}<br>
+                        Lokasi/Sisi: {{ $pSup['hematoma_location'] ?: '-' }} ({{ $pSup['hematoma_side'] ?: '-' }}) • Ketebalan: {{ $pSup['hematoma_thickness'] ?: '-' }} • Midline Shift: {{ $pSup['midline_shift'] ?: '-' }}<br>
+                        Fraktur Tengkorak: {{ $pSup['skull_fracture'] ?: '-' }} • Perdarahan Penyerta: {{ $pSup['associated_bleeding'] ?: '-' }}
+                    </td>
+                </tr>
+            @else
+                <tr>
+                    <th>Status Lokalis Fraktur Femur</th>
+                    <td>
+                        Lokasi/Sisi: {{ $pExt['fracture_location'] ?: '-' }} ({{ $pExt['fracture_side'] ?: '-' }}) • Jenis/Pola: {{ $pExt['fracture_type'] ?: '-' }} / {{ $pExt['fracture_pattern'] ?: '-' }}<br>
+                        Kulit/Luka Terbuka: {{ $pExt['skin_condition'] ?: '-' }} / {{ $pExt['open_wound'] ?: '-' }} • Perdarahan: {{ $pExt['bleeding'] ?: '-' }} • Bengkak: {{ $pExt['swelling'] ?: '-' }}<br>
+                        Deformitas: {{ $pExt['deformity'] ?: '-' }} • Nyeri NRS: {{ $pExt['pain_nrs'] ?: '-' }} • Gerakan: {{ $pExt['extremity_movement'] ?: '-' }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Neurovaskular Distal (5P)</th>
+                    <td>
+                        Warna/Suhu Kaki: {{ $pNv['foot_skin_color'] ?: '-' }} / {{ $pNv['foot_skin_temp'] ?: '-' }} • CRT: {{ $pNv['crt'] ?: '-' }} • Nadi: {{ $pNv['peripheral_pulse'] ?: '-' }}<br>
+                        Sensasi/Gerakan Jari: {{ $pNv['foot_sensation'] ?: '-' }} / {{ $pNv['toe_movement'] ?: '-' }} • Kesemutan/Baal: {{ $pNv['tingling'] ?: '-' }} / {{ $pNv['numbness'] ?: '-' }}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Hasil Rontgen Femur</th>
+                    <td>
+                        {{ $pSup['xray_femur_result'] ?: '-' }} • Lokasi/Sisi: {{ $pSup['xray_location_side'] ?: '-' }}<br>
+                        Pola/Pergeseran: {{ $pSup['xray_pattern'] ?: '-' }} • CT Scan Tambahan: {{ $pSup['ct_scan_note'] ?: '-' }}
+                    </td>
+                </tr>
+            @endif
+            <tr>
+                <th>Laboratorium Pra-Op</th>
+                <td>
+                    Hb: {{ $pSup['hb'] ?: '-' }} • Ht: {{ $pSup['ht'] ?: '-' }} • Leukosit: {{ $pSup['leukosit'] ?: '-' }} • Trombosit: {{ $pSup['trombosit'] ?: '-' }} • Gol. Darah: {{ $pSup['blood_type'] ?: '-' }}<br>
+                    PT/INR: {{ $pSup['pt_inr'] ?: '-' }} • aPTT: {{ $pSup['aptt'] ?: '-' }} • Elektrolit: {{ $pSup['electrolytes'] ?: '-' }} • Gula Darah: {{ $pSup['blood_glucose'] ?: '-' }} • Ginjal: {{ $pSup['renal_function'] ?: '-' }}
+                </td>
+            </tr>
+            <tr>
+                <th>Persiapan &amp; Persetujuan Khusus</th>
+                <td>
+                    Keputusan Operasi: {{ $pPrep['decision_time'] ?: '-' }} • Cairan Infus: {{ $pPrep['iv_fluid_detail'] ?: '-' }} • Persiapan Darah: {{ $pPrep['blood_prep'] ?: '-' }}<br>
+                    Antibiotik: {{ $pPrep['antibiotic_instruction'] ?: '-' }} • Penanda Tangan Consent: {{ $pPrep['consent_signer'] ?: '-' }} ({{ $pPrep['consent_relation'] ?: '-' }}) • Darurat: {{ $pPrep['emergency_consent_doc'] ?: '-' }}
+                    @if(!$isNeuroPdf)<br>Persiapan Alat &amp; Implan ORIF: {{ $pPrep['implant_instrument_prep'] ?: '-' }}@endif
+                </td>
+            </tr>
+            <tr>
+                <th>Pra-Anestesi &amp; Pelaksanaan</th>
+                <td>
+                    Jalan Napas: {{ $pAnPre['airway_exam'] ?: '-' }} • Kardiopulmonal: {{ $pAnPre['cardiopulmonary'] ?: '-' }} • ASA: {{ $pAnPre['asa_class'] ?: '-' }} • Rencana: {{ $pAnPre['planned_anesthesia'] ?: '-' }}<br>
+                    Metode: {{ $pAnExec['anesthesia_method'] ?: '-' }} ({{ $pAnExec['anesthesia_start_time'] ?: '-' }} - {{ $pAnExec['anesthesia_end_time'] ?: '-' }}) • ETT/Alat: {{ $pAnExec['ett_type_size'] ?: '-' }} ({{ $pAnExec['ett_depth_cm'] ?: '-' }} cm) / {{ $pAnExec['airway_aid'] ?: '-' }}<br>
+                    Ventilator: {{ $pAnExec['ventilator_setting'] ?: '-' }} • Obat/Dosis: {{ $pAnExec['medications_summary'] ?: '-' }} ({{ $pAnExec['medication_dose'] ?: '-' }} @ {{ $pAnExec['medication_time'] ?: '-' }}) • Cairan: {{ $pAnExec['fluids_given'] ?: '-' }} • Komplikasi: {{ $pAnExec['complications'] ?: '-' }}
+                </td>
             </tr>
         </table>
     @else
@@ -340,6 +449,7 @@
             <th>Mulai Insisi</th>
             <th>Selesai Operasi</th>
             <th>Keluar OK</th>
+            <th>Selesai Anestesi</th>
         </tr>
         <tr>
             <td>{{ $case->entered_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
@@ -347,11 +457,15 @@
             <td>{{ $case->incision_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->surgery_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->left_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
+            <td>{{ $case->anesthesia_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
         </tr>
     </table>
 
     @if($case->intraopRecord)
-        @php $ir = $case->intraopRecord; @endphp
+        @php
+            $ir = $case->intraopRecord;
+            $ip = $intraopProcedure ?? [];
+        @endphp
         <table>
             <tr>
                 <th style="width: 22%;">Posisi Pembedahan</th>
@@ -365,7 +479,71 @@
                 <th>Komplikasi Intra-Op</th>
                 <td>{{ $ir->has_complication ? "{$ir->complication_description} (Penanganan: {$ir->complication_handling})" : 'Tidak ada' }}</td>
             </tr>
+            <tr>
+                <th>Tindakan Aktual &amp; Lokasi Insisi</th>
+                <td>{{ $case->operation_plan_actual ?: '-' }}<br><span class="small">Insisi: {{ $ip['incision_location_side'] ?: '-' }}</span></td>
+                <th>Penutupan &amp; Kondisi Luka</th>
+                <td>
+                    Drain: {{ $ip['drain_placement'] ?: '-' }} • Jahitan: {{ $ip['wound_closure'] ?: '-' }}<br>
+                    Luka Pasca-Op: {{ $ip['postop_wound_condition'] ?: '-' }}
+                </td>
+            </tr>
+            @if($isNeuroPdf)
+                <tr>
+                    <th>Detail Kraniotomi &amp; EDH</th>
+                    <td colspan="3">
+                        Lokasi Kraniotomi: {{ $ip['craniotomy_location'] ?: '-' }} • Hematoma: {{ $ip['hematoma_volume_condition'] ?: '-' }}<br>
+                        Pembukaan Tulang: {{ $ip['craniotomy_opening_process'] ?: '-' }} • Evakuasi: {{ $ip['hematoma_evacuation_process'] ?: '-' }}<br>
+                        Hemostasis: {{ $ip['hemostasis_action'] ?: '-' }} • Kondisi Otak: {{ $ip['brain_tissue_condition'] ?: '-' }} • Bone Flap: {{ $ip['bone_flap_management'] ?: '-' }}
+                    </td>
+                </tr>
+            @else
+                <tr>
+                    <th>Detail Reduksi &amp; Fiksasi ORIF</th>
+                    <td colspan="3">
+                        Lokasi Fraktur: {{ $ip['fracture_location'] ?: '-' }} • Tulang/Jaringan: {{ $ip['bone_tissue_condition'] ?: '-' }}<br>
+                        Reduksi ({{ $ip['reduction_type'] ?: '-' }}): {{ $ip['reduction_process'] ?: '-' }} • Fiksasi: {{ $ip['fixation_method'] ?: '-' }}<br>
+                        Catatan Implan: {{ $ip['implant_placement_notes'] ?: '-' }} • C-Arm/Fluoroskopi: {{ $ip['fluoroscopy_check'] ?: '-' }}
+                    </td>
+                </tr>
+            @endif
+            <tr>
+                <th>Transfusi, Kauter &amp; Alat</th>
+                <td colspan="3">
+                    Transfusi: {{ !empty($ip['blood_transfusion_given']) ? 'Ya (' . ($ip['blood_product_type_amount'] ?: '-') . ')' : 'Tidak' }} •
+                    Kauter: {{ $ip['cautery_usage'] ?: '-' }} • Alat/BHP: {{ $ip['equipment_usage_notes'] ?: '-' }}
+                </td>
+            </tr>
         </table>
+
+        @if(!empty($intraopImplants))
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jenis Implan</th>
+                        <th>Ukuran</th>
+                        <th>Merk</th>
+                        <th>No. Seri / Lot</th>
+                        <th>Lokasi Pasang</th>
+                        <th>Siap / Terpakai</th>
+                        <th>Tidak Terpakai</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($intraopImplants as $imp)
+                        <tr>
+                            <td>{{ $imp['implant_type'] ?? '-' }}</td>
+                            <td>{{ $imp['size'] ?? '-' }}</td>
+                            <td>{{ $imp['brand'] ?? '-' }}</td>
+                            <td>{{ $imp['serial_lot'] ?? '-' }}</td>
+                            <td>{{ $imp['placement_site'] ?? '-' }}</td>
+                            <td>{{ $imp['planned_qty'] ?? '-' }} / {{ $imp['used_qty'] ?? '-' }}</td>
+                            <td>{{ $imp['unused_doc'] ?? '-' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
     @endif
 
     @if($intraVitals->isNotEmpty())
@@ -454,18 +632,31 @@
                     <th>Jalan Napas</th>
                     <th>Nyeri NRS</th>
                     <th>Luka & Balutan</th>
-                    <th>Efek Anestesi</th>
+                    <th>Pemulihan &amp; Detail Profil</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($case->postopObservations->sortBy('recorded_at') as $obs)
+                    @php $oc = is_array($obs->clinical_details) ? $obs->clinical_details : []; @endphp
                     <tr>
                         <td>{{ $obs->recorded_at->timezone('Asia/Jakarta')->format('H:i') }}</td>
                         <td>GCS {{ $obs->gcsTotal() }} (E{{ $obs->gcs_eye }}V{{ $obs->gcs_verbal }}M{{ $obs->gcs_motor }}), {{ $obs->general_condition->label() }} / {{ $obs->response->label() }}</td>
                         <td>{{ $obs->airway_patency->label() }}</td>
                         <td>{{ $obs->pain_nrs }}/10</td>
                         <td>{{ $obs->wound_location ?: '-' }} ({{ $obs->dressing?->label() ?? '-' }}, {{ $obs->suture_condition?->label() ?? '-' }})</td>
-                        <td>{{ $obs->anesthesia_recovery?->label() ?? '-' }}{{ $obs->nausea_vomiting ? ', Mual/Muntah' : '' }}{{ $obs->shivering_hypothermia ? ', Menggigil' : '' }}</td>
+                        <td>
+                            {{ $obs->anesthesia_recovery?->label() ?? '-' }}{{ $obs->nausea_vomiting ? ', Mual/Muntah' : '' }}{{ $obs->shivering_hypothermia ? ', Menggigil' : '' }}
+                            @if(!empty($oc['anesthesia_recovery_score']))<br>Skor: {{ $oc['anesthesia_recovery_score'] }}@endif
+                            @if($isNeuroPdf)
+                                @if(!empty($oc['pupil_size_right']) || !empty($oc['extremity_motor']))
+                                    <br>Pupil: {{ $oc['pupil_size_right'] ?? '-' }}/{{ $oc['pupil_size_left'] ?? '-' }} ({{ $oc['pupil_light_reaction'] ?? '-' }}) • Motorik: {{ $oc['extremity_motor'] ?? '-' }}
+                                @endif
+                            @else
+                                @if(!empty($oc['crt']) || !empty($oc['peripheral_pulse']))
+                                    <br>Kaki: {{ $oc['foot_skin_color'] ?? '-' }}, CRT {{ $oc['crt'] ?? '-' }}, Nadi {{ $oc['peripheral_pulse'] ?? '-' }}
+                                @endif
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -475,10 +666,25 @@
     @endif
 
     @if($case->postopSummary)
-        <p class="small">
-            <strong>Kelayakan Pindah:</strong> {{ $case->postopSummary->ready_to_transfer ? 'Layak Dipindahkan' : 'Belum Layak' }} -
-            {{ $case->postopSummary->pre_transfer_condition_notes ?: '-' }}
-        </p>
+        @php $pf = $postopFollowup ?? []; @endphp
+        <table>
+            <tr>
+                <th style="width: 22%;">Kelayakan Pindah</th>
+                <td><strong>{{ $case->postopSummary->ready_to_transfer ? 'Layak Dipindahkan' : 'Belum Layak' }}</strong> - {{ $case->postopSummary->pre_transfer_condition_notes ?: '-' }}</td>
+            </tr>
+            <tr>
+                <th>Obat, Cairan &amp; Instruksi</th>
+                <td>
+                    Obat: {{ $pf['medications_given'] ?: '-' }} • Cairan: {{ $pf['iv_fluid_plan'] ?: '-' }}<br>
+                    Instruksi Dokter: {{ $pf['doctor_postop_instructions'] ?: '-' }}
+                    @if($isNeuroPdf)
+                        <br>Pemantauan Neurologis: {{ $pf['neuro_followup_monitoring'] ?: '-' }}
+                    @else
+                        <br>Mobilisasi: {{ $pf['mobilization_instruction'] ?: '-' }} • Beban: {{ $pf['weight_bearing_instruction'] ?: '-' }} • Bidai: {{ $pf['splint_immobilization'] ?: '-' }} • Radiologi: {{ $pf['radiology_plan'] ?: '-' }}
+                    @endif
+                </td>
+            </tr>
+        </table>
     @endif
 
     {{-- 7. SERAH TERIMA --}}

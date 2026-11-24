@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsClinicalActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +18,7 @@ use Illuminate\Support\Carbon;
  */
 class CaseInterventionItem extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsClinicalActivity;
 
     protected $fillable = [
         'case_nursing_diagnosis_id',
@@ -36,6 +37,11 @@ class CaseInterventionItem extends Model
             'is_done' => 'boolean',
             'done_at' => 'datetime',
         ];
+    }
+
+    public function resolveAuditCaseId(): ?int
+    {
+        return $this->caseNursingDiagnosis?->case_id;
     }
 
     /**

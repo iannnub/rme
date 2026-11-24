@@ -88,6 +88,7 @@ class PreparationController extends Controller
                 'instrument_id' => $check->instrument_id,
                 'instrument_name' => $check->instrument !== null ? $check->instrument->name : '-',
                 'instrument_category' => $check->instrument?->category,
+                'instrument_description' => $check->instrument?->description,
                 'is_available' => $check->is_available,
                 'is_sterile' => $check->is_sterile,
                 'is_functional' => $check->is_functional,
@@ -129,9 +130,10 @@ class PreparationController extends Controller
                     ->all(),
                 'instruments' => Instrument::query()
                     ->active()
+                    ->forProfile($surgeryCase->surgeryProfile())
                     ->orderBy('category')
-                    ->orderBy('name')
-                    ->get(['id', 'name', 'category']),
+                    ->orderBy('id')
+                    ->get(['id', 'name', 'category', 'surgery_profile', 'description']),
             ],
             'permissions' => [
                 'canEdit' => $user !== null && $user->can('managePreparation', $surgeryCase),

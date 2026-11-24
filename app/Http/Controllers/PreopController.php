@@ -31,6 +31,7 @@ use App\Models\SurgeryCase;
 use App\Models\SurgeryType;
 use App\Models\User;
 use App\Support\OptimisticLock;
+use App\Support\PreopClinicalDefaults;
 use App\Support\SurgeryCasePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -120,6 +121,7 @@ class PreopController extends Controller
             'evaluation_completeness' => '',
             'readiness_status' => ReadinessStatus::BelumSiap->value,
             'evaluation_notes' => '',
+            'clinical_details' => PreopClinicalDefaults::merge(null),
         ];
 
         $assessmentData = $assessment === null ? $defaultAssessment : [
@@ -160,6 +162,7 @@ class PreopController extends Controller
             'evaluation_completeness' => $assessment->evaluation_completeness ?? '',
             'readiness_status' => $assessment->readiness_status->value,
             'evaluation_notes' => $assessment->evaluation_notes ?? '',
+            'clinical_details' => PreopClinicalDefaults::merge($assessment->clinical_details),
         ];
 
         $defaultVitalSign = [
@@ -263,7 +266,7 @@ class PreopController extends Controller
             ],
             'options' => [
                 'medicalDiagnoses' => MedicalDiagnosis::query()->active()->orderBy('name')->get(['id', 'name']),
-                'surgeryTypes' => SurgeryType::query()->active()->orderBy('name')->get(['id', 'name']),
+                'surgeryTypes' => SurgeryType::query()->active()->orderBy('name')->get(['id', 'code', 'name', 'default_medical_diagnosis_id', 'default_procedure_name']),
                 'anesthesiaTypes' => AnesthesiaType::query()->active()->orderBy('code')->get(['id', 'code', 'name']),
                 'surgeons' => User::query()->where('role', Role::DokterOperator)->where('is_active', true)->orderBy('name')->get(['id', 'name']),
                 'anesthesiologists' => User::query()->where('role', Role::DokterAnestesi)->where('is_active', true)->orderBy('name')->get(['id', 'name']),
@@ -338,9 +341,10 @@ class PreopController extends Controller
         CaseNursingDiagnosis $caseNursingDiagnosis,
         ManageCaseNursingDiagnosis $action,
     ): RedirectResponse {
+        $this->authorize('view', $surgeryCase);
         $user = $request->user();
         abort_if($user === null || ! $user->isPerawat(), 403);
-        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id, 404);
+        abort_if($caseNursingDiagnosis->case_id !== $surgeryCase->id || $caseNursingDiagnosis->phase !== NursingPhase::Pre, 404);
 
         $action->removeDiagnosis($caseNursingDiagnosis, $user);
 
@@ -353,11 +357,12 @@ class PreopController extends Controller
         CaseInterventionItem $caseInterventionItem,
         ManageCaseNursingDiagnosis $action,
     ): RedirectResponse {
+        $this->authorize('view', $surgeryCase);
         $user = $request->user();
         abort_if($user === null || ! $user->isPerawat(), 403);
 
         $caseDiagnosis = $caseInterventionItem->caseNursingDiagnosis;
-        abort_if($caseDiagnosis === null || $caseDiagnosis->case_id !== $surgeryCase->id, 404);
+        abort_if($caseDiagnosis === null || $caseDiagnosis->case_id !== $surgeryCase->id || $caseDiagnosis->phase !== NursingPhase::Pre, 404);
 
         $action->toggleIntervention($caseInterventionItem, $user);
 

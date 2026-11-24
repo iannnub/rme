@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CaseStatus;
+use App\Enums\SurgeryProfile;
 use App\Models\Concerns\LogsClinicalActivity;
 use Database\Factories\SurgeryCaseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,10 +18,13 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $patient_id
  * @property string $case_number
+ * @property string|null $igd_visit_number
  * @property CaseStatus $status
  * @property Carbon $admitted_at
+ * @property Carbon|null $igd_admitted_at
  * @property string $origin_ward
  * @property string|null $origin_class
+ * @property string|null $urgency_status
  * @property Carbon $scheduled_at
  * @property int|null $medical_diagnosis_id
  * @property string|null $medical_diagnosis_other
@@ -28,7 +32,9 @@ use Illuminate\Support\Carbon;
  * @property string|null $surgery_type_other
  * @property string|null $surgery_site
  * @property string|null $operation_plan_actual
+ * @property string|null $postop_diagnosis
  * @property int|null $anesthesia_type_id
+ * @property string|null $dpjp_name
  * @property int|null $room_id
  * @property int|null $surgeon_id
  * @property int|null $anesthesiologist_id
@@ -42,6 +48,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $incision_at
  * @property Carbon|null $surgery_end_at
  * @property Carbon|null $left_or_at
+ * @property Carbon|null $anesthesia_end_at
  * @property Carbon|null $completed_at
  * @property array<string, bool>|null $stage_readiness_flags
  * @property int $created_by
@@ -68,9 +75,12 @@ class SurgeryCase extends Model
     protected $fillable = [
         'patient_id',
         'case_number',
+        'igd_visit_number',
         'admitted_at',
+        'igd_admitted_at',
         'origin_ward',
         'origin_class',
+        'urgency_status',
         'scheduled_at',
         'medical_diagnosis_id',
         'medical_diagnosis_other',
@@ -78,7 +88,9 @@ class SurgeryCase extends Model
         'surgery_type_other',
         'surgery_site',
         'operation_plan_actual',
+        'postop_diagnosis',
         'anesthesia_type_id',
+        'dpjp_name',
         'room_id',
         'surgeon_id',
         'anesthesiologist_id',
@@ -92,6 +104,7 @@ class SurgeryCase extends Model
         'incision_at',
         'surgery_end_at',
         'left_or_at',
+        'anesthesia_end_at',
         'completed_at',
         'stage_readiness_flags',
         'created_by',
@@ -105,6 +118,7 @@ class SurgeryCase extends Model
         return [
             'status' => CaseStatus::class,
             'admitted_at' => 'datetime',
+            'igd_admitted_at' => 'datetime',
             'scheduled_at' => 'datetime',
             'team_assigned_at' => 'datetime',
             'ready_at' => 'datetime',
@@ -113,6 +127,7 @@ class SurgeryCase extends Model
             'incision_at' => 'datetime',
             'surgery_end_at' => 'datetime',
             'left_or_at' => 'datetime',
+            'anesthesia_end_at' => 'datetime',
             'completed_at' => 'datetime',
             'stage_readiness_flags' => 'array',
         ];
@@ -397,6 +412,27 @@ class SurgeryCase extends Model
         }
 
         return $this->surgery_type_other ?: '-';
+    }
+
+    public function surgeryProfile(): ?SurgeryProfile
+    {
+        $code = $this->surgeryType?->code;
+        if (is_string($code)) {
+            $parsed = SurgeryProfile::tryFrom($code);
+            if ($parsed !== null) {
+                return $parsed;
+            }
+        }
+
+        $haystack = strtolower(trim($this->surgeryTypeDisplay().' '.$this->diagnosisDisplay()));
+        if (str_contains($haystack, 'saraf') || str_contains($haystack, 'kraniotomi') || str_contains($haystack, 'epidural') || str_contains($haystack, 'edh')) {
+            return SurgeryProfile::BedahSaraf;
+        }
+        if (str_contains($haystack, 'ortopedi') || str_contains($haystack, 'orif') || str_contains($haystack, 'femur') || str_contains($haystack, 'fraktur')) {
+            return SurgeryProfile::BedahOrtopedi;
+        }
+
+        return null;
     }
 
     public function readinessFlag(string $key): bool

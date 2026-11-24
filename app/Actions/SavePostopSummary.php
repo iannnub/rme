@@ -10,6 +10,7 @@ use App\Models\PostopSummary;
 use App\Models\SurgeryCase;
 use App\Models\User;
 use App\Support\AuditContext;
+use App\Support\PreopClinicalDefaults;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -42,12 +43,15 @@ class SavePostopSummary
             ? Carbon::parse($data['assessed_at'], 'Asia/Jakarta')
             : now('Asia/Jakarta');
 
-        return DB::transaction(function () use ($case, $ready, $notes, $assessedAt, $actor): PostopSummary {
-            return AuditContext::run(function () use ($case, $ready, $notes, $assessedAt, $actor): PostopSummary {
+        return DB::transaction(function () use ($case, $ready, $notes, $assessedAt, $data, $actor): PostopSummary {
+            return AuditContext::run(function () use ($case, $ready, $notes, $assessedAt, $data, $actor): PostopSummary {
                 $existing = $case->postopSummary;
                 $payload = [
                     'ready_to_transfer' => $ready,
                     'pre_transfer_condition_notes' => $notes !== '' ? $notes : null,
+                    'followup_plan' => array_key_exists('followup_plan', $data) && is_array($data['followup_plan'])
+                        ? PreopClinicalDefaults::mergePostopFollowup($data['followup_plan'])
+                        : ($existing?->followup_plan),
                     'assessed_at' => $assessedAt,
                     'assessed_by' => $actor->id,
                 ];

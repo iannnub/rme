@@ -37,6 +37,7 @@ class SaveIntraopChronology
         $incision = $this->parseTime($data['incision_at'] ?? null);
         $surgeryEnd = $this->parseTime($data['surgery_end_at'] ?? null);
         $leftOr = $this->parseTime($data['left_or_at'] ?? null);
+        $anesthesiaEnd = $this->parseTime($data['anesthesia_end_at'] ?? null);
 
         $errors = [];
 
@@ -78,12 +79,18 @@ class SaveIntraopChronology
             $prev = $step;
         }
 
+        if ($anesthesiaEnd !== null && $anesthesia !== null && $anesthesiaEnd->lt($anesthesia)) {
+            $errors['anesthesia_end_at'] = [
+                'Waktu Selesai Anestesi tidak boleh lebih awal dari waktu Mulai Anestesi.',
+            ];
+        }
+
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
 
-        return DB::transaction(function () use ($case, $data, $entered, $anesthesia, $incision, $surgeryEnd, $leftOr, $actor): SurgeryCase {
-            return AuditContext::run(function () use ($case, $data, $entered, $anesthesia, $incision, $surgeryEnd, $leftOr): SurgeryCase {
+        return DB::transaction(function () use ($case, $data, $entered, $anesthesia, $incision, $surgeryEnd, $leftOr, $anesthesiaEnd, $actor): SurgeryCase {
+            return AuditContext::run(function () use ($case, $data, $entered, $anesthesia, $incision, $surgeryEnd, $leftOr, $anesthesiaEnd): SurgeryCase {
                 $updates = [
                     'entered_or_at' => $entered,
                     'anesthesia_start_at' => $anesthesia,
@@ -91,6 +98,16 @@ class SaveIntraopChronology
                     'surgery_end_at' => $surgeryEnd,
                     'left_or_at' => $leftOr,
                 ];
+
+                if (array_key_exists('anesthesia_end_at', $data)) {
+                    $updates['anesthesia_end_at'] = $anesthesiaEnd;
+                }
+
+                if (array_key_exists('postop_diagnosis', $data)) {
+                    $updates['postop_diagnosis'] = is_string($data['postop_diagnosis']) && trim($data['postop_diagnosis']) !== ''
+                        ? trim($data['postop_diagnosis'])
+                        : null;
+                }
 
                 if (array_key_exists('anesthesia_type_id', $data)) {
                     $updates['anesthesia_type_id'] = is_numeric($data['anesthesia_type_id'])

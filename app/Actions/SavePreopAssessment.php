@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\VitalSign;
 use App\Support\AuditContext;
 use App\Support\OptimisticLock;
+use App\Support\PreopClinicalDefaults;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -109,6 +110,9 @@ class SavePreopAssessment
                     'evaluation_completeness' => $data['evaluation_completeness'] ?? null,
                     'readiness_status' => $data['readiness_status'] ?? 'belum_siap',
                     'evaluation_notes' => $data['evaluation_notes'] ?? null,
+                    'clinical_details' => array_key_exists('clinical_details', $data)
+                        ? PreopClinicalDefaults::merge(is_array($data['clinical_details']) ? $data['clinical_details'] : null)
+                        : ($case->preopAssessment?->clinical_details),
                 ];
 
                 $assessment = $case->preopAssessment;

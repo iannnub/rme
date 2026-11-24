@@ -17,10 +17,12 @@ class StoreSurgeryTypeRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $specialty = $this->input('specialty');
+        $proc = $this->input('default_procedure_name');
 
         $this->merge([
             'name' => is_string($this->input('name')) ? trim($this->input('name')) : $this->input('name'),
             'specialty' => is_string($specialty) && trim($specialty) !== '' ? trim($specialty) : null,
+            'default_procedure_name' => is_string($proc) && trim($proc) !== '' ? trim($proc) : null,
         ]);
     }
 
@@ -32,6 +34,7 @@ class StoreSurgeryTypeRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', Rule::unique(SurgeryType::class, 'name')->ignore($this->targetId())],
             'specialty' => ['nullable', 'string', 'max:100'],
+            'default_procedure_name' => ['nullable', 'string', 'max:255'],
         ];
     }
 

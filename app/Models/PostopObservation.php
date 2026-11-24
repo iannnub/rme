@@ -43,6 +43,7 @@ use Illuminate\Support\Carbon;
  * @property bool $shivering_hypothermia
  * @property list<string>|null $complications
  * @property string|null $notes
+ * @property array<string, mixed>|null $clinical_details
  * @property int $created_by
  * @property User|null $creator
  */
@@ -86,6 +87,7 @@ class PostopObservation extends Model
         'shivering_hypothermia',
         'complications',
         'notes',
+        'clinical_details',
         'created_by',
     ];
 
@@ -113,6 +115,7 @@ class PostopObservation extends Model
             'nausea_vomiting' => 'boolean',
             'shivering_hypothermia' => 'boolean',
             'complications' => 'array',
+            'clinical_details' => 'array',
         ];
     }
 

@@ -17,10 +17,14 @@ class StoreInstrumentRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $category = $this->input('category');
+        $profile = $this->input('surgery_profile');
+        $description = $this->input('description');
 
         $this->merge([
             'name' => is_string($this->input('name')) ? trim($this->input('name')) : $this->input('name'),
             'category' => is_string($category) && trim($category) !== '' ? trim($category) : null,
+            'surgery_profile' => is_string($profile) && trim($profile) !== '' ? trim($profile) : 'semua',
+            'description' => is_string($description) && trim($description) !== '' ? trim($description) : null,
         ]);
     }
 
@@ -32,6 +36,8 @@ class StoreInstrumentRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', Rule::unique(Instrument::class, 'name')->ignore($this->targetId())],
             'category' => ['nullable', 'string', 'max:100'],
+            'surgery_profile' => ['nullable', Rule::in(['semua', 'bedah_saraf', 'bedah_ortopedi'])],
+            'description' => ['nullable', 'string', 'max:255'],
         ];
     }
 

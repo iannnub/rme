@@ -15,33 +15,46 @@ type MasterOption = {
     id: number;
     name: string;
     code?: string;
+    default_medical_diagnosis_id?: number | null;
+    default_procedure_name?: string | null;
 };
 
 type CaseDetailData = {
     id: number;
+    igd_visit_number: string;
     admitted_at_input: string;
+    igd_admitted_at_input: string;
     scheduled_at_input: string;
     origin_ward: string;
     origin_class: string | null;
+    urgency_status: string;
     medical_diagnosis_id: number | null;
     medical_diagnosis_other: string | null;
     surgery_type_id: number | null;
     surgery_type_other: string | null;
     surgery_site: string | null;
     anesthesia_type_id: number | null;
+    dpjp_name: string;
+    postop_diagnosis: string;
     ready_at: string | null;
     entered_or_at: string | null;
     surgery_end_at: string | null;
     left_or_at: string | null;
+    anesthesia_end_at: string | null;
     completed_at: string | null;
     created_by_name: string;
 };
 
 type EditCaseFormData = {
+    igd_visit_number: string;
     admitted_at: string;
+    igd_admitted_at: string;
     origin_ward: string;
     origin_class: string;
     scheduled_at: string;
+    urgency_status: string;
+    dpjp_name: string;
+    postop_diagnosis: string;
     medical_diagnosis_id: string;
     medical_diagnosis_other: string;
     surgery_type_id: string;
@@ -73,10 +86,15 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
     const [advanceOpen, setAdvanceOpen] = useState(false);
 
     const editForm = useForm<EditCaseFormData>({
+        igd_visit_number: caseDetail.igd_visit_number ?? '',
         admitted_at: caseDetail.admitted_at_input,
+        igd_admitted_at: caseDetail.igd_admitted_at_input ?? '',
         origin_ward: caseDetail.origin_ward,
         origin_class: caseDetail.origin_class ?? '',
         scheduled_at: caseDetail.scheduled_at_input,
+        urgency_status: caseDetail.urgency_status ?? 'emergency',
+        dpjp_name: caseDetail.dpjp_name ?? '',
+        postop_diagnosis: caseDetail.postop_diagnosis ?? '',
         medical_diagnosis_id: caseDetail.medical_diagnosis_id
             ? String(caseDetail.medical_diagnosis_id)
             : caseDetail.medical_diagnosis_other
@@ -190,12 +208,24 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                                 <p className="font-mono font-semibold">{caseHeader.case_number}</p>
                             </div>
                             <div>
+                                <p className="text-muted-foreground text-xs">Status Tindakan</p>
+                                <p className="font-medium">{caseHeader.urgency_label ?? 'Operasi Darurat (Emergency)'}</p>
+                            </div>
+                            <div>
                                 <p className="text-muted-foreground text-xs">Jadwal Operasi</p>
                                 <p className="font-medium">{caseHeader.scheduled_at} WIB</p>
                             </div>
                             <div>
-                                <p className="text-muted-foreground text-xs">Tanggal Masuk</p>
+                                <p className="text-muted-foreground text-xs">Masuk Kamar Operasi</p>
                                 <p className="font-medium">{caseHeader.admitted_at} WIB</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground text-xs">No. Kunjungan IGD</p>
+                                <p className="font-mono font-medium">{caseHeader.igd_visit_number || '-'}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground text-xs">Waktu Masuk IGD</p>
+                                <p className="font-medium">{caseHeader.igd_admitted_at ? `${caseHeader.igd_admitted_at} WIB` : '-'}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground text-xs">Ruang Asal / Kelas</p>
@@ -203,6 +233,10 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                                     {caseHeader.origin_ward}
                                     {caseHeader.origin_class ? ` (${caseHeader.origin_class})` : ''}
                                 </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground text-xs">DPJP</p>
+                                <p className="font-medium">{caseHeader.dpjp_name || '-'}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground text-xs">Diagnosis Medis</p>
@@ -213,12 +247,24 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                                 <p className="font-medium">{caseHeader.surgery_type}</p>
                             </div>
                             <div>
+                                <p className="text-muted-foreground text-xs">Diagnosis Pasca-Operasi</p>
+                                <p className="font-medium">{caseHeader.postop_diagnosis || '-'}</p>
+                            </div>
+                            <div>
                                 <p className="text-muted-foreground text-xs">Lokasi Operasi</p>
                                 <p className="font-medium">{caseHeader.surgery_site}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground text-xs">Jenis Anestesi</p>
                                 <p className="font-medium">{caseHeader.anesthesia_type}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground text-xs">Penanggung Jawab Pasien</p>
+                                <p className="font-medium">
+                                    {caseHeader.patient.guardian_name
+                                        ? `${caseHeader.patient.guardian_name}${caseHeader.patient.guardian_relation ? ` (${caseHeader.patient.guardian_relation})` : ''}${caseHeader.patient.guardian_phone ? ` - ${caseHeader.patient.guardian_phone}` : ''}`
+                                        : '-'}
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
@@ -279,7 +325,27 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                     <form onSubmit={submitEdit} className="space-y-4">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">
-                                <Label htmlFor="edit_admitted_at">Tanggal Masuk</Label>
+                                <Label htmlFor="edit_igd_visit_number">No. Kunjungan IGD</Label>
+                                <Input
+                                    id="edit_igd_visit_number"
+                                    value={editForm.data.igd_visit_number}
+                                    onChange={(e) => editForm.setData('igd_visit_number', e.target.value)}
+                                    placeholder="contoh: IGD-20261123-001"
+                                />
+                                <InputError message={editForm.errors.igd_visit_number} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit_igd_admitted_at">Waktu Masuk IGD</Label>
+                                <Input
+                                    id="edit_igd_admitted_at"
+                                    type="datetime-local"
+                                    value={editForm.data.igd_admitted_at}
+                                    onChange={(e) => editForm.setData('igd_admitted_at', e.target.value)}
+                                />
+                                <InputError message={editForm.errors.igd_admitted_at} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit_admitted_at">Masuk Kamar Operasi</Label>
                                 <Input
                                     id="edit_admitted_at"
                                     type="datetime-local"
@@ -319,7 +385,74 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                                 />
                                 <InputError message={editForm.errors.origin_class} />
                             </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit_urgency_status">Status Tindakan</Label>
+                                <Select value={editForm.data.urgency_status} onValueChange={(v) => editForm.setData('urgency_status', v)}>
+                                    <SelectTrigger id="edit_urgency_status">
+                                        <SelectValue placeholder="Pilih status tindakan" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="emergency">Operasi Darurat (Emergency)</SelectItem>
+                                        <SelectItem value="elektif">Operasi Elektif (Terjadwal)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={editForm.errors.urgency_status} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit_dpjp_name">Dokter Penanggung Jawab (DPJP)</Label>
+                                <Input
+                                    id="edit_dpjp_name"
+                                    value={editForm.data.dpjp_name}
+                                    onChange={(e) => editForm.setData('dpjp_name', e.target.value)}
+                                    placeholder="Nama DPJP"
+                                />
+                                <InputError message={editForm.errors.dpjp_name} />
+                            </div>
                         </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="edit_surgery_type">Jenis Operasi</Label>
+                            <Select
+                                value={editForm.data.surgery_type_id || 'none'}
+                                onValueChange={(v) => {
+                                    const nextVal = v === 'none' ? '' : v;
+                                    const chosen = surgeryTypes.find((item) => String(item.id) === nextVal);
+                                    editForm.setData((prev) => ({
+                                        ...prev,
+                                        surgery_type_id: nextVal,
+                                        medical_diagnosis_id: chosen?.default_medical_diagnosis_id
+                                            ? String(chosen.default_medical_diagnosis_id)
+                                            : prev.medical_diagnosis_id,
+                                    }));
+                                }}
+                            >
+                                <SelectTrigger id="edit_surgery_type">
+                                    <SelectValue placeholder="Pilih jenis operasi" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">Belum ditentukan</SelectItem>
+                                    {surgeryTypes.map((item) => (
+                                        <SelectItem key={item.id} value={String(item.id)}>
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
+                                    <SelectItem value="other">Lainnya (ketik manual)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError message={editForm.errors.surgery_type_id} />
+                        </div>
+
+                        {editForm.data.surgery_type_id === 'other' && (
+                            <div className="grid gap-2">
+                                <Label htmlFor="edit_surgery_type_other">Jenis Operasi (Lainnya)</Label>
+                                <Input
+                                    id="edit_surgery_type_other"
+                                    value={editForm.data.surgery_type_other}
+                                    onChange={(e) => editForm.setData('surgery_type_other', e.target.value)}
+                                />
+                                <InputError message={editForm.errors.surgery_type_other} />
+                            </div>
+                        )}
 
                         <div className="grid gap-2">
                             <Label htmlFor="edit_diagnosis">Diagnosis Medis</Label>
@@ -356,38 +489,15 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                         )}
 
                         <div className="grid gap-2">
-                            <Label htmlFor="edit_surgery_type">Jenis Operasi</Label>
-                            <Select
-                                value={editForm.data.surgery_type_id || 'none'}
-                                onValueChange={(v) => editForm.setData('surgery_type_id', v === 'none' ? '' : v)}
-                            >
-                                <SelectTrigger id="edit_surgery_type">
-                                    <SelectValue placeholder="Pilih jenis operasi" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Belum ditentukan</SelectItem>
-                                    {surgeryTypes.map((item) => (
-                                        <SelectItem key={item.id} value={String(item.id)}>
-                                            {item.name}
-                                        </SelectItem>
-                                    ))}
-                                    <SelectItem value="other">Lainnya (ketik manual)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <InputError message={editForm.errors.surgery_type_id} />
+                            <Label htmlFor="edit_postop_diagnosis">Diagnosis Pasca-Operasi</Label>
+                            <Input
+                                id="edit_postop_diagnosis"
+                                value={editForm.data.postop_diagnosis}
+                                onChange={(e) => editForm.setData('postop_diagnosis', e.target.value)}
+                                placeholder="Diagnosis setelah tindakan operasi"
+                            />
+                            <InputError message={editForm.errors.postop_diagnosis} />
                         </div>
-
-                        {editForm.data.surgery_type_id === 'other' && (
-                            <div className="grid gap-2">
-                                <Label htmlFor="edit_surgery_type_other">Jenis Operasi (Lainnya)</Label>
-                                <Input
-                                    id="edit_surgery_type_other"
-                                    value={editForm.data.surgery_type_other}
-                                    onChange={(e) => editForm.setData('surgery_type_other', e.target.value)}
-                                />
-                                <InputError message={editForm.errors.surgery_type_other} />
-                            </div>
-                        )}
 
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div className="grid gap-2">

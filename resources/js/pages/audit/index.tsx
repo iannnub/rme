@@ -104,9 +104,11 @@ export default function AuditIndexPage({ logs, filters, options }: AuditIndexPag
                     <CardContent className="pt-6">
                         <form onSubmit={handleFilter} className="grid grid-cols-1 gap-3 md:grid-cols-6">
                             <div className="space-y-1">
-                                <Label className="text-xs">Kasus</Label>
+                                <Label htmlFor="audit_case_id" className="text-xs">
+                                    Kasus
+                                </Label>
                                 <Select value={caseId} onValueChange={setCaseId}>
-                                    <SelectTrigger className="min-h-10">
+                                    <SelectTrigger id="audit_case_id" className="min-h-11">
                                         <SelectValue placeholder="Semua kasus" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -121,9 +123,11 @@ export default function AuditIndexPage({ logs, filters, options }: AuditIndexPag
                             </div>
 
                             <div className="space-y-1">
-                                <Label className="text-xs">Pengguna</Label>
+                                <Label htmlFor="audit_user_id" className="text-xs">
+                                    Pengguna
+                                </Label>
                                 <Select value={userId} onValueChange={setUserId}>
-                                    <SelectTrigger className="min-h-10">
+                                    <SelectTrigger id="audit_user_id" className="min-h-11">
                                         <SelectValue placeholder="Semua pengguna" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -138,9 +142,11 @@ export default function AuditIndexPage({ logs, filters, options }: AuditIndexPag
                             </div>
 
                             <div className="space-y-1">
-                                <Label className="text-xs">Aktivitas</Label>
+                                <Label htmlFor="audit_event" className="text-xs">
+                                    Aktivitas
+                                </Label>
                                 <Select value={event} onValueChange={setEvent}>
-                                    <SelectTrigger className="min-h-10">
+                                    <SelectTrigger id="audit_event" className="min-h-11">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -153,22 +159,41 @@ export default function AuditIndexPage({ logs, filters, options }: AuditIndexPag
                             </div>
 
                             <div className="space-y-1">
-                                <Label className="text-xs">Dari Tanggal</Label>
-                                <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="min-h-10" />
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label className="text-xs">Sampai Tanggal</Label>
-                                <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="min-h-10" />
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label className="text-xs">Kata Kunci / Alasan</Label>
+                                <Label htmlFor="audit_date_from" className="text-xs">
+                                    Dari Tanggal
+                                </Label>
                                 <Input
+                                    id="audit_date_from"
+                                    type="date"
+                                    value={dateFrom}
+                                    onChange={(e) => setDateFrom(e.target.value)}
+                                    className="min-h-11"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="audit_date_to" className="text-xs">
+                                    Sampai Tanggal
+                                </Label>
+                                <Input
+                                    id="audit_date_to"
+                                    type="date"
+                                    value={dateTo}
+                                    onChange={(e) => setDateTo(e.target.value)}
+                                    className="min-h-11"
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label htmlFor="audit_q" className="text-xs">
+                                    Kata Kunci / Alasan
+                                </Label>
+                                <Input
+                                    id="audit_q"
                                     value={q}
                                     onChange={(e) => setQ(e.target.value)}
                                     placeholder="Cari alasan / kasus / user"
-                                    className="min-h-10"
+                                    className="min-h-11"
                                 />
                             </div>
 

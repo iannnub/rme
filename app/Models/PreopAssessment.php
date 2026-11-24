@@ -39,6 +39,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $evaluation_completeness
  * @property ReadinessStatus $readiness_status
  * @property string|null $evaluation_notes
+ * @property array<string, mixed>|null $clinical_details
  * @property int $created_by
  */
 class PreopAssessment extends Model
@@ -71,6 +72,7 @@ class PreopAssessment extends Model
         'evaluation_completeness',
         'readiness_status',
         'evaluation_notes',
+        'clinical_details',
         'created_by',
     ];
 
@@ -86,6 +88,7 @@ class PreopAssessment extends Model
             'anxiety_level' => AnxietyLevel::class,
             'preparation' => 'array',
             'readiness_status' => ReadinessStatus::class,
+            'clinical_details' => 'array',
         ];
     }
 
