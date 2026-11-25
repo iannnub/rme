@@ -10,6 +10,7 @@ import {
     AlertTriangle,
     BarChart3,
     Building2,
+    CalendarClock,
     CheckCircle2,
     ClipboardCheck,
     DoorOpen,
@@ -77,14 +78,211 @@ type HeadNurseDashboardData = {
     >;
 };
 
+type UpcomingSurgeryItem = {
+    id: number;
+    case_number: string;
+    patient_name: string;
+    rm_number: string;
+    surgery_type: string;
+    diagnosis: string;
+    surgeon_name: string;
+    room_code: string;
+    scheduled_at: string;
+    scheduled_date: string;
+    scheduled_time: string;
+    day_badge: string;
+    is_today: boolean;
+    urgency_status: string | null;
+    status: string;
+    status_label: string;
+    is_assigned_to_me: boolean;
+};
+
+type UpcomingSurgeriesData = {
+    total_count: number;
+    today_remaining_count: number;
+    future_days_count: number;
+    items: UpcomingSurgeryItem[];
+};
+
 interface DashboardProps {
     adminStats?: AdminStats | null;
     nurseDashboard?: NurseDashboardData | null;
     doctorDashboard?: DoctorDashboardData | null;
     headNurseDashboard?: HeadNurseDashboardData | null;
+    upcomingSurgeries?: UpcomingSurgeriesData | null;
 }
 
-export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard, headNurseDashboard }: DashboardProps) {
+function UpcomingSurgeriesCard({ upcoming, userRole }: { upcoming: UpcomingSurgeriesData; userRole: string }) {
+    return (
+        <Card>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                        <CalendarClock className="text-primary h-5 w-5 shrink-0" />
+                        <span>Jadwal Operasi yang Akan Mendatang</span>
+                    </CardTitle>
+                    <CardDescription>
+                        {upcoming.total_count === 0
+                            ? 'Daftar antrean kasus Pre-Operasi dan Siap Operasi setelah waktu saat ini.'
+                            : `${upcoming.total_count} jadwal aktif terdata (${upcoming.today_remaining_count} sisa hari ini, ${upcoming.future_days_count} hari berikutnya).`}
+                    </CardDescription>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button asChild variant="outline" className="min-h-11">
+                        <Link href="/kasus">Lihat Semua Kasus</Link>
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent>
+                {upcoming.items.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-4 py-8 text-center">
+                        <p className="text-muted-foreground text-sm">Belum ada jadwal operasi mendatang yang terdaftar di unit kamar operasi.</p>
+                        {userRole === 'perawat' ? (
+                            <Button asChild variant="outline" className="min-h-11">
+                                <Link href="/kasus/buat">+ Buat Kasus Operasi</Link>
+                            </Button>
+                        ) : (
+                            <Button asChild variant="outline" className="min-h-11">
+                                <Link href="/kasus">Buka Daftar Kasus</Link>
+                            </Button>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        {/* Tampilan Kartu Terstruktur untuk Mobile & Tablet (< lg) */}
+                        <div className="space-y-3 lg:hidden">
+                            {upcoming.items.map((item) => (
+                                <Link
+                                    key={item.id}
+                                    href={route('cases.show', item.id)}
+                                    className="hover:bg-secondary/60 focus-visible:ring-ring block min-h-11 rounded-xl border p-3.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                                >
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            <Badge variant={item.is_today ? 'default' : 'secondary'} className="rounded-lg">
+                                                {item.day_badge}
+                                            </Badge>
+                                            <span className="text-foreground text-xs font-semibold tabular-nums">
+                                                {item.scheduled_date} • {item.scheduled_time} WIB
+                                            </span>
+                                        </div>
+                                        <CaseStatusBadge status={item.status} label={item.status_label} />
+                                    </div>
+
+                                    <div className="mt-2.5">
+                                        <div className="text-foreground text-sm font-semibold">
+                                            {item.patient_name}{' '}
+                                            <span className="text-muted-foreground font-mono text-xs font-normal tabular-nums">
+                                                ({item.rm_number} • {item.case_number})
+                                            </span>
+                                        </div>
+                                        <div className="text-muted-foreground mt-0.5 text-xs">
+                                            {item.surgery_type} • {item.diagnosis}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t pt-2.5 text-xs">
+                                        <div className="text-muted-foreground">
+                                            <span className="text-foreground font-medium">Ruang {item.room_code}</span> • {item.surgeon_name}
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            {item.urgency_status === 'emergency' && (
+                                                <Badge
+                                                    variant="outline"
+                                                    className="rounded-lg border-rose-300 text-[11px] text-rose-700 dark:border-rose-700 dark:text-rose-300"
+                                                >
+                                                    Darurat
+                                                </Badge>
+                                            )}
+                                            {item.is_assigned_to_me && (
+                                                <Badge variant="secondary" className="rounded-lg text-[11px]">
+                                                    Tim Anda
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Tampilan Tabel Padat untuk Desktop (lg+) */}
+                        <div className="hidden overflow-x-auto rounded-xl border lg:block">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Jadwal Operasi</TableHead>
+                                        <TableHead>Pasien & No. Kasus</TableHead>
+                                        <TableHead>Tindakan & Diagnosis</TableHead>
+                                        <TableHead>Ruang & Operator</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Aksi</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {upcoming.items.map((item) => (
+                                        <TableRow key={item.id}>
+                                            <TableCell className="whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant={item.is_today ? 'default' : 'secondary'} className="rounded-lg">
+                                                        {item.day_badge}
+                                                    </Badge>
+                                                    <span className="text-sm font-semibold tabular-nums">{item.scheduled_time} WIB</span>
+                                                </div>
+                                                <div className="text-muted-foreground mt-0.5 text-xs tabular-nums">{item.scheduled_date}</div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-sm font-semibold">{item.patient_name}</span>
+                                                    {item.is_assigned_to_me && (
+                                                        <Badge variant="secondary" className="rounded-lg text-[11px]">
+                                                            Tim Anda
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="text-muted-foreground font-mono text-xs tabular-nums">
+                                                    {item.rm_number} • {item.case_number}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-sm font-medium">{item.surgery_type}</span>
+                                                    {item.urgency_status === 'emergency' && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="rounded-lg border-rose-300 text-[11px] text-rose-700 dark:border-rose-700 dark:text-rose-300"
+                                                        >
+                                                            Darurat
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="text-muted-foreground text-xs">{item.diagnosis}</div>
+                                            </TableCell>
+                                            <TableCell className="text-xs">
+                                                <div className="text-foreground font-medium">Ruang {item.room_code}</div>
+                                                <div className="text-muted-foreground">{item.surgeon_name}</div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <CaseStatusBadge status={item.status} label={item.status_label} />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button asChild variant="outline" className="min-h-11 px-3.5">
+                                                    <Link href={route('cases.show', item.id)}>Buka Kasus</Link>
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard, headNurseDashboard, upcomingSurgeries }: DashboardProps) {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
 
@@ -104,19 +302,19 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                 <Badge variant="secondary">{user.role_label}</Badge>
                                 {user.nurse_type_label && <Badge variant="outline">{user.nurse_type_label}</Badge>}
                                 {user.role === 'perawat' && (
-                                    <Button asChild size="sm">
+                                    <Button asChild className="min-h-11">
                                         <Link href="/kasus/buat">+ Kasus Operasi Baru</Link>
                                     </Button>
                                 )}
                                 {user.role === 'kepala_ruangan' && (
                                     <>
-                                        <Button asChild size="sm" variant="outline">
+                                        <Button asChild variant="outline" className="min-h-11">
                                             <Link href="/laporan">
                                                 <BarChart3 className="mr-1.5 h-4 w-4" />
                                                 Rekap Bulanan
                                             </Link>
                                         </Button>
-                                        <Button asChild size="sm" variant="outline">
+                                        <Button asChild variant="outline" className="min-h-11">
                                             <Link href="/audit">
                                                 <FileSearch className="mr-1.5 h-4 w-4" />
                                                 Audit Log
@@ -139,13 +337,13 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Pengguna Sistem</CardDescription>
                                         <Users className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.users_active} Aktif</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.users_active} Aktif</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>
                                         Total {adminStats.users_total} akun ({adminStats.users_inactive} nonaktif)
                                     </span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/pengguna">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -157,11 +355,11 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Ruang Operasi Aktif</CardDescription>
                                         <DoorOpen className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.rooms_active}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.rooms_active}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>Kamar operasi terdaftar</span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/master/ruang">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -173,11 +371,11 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Alat & Instrumen Aktif</CardDescription>
                                         <Wrench className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.instruments_active}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.instruments_active}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>Master cek kesiapan alat</span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/master/alat">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -189,11 +387,11 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Jenis Operasi Aktif</CardDescription>
                                         <Scissors className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.surgery_types_active}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.surgery_types_active}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>Daftar tindakan operasi</span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/master/jenis-operasi">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -205,11 +403,11 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Jenis Anestesi Aktif</CardDescription>
                                         <Syringe className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.anesthesia_types_active}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.anesthesia_types_active}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>Pilihan anestesi intra-op</span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/master/jenis-anestesi">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -221,11 +419,11 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         <CardDescription>Diagnosis Medis Aktif</CardDescription>
                                         <Stethoscope className="text-primary h-4 w-4" />
                                     </div>
-                                    <CardTitle className="text-2xl">{adminStats.medical_diagnoses_active}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{adminStats.medical_diagnoses_active}</CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-muted-foreground flex items-center justify-between text-xs">
+                                <CardContent className="text-muted-foreground flex items-center justify-between gap-2 text-xs">
                                     <span>Master diagnosis pra-op</span>
-                                    <Button variant="link" size="sm" asChild className="h-auto p-0">
+                                    <Button variant="outline" asChild className="min-h-11 px-3">
                                         <Link href="/admin/master/diagnosis-medis">Kelola</Link>
                                     </Button>
                                 </CardContent>
@@ -243,7 +441,7 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         </p>
                                     </div>
                                 </div>
-                                <Button variant="outline" asChild>
+                                <Button variant="outline" asChild className="min-h-11">
                                     <Link href="/pengaturan/rumah-sakit">Buka Data Rumah Sakit</Link>
                                 </Button>
                             </CardContent>
@@ -258,25 +456,27 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Total Kasus Hari Ini</CardDescription>
-                                    <CardTitle className="text-2xl">{nurseDashboard.stats.today_total}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{nurseDashboard.stats.today_total}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Kasus Saya Hari Ini</CardDescription>
-                                    <CardTitle className="text-2xl">{nurseDashboard.stats.my_today_count}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{nurseDashboard.stats.my_today_count}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Kasus Aktif Saya</CardDescription>
-                                    <CardTitle className="text-2xl">{nurseDashboard.stats.my_active_count}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{nurseDashboard.stats.my_active_count}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Tugas Belum Lengkap</CardDescription>
-                                    <CardTitle className="text-2xl text-amber-600">{nurseDashboard.stats.pending_tasks_count}</CardTitle>
+                                    <CardTitle className="text-2xl text-amber-700 tabular-nums dark:text-amber-300">
+                                        {nurseDashboard.stats.pending_tasks_count}
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                         </div>
@@ -293,19 +493,21 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                     {nurseDashboard.my_today_cases.length === 0 ? (
                                         <p className="text-muted-foreground py-6 text-center text-sm">Tidak ada jadwal kasus Anda hari ini.</p>
                                     ) : (
-                                        <div className="space-y-2">
+                                        <div className="space-y-2.5">
                                             {nurseDashboard.my_today_cases.map((c) => (
                                                 <Link
                                                     key={c.id}
                                                     href={route('cases.show', c.id)}
-                                                    className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 text-sm transition-colors"
+                                                    className="hover:bg-secondary/60 flex min-h-11 items-center justify-between gap-2 rounded-xl border p-3 text-sm transition-colors"
                                                 >
                                                     <div>
                                                         <div className="font-semibold">
                                                             {c.patient_name}{' '}
-                                                            <span className="text-muted-foreground font-mono text-xs">({c.case_number})</span>
+                                                            <span className="text-muted-foreground font-mono text-xs tabular-nums">
+                                                                ({c.case_number})
+                                                            </span>
                                                         </div>
-                                                        <div className="text-muted-foreground text-xs">
+                                                        <div className="text-muted-foreground text-xs tabular-nums">
                                                             {c.scheduled_at} WIB • Ruang {c.room_code}
                                                         </div>
                                                     </div>
@@ -320,7 +522,7 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2 text-base">
-                                        <AlertTriangle className="h-5 w-5 text-amber-600" />
+                                        <AlertTriangle className="h-5 w-5 text-amber-700 dark:text-amber-300" />
                                         Tugas Belum Lengkap (SSC & Pengesahan)
                                     </CardTitle>
                                 </CardHeader>
@@ -328,18 +530,23 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                     {nurseDashboard.pending_tasks.length === 0 ? (
                                         <p className="text-muted-foreground py-6 text-center text-sm">Semua tugas aktif Anda sudah lengkap.</p>
                                     ) : (
-                                        <div className="space-y-2">
+                                        <div className="space-y-2.5">
                                             {nurseDashboard.pending_tasks.map((c) => (
                                                 <Link
                                                     key={c.id}
                                                     href={route('cases.show', c.id)}
-                                                    className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border p-3 text-sm transition-colors"
+                                                    className="hover:bg-secondary/60 flex min-h-11 items-center justify-between gap-2 rounded-xl border p-3 text-sm transition-colors"
                                                 >
                                                     <div>
                                                         <div className="font-semibold">
-                                                            {c.patient_name} ({c.case_number})
+                                                            {c.patient_name}{' '}
+                                                            <span className="text-muted-foreground font-mono text-xs tabular-nums">
+                                                                ({c.case_number})
+                                                            </span>
                                                         </div>
-                                                        <div className="text-xs text-amber-700">{c.pending_items.join(' • ')}</div>
+                                                        <div className="text-xs text-amber-700 dark:text-amber-300">
+                                                            {c.pending_items.join(' • ')}
+                                                        </div>
                                                     </div>
                                                     <CaseStatusBadge status={c.status} label={c.status_label} />
                                                 </Link>
@@ -349,6 +556,8 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                 </CardContent>
                             </Card>
                         </div>
+
+                        {upcomingSurgeries && <UpcomingSurgeriesCard upcoming={upcomingSurgeries} userRole={user.role} />}
                     </div>
                 )}
 
@@ -359,25 +568,29 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Total Kasus Saya</CardDescription>
-                                    <CardTitle className="text-2xl">{doctorDashboard.stats.my_cases_total}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{doctorDashboard.stats.my_cases_total}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Kasus Aktif</CardDescription>
-                                    <CardTitle className="text-2xl">{doctorDashboard.stats.my_active_cases}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{doctorDashboard.stats.my_active_cases}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Menunggu Verifikasi / Pengesahan</CardDescription>
-                                    <CardTitle className="text-2xl text-amber-600">{doctorDashboard.stats.waiting_verification_count}</CardTitle>
+                                    <CardTitle className="text-2xl text-amber-700 tabular-nums dark:text-amber-300">
+                                        {doctorDashboard.stats.waiting_verification_count}
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Kasus Selesai</CardDescription>
-                                    <CardTitle className="text-2xl text-emerald-600">{doctorDashboard.stats.completed_cases}</CardTitle>
+                                    <CardTitle className="text-2xl text-emerald-700 tabular-nums dark:text-emerald-300">
+                                        {doctorDashboard.stats.completed_cases}
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                         </div>
@@ -395,19 +608,21 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         Tidak ada kasus yang menunggu verifikasi atau pengesahan Anda saat ini.
                                     </p>
                                 ) : (
-                                    <div className="space-y-2">
+                                    <div className="space-y-2.5">
                                         {doctorDashboard.waiting_cases.map((c) => (
                                             <Link
                                                 key={c.id}
                                                 href={route('cases.show', c.id)}
-                                                className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 text-sm transition-colors"
+                                                className="hover:bg-secondary/60 flex min-h-11 items-center justify-between gap-2 rounded-xl border p-3 text-sm transition-colors"
                                             >
                                                 <div>
                                                     <div className="font-semibold">
                                                         {c.patient_name}{' '}
-                                                        <span className="text-muted-foreground font-mono text-xs">({c.case_number})</span>
+                                                        <span className="text-muted-foreground font-mono text-xs tabular-nums">
+                                                            ({c.case_number})
+                                                        </span>
                                                     </div>
-                                                    <div className="text-xs text-amber-700">{c.needs.join(' • ')}</div>
+                                                    <div className="text-xs text-amber-700 dark:text-amber-300">{c.needs.join(' • ')}</div>
                                                 </div>
                                                 <CaseStatusBadge status={c.status} label={c.status_label} />
                                             </Link>
@@ -416,6 +631,8 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                 )}
                             </CardContent>
                         </Card>
+
+                        {upcomingSurgeries && <UpcomingSurgeriesCard upcoming={upcomingSurgeries} userRole={user.role} />}
                     </div>
                 )}
 
@@ -426,25 +643,31 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Total Kasus Operasi</CardDescription>
-                                    <CardTitle className="text-2xl">{headNurseDashboard.stats.total_cases}</CardTitle>
+                                    <CardTitle className="text-2xl tabular-nums">{headNurseDashboard.stats.total_cases}</CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Rata-rata Kelengkapan</CardDescription>
-                                    <CardTitle className="text-2xl text-emerald-600">{headNurseDashboard.stats.average_completeness}%</CardTitle>
+                                    <CardTitle className="text-2xl text-emerald-700 tabular-nums dark:text-emerald-300">
+                                        {headNurseDashboard.stats.average_completeness}%
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>SSC Belum Selesai</CardDescription>
-                                    <CardTitle className="text-2xl text-amber-600">{headNurseDashboard.stats.ssc_incomplete}</CardTitle>
+                                    <CardTitle className="text-2xl text-amber-700 tabular-nums dark:text-amber-300">
+                                        {headNurseDashboard.stats.ssc_incomplete}
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                             <Card>
                                 <CardHeader className="pb-2">
                                     <CardDescription>Belum Diverifikasi Dokter</CardDescription>
-                                    <CardTitle className="text-2xl text-rose-600">{headNurseDashboard.stats.pending_doctor_verification}</CardTitle>
+                                    <CardTitle className="text-2xl text-rose-700 tabular-nums dark:text-rose-300">
+                                        {headNurseDashboard.stats.pending_doctor_verification}
+                                    </CardTitle>
                                 </CardHeader>
                             </Card>
                         </div>
@@ -455,11 +678,13 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                 <Card key={sc.status}>
                                     <CardContent className="p-4 text-center">
                                         <div className="text-muted-foreground text-xs">{sc.label}</div>
-                                        <div className="mt-1 text-2xl font-bold">{sc.count}</div>
+                                        <div className="mt-1 text-2xl font-bold tabular-nums">{sc.count}</div>
                                     </CardContent>
                                 </Card>
                             ))}
                         </div>
+
+                        {upcomingSurgeries && <UpcomingSurgeriesCard upcoming={upcomingSurgeries} userRole={user.role} />}
 
                         {/* Tabel Kelengkapan Kasus */}
                         <Card>
@@ -472,13 +697,13 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                         </CardTitle>
                                         <CardDescription>Klik kasus untuk meninjau rincian rekam keperawatan atau mengunduh PDF.</CardDescription>
                                     </div>
-                                    <Button asChild variant="outline" size="sm">
+                                    <Button asChild variant="outline" className="min-h-11">
                                         <Link href="/laporan">Lihat Rekap Bulanan Lengkap</Link>
                                     </Button>
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="overflow-x-auto rounded-md border">
+                                <div className="overflow-x-auto rounded-xl border">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
@@ -502,13 +727,13 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                                         <TableCell>
                                                             <Link
                                                                 href={route('cases.show', c.id)}
-                                                                className="text-primary font-semibold hover:underline"
+                                                                className="text-primary inline-flex min-h-11 flex-col justify-center font-semibold hover:underline"
                                                             >
-                                                                {c.case_number}
+                                                                <span className="tabular-nums">{c.case_number}</span>
+                                                                <span className="text-muted-foreground text-xs font-normal">{c.patient_name}</span>
                                                             </Link>
-                                                            <div className="text-muted-foreground text-xs">{c.patient_name}</div>
                                                         </TableCell>
-                                                        <TableCell className="text-xs">
+                                                        <TableCell className="text-xs tabular-nums">
                                                             <div>{c.scheduled_at}</div>
                                                             <div className="text-muted-foreground">Ruang {c.room_code}</div>
                                                         </TableCell>
@@ -520,12 +745,15 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                                                 <div className="bg-muted h-2 w-20 overflow-hidden rounded-full">
                                                                     <div className="bg-primary h-full" style={{ width: `${c.completeness_pct}%` }} />
                                                                 </div>
-                                                                <span className="text-xs font-semibold">{c.completeness_pct}%</span>
+                                                                <span className="text-xs font-semibold tabular-nums">{c.completeness_pct}%</span>
                                                             </div>
                                                         </TableCell>
                                                         <TableCell className="space-x-1">
                                                             {c.ssc_incomplete ? (
-                                                                <Badge variant="outline" className="border-amber-400 text-[11px] text-amber-700">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="border-amber-400 text-[11px] text-amber-700 dark:border-amber-600 dark:text-amber-300"
+                                                                >
                                                                     SSC Belum Selesai
                                                                 </Badge>
                                                             ) : (
@@ -534,7 +762,10 @@ export default function Dashboard({ adminStats, nurseDashboard, doctorDashboard,
                                                                 </Badge>
                                                             )}
                                                             {c.pending_verification && (
-                                                                <Badge variant="outline" className="border-rose-300 text-[11px] text-rose-700">
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="border-rose-300 text-[11px] text-rose-700 dark:border-rose-700 dark:text-rose-300"
+                                                                >
                                                                     Belum Verifikasi Dokter
                                                                 </Badge>
                                                             )}

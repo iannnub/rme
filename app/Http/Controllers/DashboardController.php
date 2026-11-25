@@ -14,6 +14,7 @@ use App\Models\SurgeryCase;
 use App\Models\SurgeryType;
 use App\Models\User;
 use App\Services\CaseCompletenessCalculator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,6 +32,7 @@ class DashboardController extends Controller
         $nurseDashboard = null;
         $doctorDashboard = null;
         $headNurseDashboard = null;
+        $upcomingSurgeries = null;
 
         if ($user !== null && $user->isAdmin()) {
             $adminStats = [
@@ -45,10 +47,12 @@ class DashboardController extends Controller
             ];
         } elseif ($user !== null && $user->isPerawat()) {
             $nurseDashboard = $this->buildNurseDashboard($user);
+            $upcomingSurgeries = $this->buildUpcomingSurgeries($user);
         } elseif ($user !== null && $user->isDokter()) {
             $doctorDashboard = $this->buildDoctorDashboard($user);
+            $upcomingSurgeries = $this->buildUpcomingSurgeries($user);
         } elseif ($user !== null && $user->isKepalaRuangan()) {
-            $headNurseDashboard = $this->buildHeadNurseDashboard();
+            [$headNurseDashboard, $upcomingSurgeries] = $this->buildHeadNurseDashboardWithUpcoming($user);
         }
 
         return Inertia::render('dashboard', [
@@ -56,6 +60,7 @@ class DashboardController extends Controller
             'nurseDashboard' => $nurseDashboard,
             'doctorDashboard' => $doctorDashboard,
             'headNurseDashboard' => $headNurseDashboard,
+            'upcomingSurgeries' => $upcomingSurgeries,
         ]);
     }
 
@@ -192,14 +197,17 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{0: array<string, mixed>, 1: array<string, mixed>}
      */
-    private function buildHeadNurseDashboard(): array
+    private function buildHeadNurseDashboardWithUpcoming(User $user): array
     {
         $allCases = SurgeryCase::query()
             ->with([
                 'patient',
                 'room',
+                'surgeryType',
+                'medicalDiagnosis',
+                'surgeon',
                 'preopAssessment',
                 'vitalSigns',
                 'instrumentChecks',
@@ -258,7 +266,7 @@ class DashboardController extends Controller
 
         $totalCases = $allCases->count();
 
-        return [
+        $headNurseDashboard = [
             'stats' => [
                 'total_cases' => $totalCases,
                 'average_completeness' => $totalCases > 0 ? (int) round($totalPct / $totalCases) : 0,
@@ -267,6 +275,99 @@ class DashboardController extends Controller
             ],
             'status_counts' => array_values($statusCounts),
             'recent_cases' => array_slice($caseRows, 0, 15),
+        ];
+
+        return [$headNurseDashboard, $this->buildUpcomingSurgeries($user, $allCases)];
+    }
+
+    /**
+     * @param  Collection<int, SurgeryCase>|null  $preloadedCases
+     * @return array<string, mixed>
+     */
+    private function buildUpcomingSurgeries(User $user, ?Collection $preloadedCases = null): array
+    {
+        $tz = config('app.timezone');
+        $appTimezone = is_string($tz) && $tz !== '' ? $tz : 'Asia/Jakarta';
+        $nowJkt = now('Asia/Jakarta');
+        $nowApp = $nowJkt->copy()->timezone($appTimezone);
+        $upcomingStatuses = [CaseStatus::PreOp, CaseStatus::SiapOperasi];
+
+        if ($preloadedCases !== null) {
+            $upcomingCollection = $preloadedCases
+                ->filter(fn (SurgeryCase $c): bool => in_array($c->status, $upcomingStatuses, true) && $c->scheduled_at->gt($nowApp))
+                ->sortBy(fn (SurgeryCase $c): string => sprintf('%012d-%010d', $c->scheduled_at->getTimestamp(), $c->id))
+                ->values();
+        } else {
+            $upcomingCollection = SurgeryCase::query()
+                ->with(['patient', 'room', 'surgeryType', 'medicalDiagnosis', 'surgeon'])
+                ->whereIn('status', $upcomingStatuses)
+                ->where('scheduled_at', '>', $nowApp)
+                ->orderBy('scheduled_at')
+                ->orderBy('id')
+                ->get();
+        }
+
+        $todayStartJkt = $nowJkt->copy()->startOfDay();
+        $todayRemainingCount = 0;
+        $futureDaysCount = 0;
+
+        foreach ($upcomingCollection as $case) {
+            if ($case->scheduled_at->timezone('Asia/Jakarta')->isSameDay($nowJkt)) {
+                $todayRemainingCount++;
+            } else {
+                $futureDaysCount++;
+            }
+        }
+
+        $items = $upcomingCollection
+            ->take(10)
+            ->map(function (SurgeryCase $c) use ($user, $todayStartJkt): array {
+                $scheduledJkt = $c->scheduled_at->timezone('Asia/Jakarta');
+                $dayDiff = (int) round($todayStartJkt->diffInDays($scheduledJkt->copy()->startOfDay(), false));
+
+                if ($dayDiff <= 0) {
+                    $dayBadge = 'Hari Ini';
+                } elseif ($dayDiff === 1) {
+                    $dayBadge = 'Besok';
+                } else {
+                    $dayBadge = "H+{$dayDiff}";
+                }
+
+                $isAssignedToMe = $c->surgeon_id === $user->id
+                    || $c->anesthesiologist_id === $user->id
+                    || $c->circulating_nurse_id === $user->id
+                    || $c->scrub_nurse_id === $user->id
+                    || $c->anesthesia_nurse_id === $user->id
+                    || $c->created_by === $user->id;
+
+                return [
+                    'id' => $c->id,
+                    'case_number' => $c->case_number,
+                    'patient_name' => $c->patient !== null ? $c->patient->name : '-',
+                    'rm_number' => $c->patient !== null ? $c->patient->rm_number : '-',
+                    'surgery_type' => $c->surgeryTypeDisplay(),
+                    'diagnosis' => $c->diagnosisDisplay(),
+                    'surgeon_name' => $c->surgeon !== null ? $c->surgeon->name : ($c->dpjp_name ?: 'Belum ditetapkan'),
+                    'room_code' => $c->room !== null ? $c->room->code : 'Belum ditetapkan',
+                    'scheduled_at' => $scheduledJkt->format('d M Y H:i'),
+                    'scheduled_date' => $scheduledJkt->format('d M Y'),
+                    'scheduled_time' => $scheduledJkt->format('H:i'),
+                    'day_badge' => $dayBadge,
+                    'is_today' => $dayDiff <= 0,
+                    'urgency_status' => $c->urgency_status,
+                    'status' => $c->status->value,
+                    'status_label' => $c->status->label(),
+                    'is_assigned_to_me' => $isAssignedToMe,
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [
+            'total_count' => $upcomingCollection->count(),
+            'today_remaining_count' => $todayRemainingCount,
+            'future_days_count' => $futureDaysCount,
+            'items' => $items,
         ];
     }
 }

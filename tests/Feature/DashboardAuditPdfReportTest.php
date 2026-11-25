@@ -30,6 +30,7 @@ use App\Models\User;
 use App\Models\VitalSign;
 use App\Services\CaseCompletenessCalculator;
 use App\Services\PdfExporter;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('angka dashboard kepala ruangan, perawat, dan dokter sama persis dengan angka di database', function () {
@@ -162,6 +163,96 @@ test('angka dashboard kepala ruangan, perawat, dan dokter sama persis dengan ang
             ->where('doctorDashboard.stats.my_cases_total', 3)
             ->where('doctorDashboard.stats.completed_cases', 1)
         );
+});
+
+test('jadwal operasi mendatang di dashboard tampil urut terdekat untuk semua peran klinis dan disembunyikan dari admin', function () {
+    $this->travelTo(Carbon::parse('2026-11-25 10:00:00', 'Asia/Jakarta'));
+
+    $admin = User::factory()->admin()->create();
+    $kepala = User::factory()->kepalaRuangan()->create();
+    $perawatTim = User::factory()->perawat(NurseType::Sirkuler)->create();
+    $perawatUnitLain = User::factory()->perawat(NurseType::Instrumen)->create();
+    $operator = User::factory()->dokterOperator()->create();
+    $anestesi = User::factory()->dokterAnestesi()->create();
+
+    // 1. Kasus hari ini 2 jam lagi (Siap Operasi) -> harus masuk urutan #1
+    $caseTodayLater = SurgeryCase::factory()->withTeam()->atStatus(CaseStatus::SiapOperasi)->create([
+        'case_number' => 'OK-UPCOMING-001',
+        'scheduled_at' => now('Asia/Jakarta')->addHours(2),
+        'surgeon_id' => $operator->id,
+        'anesthesiologist_id' => $anestesi->id,
+        'circulating_nurse_id' => $perawatTim->id,
+        'created_by' => $perawatTim->id,
+    ]);
+
+    // 2. Kasus lusa H+2 (Pre-Op) -> harus masuk urutan #3
+    $caseDayPlus2 = SurgeryCase::factory()->create([
+        'case_number' => 'OK-UPCOMING-003',
+        'status' => CaseStatus::PreOp,
+        'scheduled_at' => now('Asia/Jakarta')->addDays(2)->setTime(11, 0),
+        'surgeon_id' => $operator->id,
+        'circulating_nurse_id' => $perawatTim->id,
+        'created_by' => $perawatTim->id,
+    ]);
+
+    // 3. Kasus besok H+1 (Pre-Op) -> harus masuk urutan #2
+    $caseTomorrow = SurgeryCase::factory()->create([
+        'case_number' => 'OK-UPCOMING-002',
+        'status' => CaseStatus::PreOp,
+        'scheduled_at' => now('Asia/Jakarta')->addDay()->setTime(8, 30),
+        'surgeon_id' => $operator->id,
+        'circulating_nurse_id' => $perawatTim->id,
+        'created_by' => $perawatTim->id,
+    ]);
+
+    // 4. Kasus yang tidak boleh masuk daftar mendatang (lewat waktu / sudah Intra-Op / sudah Selesai)
+    SurgeryCase::factory()->create([
+        'case_number' => 'OK-PAST-PREOP',
+        'status' => CaseStatus::PreOp,
+        'scheduled_at' => now('Asia/Jakarta')->subHour(),
+        'created_by' => $perawatTim->id,
+    ]);
+    SurgeryCase::factory()->withTeam()->atStatus(CaseStatus::IntraOp)->create([
+        'case_number' => 'OK-FUTURE-INTRA',
+        'scheduled_at' => now('Asia/Jakarta')->addHours(3),
+        'created_by' => $perawatTim->id,
+    ]);
+    SurgeryCase::factory()->withTeam()->atStatus(CaseStatus::Selesai)->create([
+        'case_number' => 'OK-FUTURE-DONE',
+        'scheduled_at' => now('Asia/Jakarta')->addHours(4),
+        'created_by' => $perawatTim->id,
+    ]);
+
+    // Admin tidak boleh menerima data jadwal klinis (upcomingSurgeries === null)
+    $this->actingAs($admin)
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->where('upcomingSurgeries', null)
+        );
+
+    // Seluruh peran klinis (termasuk perawat unit yang belum ditugaskan ke kasus tsb) melihat jadwal unit OKA secara urut
+    foreach ([$perawatTim, $perawatUnitLain, $operator, $anestesi, $kepala] as $clinicalUser) {
+        $expectedAssignedFirst = $clinicalUser->id === $perawatTim->id
+            || $clinicalUser->id === $operator->id
+            || $clinicalUser->id === $anestesi->id;
+
+        $this->actingAs($clinicalUser)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('dashboard')
+                ->where('upcomingSurgeries.total_count', 3)
+                ->has('upcomingSurgeries.items', 3)
+                ->where('upcomingSurgeries.items.0.id', $caseTodayLater->id)
+                ->where('upcomingSurgeries.items.1.id', $caseTomorrow->id)
+                ->where('upcomingSurgeries.items.1.day_badge', 'Besok')
+                ->where('upcomingSurgeries.items.2.id', $caseDayPlus2->id)
+                ->where('upcomingSurgeries.items.2.day_badge', 'H+2')
+                ->where('upcomingSurgeries.items.0.is_assigned_to_me', $expectedAssignedFirst)
+            );
+    }
 });
 
 test('halaman laporan bulanan dan audit log global hanya dapat diakses oleh Kepala Ruangan dan mendukung filter', function () {

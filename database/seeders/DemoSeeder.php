@@ -187,6 +187,7 @@ class DemoSeeder extends Seeder
     private function seedClinicalDemoData(): void
     {
         $sirkuler1 = User::query()->where('username', 'ns.sirkuler1')->first();
+        $sirkuler2 = User::query()->where('username', 'ns.sirkuler2')->first();
         $instrumen1 = User::query()->where('username', 'ns.instrumen1')->first();
         $perawatAnestesi1 = User::query()->where('username', 'ns.anestesi1')->first();
         $operator1 = User::query()->where('username', 'dr.operator1')->first();
@@ -224,6 +225,7 @@ class DemoSeeder extends Seeder
 
         AuditContext::run(function () use (
             $sirkuler1,
+            $sirkuler2,
             $instrumen1,
             $perawatAnestesi1,
             $operator1,
@@ -576,6 +578,23 @@ class DemoSeeder extends Seeder
                 $surgOrtopedi,
                 $anestGa,
                 $ortoInstruments,
+            );
+
+            $this->seedUpcomingDemoCases(
+                $sirkuler1,
+                $sirkuler2,
+                $instrumen1,
+                $perawatAnestesi1,
+                $operator1,
+                $anestesi1,
+                $room1,
+                $room2,
+                $diagEdh,
+                $diagFemur,
+                $surgSaraf,
+                $surgOrtopedi,
+                $anestGa,
+                $anestSab,
             );
         }, null, null, $sirkuler1);
     }
@@ -1414,5 +1433,109 @@ class DemoSeeder extends Seeder
                 'created_by' => $sirkuler1->id,
             ],
         );
+    }
+
+    private function seedUpcomingDemoCases(
+        User $sirkuler1,
+        ?User $sirkuler2,
+        User $instrumen1,
+        User $perawatAnestesi1,
+        User $operator1,
+        User $anestesi1,
+        ?Room $room1,
+        ?Room $room2,
+        ?MedicalDiagnosis $diagEdh,
+        ?MedicalDiagnosis $diagFemur,
+        ?SurgeryType $surgSaraf,
+        ?SurgeryType $surgOrtopedi,
+        ?AnesthesiaType $anestGa,
+        ?AnesthesiaType $anestSab,
+    ): void {
+        $patientE = Patient::query()->firstOrCreate(
+            ['rm_number' => 'DEMO-005'],
+            [
+                'name' => 'Pasien Contoh E',
+                'birth_date' => '1988-07-14',
+                'gender' => Gender::Male,
+                'identity_number' => '3509121407880005',
+                'address' => 'Jl. Contoh Anggrek No. 17, Jember',
+                'phone' => '081200000005',
+                'guardian_name' => 'Ny. Lestari Putri',
+                'guardian_relation' => 'Istri',
+                'guardian_phone' => '081299000005',
+                'created_by' => $sirkuler1->id,
+            ],
+        );
+
+        $patientF = Patient::query()->firstOrCreate(
+            ['rm_number' => 'DEMO-006'],
+            [
+                'name' => 'Pasien Contoh F',
+                'birth_date' => '1991-11-03',
+                'gender' => Gender::Female,
+                'identity_number' => '3509124311910006',
+                'address' => 'Jl. Contoh Melati No. 32, Jember',
+                'phone' => '081200000006',
+                'guardian_name' => 'Tn. Budi Santoso',
+                'guardian_relation' => 'Suami',
+                'guardian_phone' => '081299000006',
+                'created_by' => ($sirkuler2 ?? $sirkuler1)->id,
+            ],
+        );
+
+        $tomorrowMorning = now('Asia/Jakarta')->addDay()->setTime(9, 0);
+        if (! SurgeryCase::query()->where('case_number', 'OK-20261119-005')->exists()) {
+            $case5 = new SurgeryCase([
+                'patient_id' => $patientE->id,
+                'case_number' => 'OK-20261119-005',
+                'igd_visit_number' => 'IGD-20261120-001',
+                'admitted_at' => now('Asia/Jakarta')->subHour(),
+                'igd_admitted_at' => now('Asia/Jakarta')->subHours(2),
+                'origin_ward' => 'IGD',
+                'origin_class' => 'HCU Bedah',
+                'urgency_status' => 'emergency',
+                'scheduled_at' => $tomorrowMorning,
+                'medical_diagnosis_id' => $diagEdh?->id,
+                'surgery_type_id' => $surgSaraf?->id,
+                'surgery_site' => 'Regio Parietal Kiri',
+                'anesthesia_type_id' => $anestGa?->id,
+                'dpjp_name' => $operator1->name,
+                'room_id' => $room1?->id,
+                'surgeon_id' => $operator1->id,
+                'anesthesiologist_id' => $anestesi1->id,
+                'circulating_nurse_id' => $sirkuler1->id,
+                'scrub_nurse_id' => $instrumen1->id,
+                'anesthesia_nurse_id' => $perawatAnestesi1->id,
+                'team_assigned_at' => now('Asia/Jakarta')->subMinutes(20),
+                'created_by' => $sirkuler1->id,
+            ]);
+            $case5->forceFill(['status' => CaseStatus::PreOp])->save();
+        }
+
+        $dayAfterTomorrow = now('Asia/Jakarta')->addDays(2)->setTime(10, 30);
+        $creatorCase6 = $sirkuler2 ?? $sirkuler1;
+        if (! SurgeryCase::query()->where('case_number', 'OK-20261119-006')->exists()) {
+            $case6 = new SurgeryCase([
+                'patient_id' => $patientF->id,
+                'case_number' => 'OK-20261119-006',
+                'igd_visit_number' => 'IGD-20261121-001',
+                'admitted_at' => now('Asia/Jakarta')->subMinutes(40),
+                'igd_admitted_at' => now('Asia/Jakarta')->subMinutes(90),
+                'origin_ward' => 'Ruang Bedah Flamboyan',
+                'origin_class' => 'Kelas 2',
+                'urgency_status' => 'elective',
+                'scheduled_at' => $dayAfterTomorrow,
+                'medical_diagnosis_id' => $diagFemur?->id,
+                'surgery_type_id' => $surgOrtopedi?->id,
+                'surgery_site' => 'Femur Distal Dekstra',
+                'anesthesia_type_id' => $anestSab?->id,
+                'dpjp_name' => $operator1->name,
+                'room_id' => $room2?->id,
+                'surgeon_id' => $operator1->id,
+                'circulating_nurse_id' => $creatorCase6->id,
+                'created_by' => $creatorCase6->id,
+            ]);
+            $case6->forceFill(['status' => CaseStatus::PreOp])->save();
+        }
     }
 }

@@ -34,7 +34,7 @@ Dikembangkan berdasarkan spesifikasi **SKPL KEL 8 (Prodi Fikes)** dan **Form RME
 | **Surgical Safety Checklist (SSC WHO)** | **Sign In** (bagian A-G + kolaborasi penilaian risiko dan verifikasi Dokter Anestesi), **Time Out** (blok terpisah Perawat, Dokter Operator, dan Dokter Anestesi), dan **Sign Out** (5 pertanyaan WHO + 8 pertanyaan kondisional serta validasi silang hitungan instrumen, spesimen, dan kendala peralatan). |
 | **Intra-Operasi** | Kronologi 5 waktu operasi dengan kunci keamanan (Mulai Anestesi terkunci sebelum Sign In selesai; Mulai Insisi terkunci sebelum Time Out selesai) + tombol *Catat sekarang*; posisi & area operasi; pemantauan TTV berkala + **grafik tren SVG**; pencatatan obat; balans cairan masuk/keluar otomatis; tindakan keperawatan + 7 template standar; **hitung instrumen 5 item** (klem, pinset, pisau, jarum, kasa) dengan status `S` (Sesuai) / `TS` (Tidak Sesuai) otomatis & langkah tindak lanjut SOP; pengelolaan spesimen & kejadian khusus; diagnosis intra-op; serta **pengesahan 4 pihak** sesuai tim kasus. |
 | **Pasca-Operasi & Serah Terima** | Observasi pasca-op berulang (skor GCS total otomatis, TTV + LPM oksigen, skala nyeri NRS, luka/balutan/jahitan, cairan/drain, pemulihan anestesi, komplikasi) + grafik tren TTV; diagnosis pasca-op SDKI/SLKI/SIKI; penilaian kondisi layak pindah; **ringkasan serah terima otomatis 12 item** yang disimpan sebagai snapshot permanen; penguncian edit perawat saat status `selesai`; serta **koreksi medis dokter** dengan alasan wajib tercatat di audit log. |
-| **Dashboard, Laporan & Audit Log** | Dashboard adaptif tiap peran, agregasi laporan bulanan & tren 6 bulan dalam 1 query tunggal untuk Kepala Ruangan, serta **Audit Log Global** read-only yang merekam aktivitas login/logout/failed, perubahan nilai lama -> baru, alamat IP, dan alasan perubahan. |
+| **Dashboard, Laporan & Audit Log** | Dashboard adaptif tiap peran dilengkapi pantauan **Jadwal Operasi yang Akan Mendatang** untuk seluruh peran klinis, agregasi laporan bulanan & tren 6 bulan dalam 1 query tunggal untuk Kepala Ruangan, serta **Audit Log Global** read-only yang merekam aktivitas login/logout/failed, perubahan nilai lama -> baru, alamat IP, dan alasan perubahan. |
 | **Ekspor PDF** | Generasi dokumen PDF berkop Rumah Sakit menggunakan **DomPDF** untuk **Rekam Keperawatan Kamar Operasi Lengkap** (`/kasus/{id}/pdf`) dan **Lembar Serah Terima Pasien** (`/kasus/{id}/pdf/serah-terima`) dengan rate limit `30/menit`. |
 | **Administrasi & Pengaturan** | Manajemen pengguna & reset kata sandi, pengelolaan 5 master data klinis (Ruang Operasi, Alat/Instrumen, Jenis Operasi, Jenis Anestesi, Diagnosis Medis) dengan toggle aktif/non-aktif tanpa menghapus riwayat kasus lama, serta pengaturan profil rumah sakit (Admin) dan profil/sandi/tampilan akun. |
 
@@ -186,7 +186,7 @@ php artisan key:generate
 
 # Pastikan koneksi MySQL & DEMO_PASSWORD=Password123! sudah sesuai pada .env
 
-# 3. Migrasi & seed data master + 20 SDKI + 8 akun & 4 kasus demo
+# 3. Migrasi & seed data master + 20 SDKI + 8 akun & 6 kasus demo
 php artisan migrate:fresh --seed
 
 # 4. Bangun aset produksi atau jalankan server pengembangan
@@ -219,11 +219,13 @@ Saat `php artisan migrate:fresh --seed` dijalankan di lingkungan non-produksi, `
 | `ns.anestesi1` | `perawat.anestesi1@rme-oka.test` | Perawat (Anestesi) | Ns. Dewi Kartika, S.Kep |
 | `ns.sirkuler2` | `sirkuler2@rme-oka.test` | Perawat (Sirkuler) | Ns. Fajar Nugroho, S.Kep |
 
-Selain itu tersedia **4 kasus demo fiktif**:
-1. **`OK-20261119-001`** (`DEMO-001` - Pasien Contoh A): tahap **Pre-Operasi** awal.
-2. **`OK-20261119-002`** (`DEMO-002` - Pasien Contoh B): tahap **Siap Operasi** (Pre-Op, Cek Alat, dan SSC Sign In lengkap).
+Selain itu tersedia **6 kasus demo fiktif** (hari ini, selesai, aktif intra-op, dan jadwal mendatang):
+1. **`OK-20261119-001`** (`DEMO-001` - Pasien Contoh A): tahap **Pre-Operasi** awal (jadwal hari ini, Bedah Saraf - Epidural Hematoma / EDH).
+2. **`OK-20261119-002`** (`DEMO-002` - Pasien Contoh B): tahap **Siap Operasi** (jadwal hari ini, Pre-Op, Cek Alat, dan SSC Sign In lengkap, Bedah Ortopedi - Fraktur Femur).
 3. **`OK-20261119-003`** (`DEMO-003` - Pasien Contoh C): tahap **Selesai** lengkap dari Pre-Op hingga Serah Terima 12 item, 4 pengesahan Intra-Op, verifikasi dokter, dan siap ekspor PDF lengkap.
 4. **`OK-20261119-004`** (`DEMO-004` - Pasien Contoh D): tahap **Intra-Operasi** berjalan dengan contoh selisih hitungan kasa (`TS`) dan Sign Out berstatus *Perlu Tindak Lanjut*.
+5. **`OK-20261119-005`** (`DEMO-005` - Pasien Contoh E): jadwal **Mendatang (Besok 09:00 WIB)** tahap **Pre-Operasi** (Bedah Saraf - Epidural Hematoma / EDH, status Darurat, Ruang OK 1).
+6. **`OK-20261119-006`** (`DEMO-006` - Pasien Contoh F): jadwal **Mendatang (H+2 10:30 WIB)** tahap **Pre-Operasi** (Bedah Ortopedi - Fraktur Femur, status Elektif, Ruang OK 2).
 
 ---
 
@@ -246,7 +248,7 @@ Selain itu tersedia **4 kasus demo fiktif**:
 ## Pengujian, Linter & Kualitas Kode
 
 ```bash
-# 1. Jalankan seluruh pengujian otomatis (Pest: 86 passed, 1368 assertions)
+# 1. Jalankan seluruh pengujian otomatis (Pest: 93 passed, 1625 assertions)
 php artisan test
 
 # 2. Periksa format kode PHP (Laravel Pint)

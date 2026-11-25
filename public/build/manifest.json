@@ -301,12 +301,12 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-Dn0VIpUC.css",
+    "file": "assets/app-BWja0CYY.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-6woM75eu.js",
+    "file": "assets/app-BlkAdyTE.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -342,7 +342,7 @@
       "resources/js/pages/settings/profile.tsx"
     ],
     "css": [
-      "assets/app-Dn0VIpUC.css"
+      "assets/app-BWja0CYY.css"
     ]
   },
   "resources/js/pages/admin/master/index.tsx": {
@@ -782,7 +782,7 @@
     ]
   },
   "resources/js/pages/dashboard.tsx": {
-    "file": "assets/dashboard-5Cw_9t59.js",
+    "file": "assets/dashboard-9svxTIWM.js",
     "name": "dashboard",
     "src": "resources/js/pages/dashboard.tsx",
     "isDynamicEntry": true,
@@ -878,7 +878,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-DUDI9FKU.js",
+    "file": "assets/appearance-BuwqX2sL.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,

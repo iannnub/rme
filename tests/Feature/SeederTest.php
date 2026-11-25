@@ -42,8 +42,8 @@ test('master seeder dan demo seeder bersifat idempoten serta menghasilkan seluru
     expect(Instrument::forProfile(SurgeryProfile::BedahOrtopedi)->count())->toBe(66);
     expect(Setting::query()->count())->toBe(4);
     expect(User::query()->count())->toBe(8);
-    expect(Patient::query()->count())->toBe(4);
-    expect(SurgeryCase::query()->count())->toBe(4);
+    expect(Patient::query()->count())->toBe(6);
+    expect(SurgeryCase::query()->count())->toBe(6);
     expect(CaseSignoff::query()->count())->toBe(10);
     expect(NursingDiagnosis::query()->count())->toBe(20);
     expect(PreopAssessment::query()->count())->toBe(2);
@@ -60,16 +60,24 @@ test('master seeder dan demo seeder bersifat idempoten serta menghasilkan seluru
     expect(Patient::query()->where('rm_number', 'DEMO-002')->exists())->toBeTrue();
     expect(Patient::query()->where('rm_number', 'DEMO-003')->exists())->toBeTrue();
     expect(Patient::query()->where('rm_number', 'DEMO-004')->exists())->toBeTrue();
+    expect(Patient::query()->where('rm_number', 'DEMO-005')->exists())->toBeTrue();
+    expect(Patient::query()->where('rm_number', 'DEMO-006')->exists())->toBeTrue();
 
     $case1 = SurgeryCase::query()->where('case_number', 'OK-20261119-001')->first();
     $case2 = SurgeryCase::query()->where('case_number', 'OK-20261119-002')->first();
     $case3 = SurgeryCase::query()->where('case_number', 'OK-20261119-003')->first();
     $case4 = SurgeryCase::query()->where('case_number', 'OK-20261119-004')->first();
+    $case5 = SurgeryCase::query()->where('case_number', 'OK-20261119-005')->first();
+    $case6 = SurgeryCase::query()->where('case_number', 'OK-20261119-006')->first();
 
     expect($case1?->status)->toBe(CaseStatus::PreOp);
     expect($case2?->status)->toBe(CaseStatus::SiapOperasi);
     expect($case3?->status)->toBe(CaseStatus::Selesai);
     expect($case4?->status)->toBe(CaseStatus::IntraOp);
+    expect($case5?->status)->toBe(CaseStatus::PreOp);
+    expect($case6?->status)->toBe(CaseStatus::PreOp);
+    expect($case5?->scheduled_at->gt(now('Asia/Jakarta')))->toBeTrue();
+    expect($case6?->scheduled_at->gt($case5->scheduled_at))->toBeTrue();
     expect($case4?->sscSignOut?->status)->toBe(SignOutStatus::PerluTindakLanjut);
     expect($case2?->room_id)->not->toBeNull();
     expect($case2?->surgeon_id)->not->toBeNull();
