@@ -65,10 +65,10 @@ jobs:
         run: php artisan test
 
       - name: Check formatting with Pint
-        run: ./vendor/bin/pint --test
+        run: php ./vendor/bin/pint --test
 
       - name: Run Larastan static analysis
-        run: ./vendor/bin/phpstan analyse
+        run: php ./vendor/bin/phpstan analyse --memory-limit=512M
 
       - name: TypeScript typecheck
         run: npx tsc --noEmit
