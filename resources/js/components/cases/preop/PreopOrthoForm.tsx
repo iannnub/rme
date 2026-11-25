@@ -262,10 +262,10 @@ export function PreopOrthoForm({
                             <Label htmlFor="ortho_b1_b">b. Tanggal &amp; Waktu Kejadian</Label>
                             <Input
                                 id="ortho_b1_b"
+                                type="datetime-local"
                                 value={cd.incident.incident_datetime}
                                 onChange={(e) => onUpdateClinical('incident', 'incident_datetime', e.target.value)}
                                 disabled={!canManage}
-                                placeholder="contoh: 25 Nov 2026, 08:30 WIB"
                                 className="min-h-11"
                             />
                         </div>
@@ -914,10 +914,10 @@ export function PreopOrthoForm({
                                 <Label htmlFor="ortho_b6_c">c. Jam Keputusan Operasi</Label>
                                 <Input
                                     id="ortho_b6_c"
+                                    type="datetime-local"
                                     value={cd.prep_extra.decision_time}
                                     onChange={(e) => onUpdateClinical('prep_extra', 'decision_time', e.target.value)}
                                     disabled={!canManage}
-                                    placeholder="contoh: 25 Nov 2026, 10:00 WIB"
                                     className="min-h-11"
                                 />
                             </div>
@@ -1254,10 +1254,10 @@ export function PreopOrthoForm({
                                 <Label htmlFor="ortho_c2_b">b. Waktu Mulai Anestesi</Label>
                                 <Input
                                     id="ortho_c2_b"
+                                    type="time"
                                     value={cd.anesthesia_exec.anesthesia_start_time}
                                     onChange={(e) => onUpdateClinical('anesthesia_exec', 'anesthesia_start_time', e.target.value)}
                                     disabled={!canManage}
-                                    placeholder="10:45 WIB"
                                     className="min-h-11"
                                 />
                             </div>
@@ -1265,10 +1265,10 @@ export function PreopOrthoForm({
                                 <Label htmlFor="ortho_c2_c">c. Waktu Selesai Anestesi</Label>
                                 <Input
                                     id="ortho_c2_c"
+                                    type="time"
                                     value={cd.anesthesia_exec.anesthesia_end_time}
                                     onChange={(e) => onUpdateClinical('anesthesia_exec', 'anesthesia_end_time', e.target.value)}
                                     disabled={!canManage}
-                                    placeholder="13:15 WIB"
                                     className="min-h-11"
                                 />
                             </div>
@@ -1298,10 +1298,10 @@ export function PreopOrthoForm({
                                 <Label htmlFor="ortho_c2_f">f. Waktu Pemberian Obat</Label>
                                 <Input
                                     id="ortho_c2_f"
+                                    type="time"
                                     value={cd.anesthesia_exec.medication_time}
                                     onChange={(e) => onUpdateClinical('anesthesia_exec', 'medication_time', e.target.value)}
                                     disabled={!canManage}
-                                    placeholder="10:50 WIB"
                                     className="min-h-11"
                                 />
                             </div>

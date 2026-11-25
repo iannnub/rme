@@ -86,20 +86,22 @@ export function PreopAnesthesiaCard({ details, onChange, disabled }: PreopAnesth
                             <Label htmlFor="an_start_time">Waktu Mulai Anestesi</Label>
                             <Input
                                 id="an_start_time"
+                                type="time"
                                 value={details.anesthesia_exec.anesthesia_start_time}
                                 onChange={(e) => onChange('anesthesia_exec', 'anesthesia_start_time', e.target.value)}
                                 disabled={disabled}
-                                placeholder="contoh: 10:45 WIB"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="an_end_time">Waktu Selesai Anestesi</Label>
                             <Input
                                 id="an_end_time"
+                                type="time"
                                 value={details.anesthesia_exec.anesthesia_end_time}
                                 onChange={(e) => onChange('anesthesia_exec', 'anesthesia_end_time', e.target.value)}
                                 disabled={disabled}
-                                placeholder="contoh: 13:15 WIB"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -166,10 +168,11 @@ export function PreopAnesthesiaCard({ details, onChange, disabled }: PreopAnesth
                             <Label htmlFor="an_med_time">Waktu Pemberian Obat</Label>
                             <Input
                                 id="an_med_time"
+                                type="time"
                                 value={details.anesthesia_exec.medication_time}
                                 onChange={(e) => onChange('anesthesia_exec', 'medication_time', e.target.value)}
                                 disabled={disabled}
-                                placeholder="10:45 WIB (Induksi)"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">

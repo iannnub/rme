@@ -41,10 +41,11 @@ export function PreopOrthoDetailsCard({ details, onChange, disabled }: PreopOrth
                             <Label htmlFor="ortho_incident_datetime">2. Tanggal &amp; Waktu Kejadian</Label>
                             <Input
                                 id="ortho_incident_datetime"
+                                type="datetime-local"
                                 value={details.incident.incident_datetime}
                                 onChange={(e) => onChange('incident', 'incident_datetime', e.target.value)}
                                 disabled={disabled}
-                                placeholder="contoh: 18 Nov 2026, 13:00 WIB"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -460,10 +461,11 @@ export function PreopOrthoDetailsCard({ details, onChange, disabled }: PreopOrth
                             <Label htmlFor="ortho_decision_time">Waktu Keputusan Operasi</Label>
                             <Input
                                 id="ortho_decision_time"
+                                type="datetime-local"
                                 value={details.prep_extra.decision_time}
                                 onChange={(e) => onChange('prep_extra', 'decision_time', e.target.value)}
                                 disabled={disabled}
-                                placeholder="contoh: 18 Nov 2026, 15:00 WIB"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">

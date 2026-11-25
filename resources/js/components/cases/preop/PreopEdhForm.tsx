@@ -226,10 +226,11 @@ export function PreopEdhForm({
                             <Label htmlFor="edh_incident_datetime">2. Tanggal &amp; Waktu Kejadian</Label>
                             <Input
                                 id="edh_incident_datetime"
+                                type="datetime-local"
                                 value={data.clinical_details.incident.incident_datetime}
                                 onChange={(e) => onUpdateClinical('incident', 'incident_datetime', e.target.value)}
                                 disabled={!canManage}
-                                placeholder="contoh: 25 Nov 2026, 09:30 WIB"
+                                className="min-h-11"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -864,10 +865,11 @@ export function PreopEdhForm({
                             <Label htmlFor="edh_decision_time">3. Jam Keputusan Operasi</Label>
                             <Input
                                 id="edh_decision_time"
+                                type="datetime-local"
                                 value={data.clinical_details.prep_extra.decision_time}
                                 onChange={(e) => onUpdateClinical('prep_extra', 'decision_time', e.target.value)}
                                 disabled={!canManage}
-                                placeholder="contoh: 25 Nov 2026, 07:00 WIB"
+                                className="min-h-11"
                             />
                         </div>
                     </div>
@@ -1248,20 +1250,22 @@ export function PreopEdhForm({
                         <Label htmlFor="edh_an_start">2. Waktu Mulai Anestesi</Label>
                         <Input
                             id="edh_an_start"
+                            type="time"
                             value={data.clinical_details.anesthesia_exec.anesthesia_start_time}
                             onChange={(e) => onUpdateClinical('anesthesia_exec', 'anesthesia_start_time', e.target.value)}
                             disabled={!canManage}
-                            placeholder="contoh: 08:10 WIB"
+                            className="min-h-11"
                         />
                     </div>
                     <div className="space-y-1.5">
                         <Label htmlFor="edh_an_end">3. Waktu Selesai Anestesi</Label>
                         <Input
                             id="edh_an_end"
+                            type="time"
                             value={data.clinical_details.anesthesia_exec.anesthesia_end_time}
                             onChange={(e) => onUpdateClinical('anesthesia_exec', 'anesthesia_end_time', e.target.value)}
                             disabled={!canManage}
-                            placeholder="contoh: 09:45 WIB"
+                            className="min-h-11"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -1318,10 +1322,11 @@ export function PreopEdhForm({
                         <Label htmlFor="edh_med_time">9. Waktu Pemberian Obat</Label>
                         <Input
                             id="edh_med_time"
+                            type="time"
                             value={data.clinical_details.anesthesia_exec.medication_time}
                             onChange={(e) => onUpdateClinical('anesthesia_exec', 'medication_time', e.target.value)}
                             disabled={!canManage}
-                            placeholder="08:10 WIB (Induksi)"
+                            className="min-h-11"
                         />
                     </div>
                     <div className="space-y-1.5">

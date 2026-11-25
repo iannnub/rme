@@ -306,7 +306,7 @@
     "isEntry": true
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-COolIKxz.js",
+    "file": "assets/app-8br8EO98.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -605,7 +605,7 @@
     ]
   },
   "resources/js/pages/cases/pre-op.tsx": {
-    "file": "assets/pre-op-CoIFO2eJ.js",
+    "file": "assets/pre-op-0O5A-dn2.js",
     "name": "pre-op",
     "src": "resources/js/pages/cases/pre-op.tsx",
     "isDynamicEntry": true,
@@ -880,7 +880,7 @@
     ]
   },
   "resources/js/pages/settings/appearance.tsx": {
-    "file": "assets/appearance-dJeQ67Ew.js",
+    "file": "assets/appearance-CoQ-BDUQ.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
