@@ -29,6 +29,7 @@ class SurgeryCasePresenter
             'circulatingNurse',
             'scrubNurse',
             'anesthesiaNurse',
+            'creator',
             'signoffs',
             'preopAssessment',
         ]);
@@ -71,6 +72,7 @@ class SurgeryCasePresenter
             'surgery_site' => $case->surgery_site ?? '-',
             'anesthesia_type' => $case->anesthesiaType !== null ? $case->anesthesiaType->name : '-',
             'dpjp_name' => $case->dpjp_name ?? $case->surgeon?->name,
+            'created_by_name' => $case->creator->name ?? '-',
             'allergy' => $allergy,
             'room' => $case->room ? [
                 'id' => $case->room->id,
@@ -85,6 +87,7 @@ class SurgeryCasePresenter
                 'age_label' => $patient !== null ? $patient->ageLabel() : '-',
                 'gender' => $patient !== null ? $patient->gender->value : '-',
                 'gender_label' => $patient !== null ? $patient->gender->label() : '-',
+                'address' => $patient?->address,
                 'identity_number' => $patient?->identity_number,
                 'guardian_name' => $patient?->guardian_name,
                 'guardian_relation' => $patient?->guardian_relation,

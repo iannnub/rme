@@ -155,6 +155,16 @@ export function IntraopProcedureDetailsCard({ caseId, surgeryProfile, initialDat
                                     placeholder="Regio temporoparietal dekstra"
                                 />
                             </div>
+                            <div className="space-y-1.5 md:col-span-2">
+                                <Label htmlFor="proc_bone_tissue">Kondisi Jaringan &amp; Tulang Tengkorak</Label>
+                                <Input
+                                    id="proc_bone_tissue"
+                                    value={d.bone_tissue_condition}
+                                    onChange={(e) => updateField('bone_tissue_condition', e.target.value)}
+                                    disabled={!canEdit}
+                                    placeholder="Fraktur linear os temporoparietal dekstra, perdarahan aktif cabang a. meningea media"
+                                />
+                            </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="proc_hematoma_vol">Volume &amp; Kondisi Hematoma</Label>
                                 <Input

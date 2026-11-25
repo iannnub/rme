@@ -259,12 +259,22 @@ export default function CaseShow({ caseHeader, caseDetail, medicalDiagnoses, sur
                                 <p className="font-medium">{caseHeader.anesthesia_type}</p>
                             </div>
                             <div>
+                                <p className="text-muted-foreground text-xs">No. Identitas / Alamat Pasien</p>
+                                <p className="font-medium">
+                                    {caseHeader.patient.identity_number || '-'} • {caseHeader.patient.address || '-'}
+                                </p>
+                            </div>
+                            <div>
                                 <p className="text-muted-foreground text-xs">Penanggung Jawab Pasien</p>
                                 <p className="font-medium">
                                     {caseHeader.patient.guardian_name
                                         ? `${caseHeader.patient.guardian_name}${caseHeader.patient.guardian_relation ? ` (${caseHeader.patient.guardian_relation})` : ''}${caseHeader.patient.guardian_phone ? ` - ${caseHeader.patient.guardian_phone}` : ''}`
                                         : '-'}
                                 </p>
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground text-xs">Petugas Input Data</p>
+                                <p className="font-medium">{caseDetail.created_by_name}</p>
                             </div>
                         </CardContent>
                     </Card>

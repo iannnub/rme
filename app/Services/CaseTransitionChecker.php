@@ -11,6 +11,7 @@ use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
 use App\Enums\SignOutStatus;
 use App\Enums\SscStatus;
+use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\InstrumentCheck;
@@ -197,11 +198,13 @@ class CaseTransitionChecker
      */
     private function pascaOpRequirements(SurgeryCase $case): array
     {
+        $isNeuro = $case->surgeryProfile() === SurgeryProfile::BedahSaraf;
+        $closingTime = $isNeuro ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
         $timesValid = $case->entered_or_at !== null
             && $case->surgery_end_at !== null
-            && $case->left_or_at !== null
+            && $closingTime !== null
             && $case->entered_or_at->lte($case->surgery_end_at)
-            && $case->surgery_end_at->lte($case->left_or_at);
+            && $case->surgery_end_at->lte($closingTime);
 
         $activeIntraopLabels = $case->signoffs
             ->filter(fn (CaseSignoff $s): bool => $s->section === SignoffSection::IntraOp && $s->kind === SignoffKind::Signoff && $s->revoked_at === null)
@@ -213,14 +216,18 @@ class CaseTransitionChecker
 
         $counts = $case->instrumentCounts;
         $intraopRecord = $case->intraopRecord;
+        $requiredItems = InstrumentCountItem::casesForProfile($case->surgeryProfile());
         if ($counts->isNotEmpty() || $intraopRecord?->count_verification !== null) {
-            $allFiveFinal = $counts->count() >= count(InstrumentCountItem::cases())
-                && $counts->every(fn (InstrumentCount $c): bool => $c->final_count !== null);
+            $allRequiredFinal = collect($requiredItems)->every(function (InstrumentCountItem $enumItem) use ($counts): bool {
+                $row = $counts->firstWhere('item', $enumItem);
+
+                return $row instanceof InstrumentCount && $row->final_count !== null;
+            });
             $hasTs = $counts->contains(fn (InstrumentCount $c): bool => $c->status === InstrumentCountStatus::TidakSesuai);
             $verification = $intraopRecord !== null ? $intraopRecord->count_verification : null;
             $discrepancyActions = $intraopRecord !== null ? ($intraopRecord->count_discrepancy_actions ?? []) : [];
 
-            $finalCountComplete = $allFiveFinal
+            $finalCountComplete = $allRequiredFinal
                 && $verification !== null
                 && (
                     (! $hasTs && $verification === CountVerification::LengkapSesuai)
@@ -237,9 +244,13 @@ class CaseTransitionChecker
             $signOutVerified = $case->readinessFlag('sign_out_verified');
         }
 
+        $timeRequirementLabel = $isNeuro
+            ? 'Waktu masuk OK, selesai operasi, dan selesai anestesi terisi dengan urutan kronologi menaik'
+            : 'Waktu selesai operasi dan keluar kamar operasi terisi dengan urutan kronologi menaik';
+
         return [
             [
-                'label' => 'Waktu selesai operasi dan keluar kamar operasi terisi dengan urutan kronologi menaik',
+                'label' => $timeRequirementLabel,
                 'met' => $timesValid,
             ],
             [

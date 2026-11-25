@@ -40,6 +40,7 @@ export type CaseHeaderData = {
     igd_visit_number: string | null;
     igd_admitted_at: string | null;
     dpjp_name: string | null;
+    created_by_name?: string;
     postop_diagnosis: string | null;
     surgery_site: string;
     anesthesia_type: string;
@@ -57,6 +58,7 @@ export type CaseHeaderData = {
         age_label: string;
         gender: string;
         gender_label: string;
+        address: string | null;
         identity_number: string | null;
         guardian_name: string | null;
         guardian_relation: string | null;

@@ -124,7 +124,7 @@ class IntraopController extends Controller
 
         $countsByItem = $surgeryCase->instrumentCounts->keyBy(fn (InstrumentCount $c): string => $c->item->value);
         $countRows = [];
-        foreach (InstrumentCountItem::cases() as $enumItem) {
+        foreach (InstrumentCountItem::casesForProfile($surgeryCase->surgeryProfile()) as $enumItem) {
             $existing = $countsByItem->get($enumItem->value);
             $countRows[$enumItem->value] = [
                 'item' => $enumItem->value,
@@ -211,6 +211,8 @@ class IntraopController extends Controller
                 'anesthesia_end_at' => $surgeryCase->anesthesia_end_at?->timezone('Asia/Jakarta')->format('Y-m-d\TH:i') ?? '',
                 'sign_in_completed' => $signInCompleted,
                 'time_out_completed' => $timeOutCompleted,
+                'time_out_label' => $surgeryCase->sscTimeOut?->status->label() ?? 'Belum Dimulai',
+                'sign_out_label' => $surgeryCase->sscSignOut?->status->label() ?? 'Draf (Belum Selesai)',
             ],
             'positionArea' => $record === null ? [
                 'updated_at' => null,

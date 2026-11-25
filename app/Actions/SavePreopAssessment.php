@@ -6,6 +6,7 @@ use App\Enums\AllergyStatus;
 use App\Enums\ReadinessStatus;
 use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
+use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\PreopAssessment;
@@ -49,19 +50,25 @@ class SavePreopAssessment
 
         $readinessStatus = $data['readiness_status'] ?? 'belum_siap';
         $preparation = is_array($data['preparation'] ?? null) ? $data['preparation'] : [];
+        $isNeuroEdh = $case->surgeryProfile() === SurgeryProfile::BedahSaraf;
 
         if ($readinessStatus === ReadinessStatus::Siap->value) {
-            $requiredKeys = [
-                'identity_verified',
-                'informed_consent_surgery',
-                'anesthesia_consent',
-                'fasting_verified',
-                'allergy_assessed',
-                'lab_available',
-                'iv_access',
-                'operation_area_prepared',
-                'jewelry_removed',
-            ];
+            $requiredKeys = $isNeuroEdh
+                ? [
+                    'informed_consent_surgery',
+                    'iv_access',
+                ]
+                : [
+                    'identity_verified',
+                    'informed_consent_surgery',
+                    'anesthesia_consent',
+                    'fasting_verified',
+                    'allergy_assessed',
+                    'lab_available',
+                    'iv_access',
+                    'operation_area_prepared',
+                    'jewelry_removed',
+                ];
 
             $missing = [];
             foreach ($requiredKeys as $key) {
@@ -97,7 +104,7 @@ class SavePreopAssessment
                     'fasting_status' => (bool) ($data['fasting_status'] ?? false),
                     'fasting_since' => ! empty($data['fasting_since']) ? $data['fasting_since'] : null,
                     'skin_condition' => $data['skin_condition'] ?? null,
-                    'anxiety_level' => $data['anxiety_level'] ?? 'tidak_cemas',
+                    'anxiety_level' => ! empty($data['anxiety_level']) ? $data['anxiety_level'] : 'tidak_cemas',
                     'surgery_knowledge' => $data['surgery_knowledge'] ?? null,
                     'family_support' => $data['family_support'] ?? null,
                     'mental_readiness' => $data['mental_readiness'] ?? null,

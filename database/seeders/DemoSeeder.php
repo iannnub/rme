@@ -1000,7 +1000,7 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        foreach (InstrumentCountItem::cases() as $item) {
+        foreach (InstrumentCountItem::casesForProfile(SurgeryProfile::BedahSaraf) as $item) {
             InstrumentCount::query()->firstOrCreate(
                 ['case_id' => $case3->id, 'item' => $item],
                 [

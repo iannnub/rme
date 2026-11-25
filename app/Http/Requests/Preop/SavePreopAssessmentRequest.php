@@ -42,7 +42,7 @@ class SavePreopAssessmentRequest extends FormRequest
             'fasting_status' => ['required', 'boolean'],
             'fasting_since' => ['nullable', 'date'],
             'skin_condition' => ['nullable', 'string', 'max:500'],
-            'anxiety_level' => ['required', Rule::enum(AnxietyLevel::class)],
+            'anxiety_level' => ['nullable', Rule::enum(AnxietyLevel::class)],
             'surgery_knowledge' => ['nullable', 'string', 'max:500'],
             'family_support' => ['nullable', 'string', 'max:500'],
             'mental_readiness' => ['nullable', 'string', 'max:500'],

@@ -60,6 +60,8 @@ class PreopController extends Controller
             'preopAssessment.creator',
             'vitalSigns',
             'supportingExams',
+            'instrumentChecks',
+            'sscSignIn',
             'caseNursingDiagnoses.nursingDiagnosis.slkiCriteria',
             'caseNursingDiagnoses.nursingDiagnosis.sikiInterventions.items',
             'caseNursingDiagnoses.interventionItems.sikiItem',
@@ -195,8 +197,18 @@ class PreopController extends Controller
             'notes' => $vitalSign->notes ?? '',
         ];
 
+        $instrumentChecksCount = $surgeryCase->instrumentChecks->count();
+        $instrumentChecksReady = $instrumentChecksCount > 0
+            && $surgeryCase->instrumentChecks->every(fn ($check): bool => $check->isResolved());
+
         return Inertia::render('cases/pre-op', [
             'caseHeader' => $this->presenter->header($surgeryCase),
+            'prepProgress' => [
+                'instrument_checks_count' => $instrumentChecksCount,
+                'instrument_checks_ready' => $instrumentChecksReady,
+                'ssc_sign_in_status' => $surgeryCase->sscSignIn?->status->value ?? 'belum_dimulai',
+                'ssc_sign_in_label' => $surgeryCase->sscSignIn?->status->label() ?? 'Belum Dimulai',
+            ],
             'casePlan' => [
                 'medical_diagnosis_id' => $surgeryCase->medical_diagnosis_id,
                 'medical_diagnosis_other' => $surgeryCase->medical_diagnosis_other,

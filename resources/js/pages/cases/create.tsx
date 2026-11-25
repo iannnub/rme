@@ -146,6 +146,10 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
         form.post(route('cases.store'));
     };
 
+    const selectedSurgeryOption = surgeryTypes.find((item) => String(item.id) === form.data.surgery_type_id);
+    const isNeuroSelected =
+        selectedSurgeryOption?.code?.toLowerCase() === 'bedah_saraf' || Boolean(selectedSurgeryOption?.name.toLowerCase().includes('saraf'));
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Buat Kasus Operasi Baru" />
@@ -313,19 +317,21 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                         <InputError message={form.errors.gender} />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="phone">No. Telepon (Opsional)</Label>
-                                        <Input
-                                            id="phone"
-                                            value={form.data.phone}
-                                            onChange={(e) => form.setData('phone', e.target.value)}
-                                            placeholder="08xxxxxxxxxx"
-                                        />
-                                        <InputError message={form.errors.phone} />
-                                    </div>
+                                    {!isNeuroSelected && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="phone">No. Telepon (Opsional)</Label>
+                                            <Input
+                                                id="phone"
+                                                value={form.data.phone}
+                                                onChange={(e) => form.setData('phone', e.target.value)}
+                                                placeholder="08xxxxxxxxxx"
+                                            />
+                                            <InputError message={form.errors.phone} />
+                                        </div>
+                                    )}
 
                                     <div className="grid gap-2">
-                                        <Label htmlFor="identity_number">No. Identitas / NIK (Opsional)</Label>
+                                        <Label htmlFor="identity_number">No. Identitas / NIK</Label>
                                         <Input
                                             id="identity_number"
                                             value={form.data.identity_number}
@@ -451,16 +457,18 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                 <InputError message={form.errors.origin_ward} />
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="origin_class">Kelas Perawatan (Opsional)</Label>
-                                <Input
-                                    id="origin_class"
-                                    value={form.data.origin_class}
-                                    onChange={(e) => form.setData('origin_class', e.target.value)}
-                                    placeholder="contoh: Kelas 1 / VIP / Non-Kelas"
-                                />
-                                <InputError message={form.errors.origin_class} />
-                            </div>
+                            {!isNeuroSelected && (
+                                <div className="grid gap-2">
+                                    <Label htmlFor="origin_class">Kelas Perawatan (Opsional)</Label>
+                                    <Input
+                                        id="origin_class"
+                                        value={form.data.origin_class}
+                                        onChange={(e) => form.setData('origin_class', e.target.value)}
+                                        placeholder="contoh: Kelas 1 / VIP / Non-Kelas"
+                                    />
+                                    <InputError message={form.errors.origin_class} />
+                                </div>
+                            )}
 
                             <div className="grid gap-2">
                                 <Label htmlFor="urgency_status">Status Tindakan Operasi</Label>

@@ -207,14 +207,15 @@ class SaveIntraopRecord
             ]);
         }
 
+        $existingRecord = $case->intraopRecord()->first();
         OptimisticLock::assertFresh(
-            $case->intraopRecord()->first(),
+            $existingRecord,
             $data['expected_updated_at'] ?? null,
         );
 
-        $details = PreopClinicalDefaults::mergeIntraopProcedure(
-            is_array($data['procedure_details'] ?? null) ? $data['procedure_details'] : null
-        );
+        $existingDetails = is_array($existingRecord?->procedure_details) ? $existingRecord->procedure_details : [];
+        $incomingDetails = is_array($data['procedure_details'] ?? null) ? $data['procedure_details'] : [];
+        $details = PreopClinicalDefaults::mergeIntraopProcedure(array_merge($existingDetails, $incomingDetails));
 
         $implantsInput = is_array($data['implants'] ?? null) ? $data['implants'] : null;
         $implantsNormalized = null;

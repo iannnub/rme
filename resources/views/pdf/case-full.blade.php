@@ -200,15 +200,28 @@
             </tr>
             <tr>
                 <th>Riwayat Penyakit</th>
-                <td>Sekarang: {{ $pre->current_illness_history ?: '-' }}<br>Dahulu: {{ $pre->past_illness_history ?: '-' }}</td>
+                <td>
+                    @if($isNeuroPdf)
+                        {{ $pre->past_illness_history ?: '-' }}
+                    @else
+                        Sekarang: {{ $pre->current_illness_history ?: '-' }}<br>Dahulu: {{ $pre->past_illness_history ?: '-' }}
+                    @endif
+                </td>
                 <th>Status Puasa</th>
                 <td>{{ $pre->fasting_status ? 'Ya, sejak '.($pre->fasting_since?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? '-') : 'Tidak' }}</td>
             </tr>
             <tr>
-                <th>Asesmen Psikologis</th>
-                <td>Kecemasan: {{ $pre->anxiety_level->label() }}<br>Kesiapan Mental: {{ $pre->mental_readiness ?: '-' }}</td>
-                <th>Status Kesiapan &amp; GDS</th>
-                <td><strong>{{ $pre->readiness_status->label() }}</strong> • GDS: {{ $pVit['gds'] ?: '-' }}<br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
+                @if(!$isNeuroPdf)
+                    <th>Asesmen Psikologis</th>
+                    <td>Kecemasan: {{ $pre->anxiety_level->label() }}<br>Kesiapan Mental: {{ $pre->mental_readiness ?: '-' }}</td>
+                    <th>Status Kesiapan &amp; GDS</th>
+                    <td><strong>{{ $pre->readiness_status->label() }}</strong> • GDS: {{ $pVit['gds'] ?: '-' }}<br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
+                @else
+                    <th>Status Kesiapan</th>
+                    <td><strong>{{ $pre->readiness_status->label() }}</strong><br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
+                    <th>Gula Darah Sewaktu (GDS)</th>
+                    <td>{{ $pVit['gds'] ?: '-' }}</td>
+                @endif
             </tr>
         </table>
 
@@ -271,7 +284,8 @@
                 <th>Laboratorium Pra-Op</th>
                 <td>
                     Hb: {{ $pSup['hb'] ?: '-' }} • Ht: {{ $pSup['ht'] ?: '-' }} • Leukosit: {{ $pSup['leukosit'] ?: '-' }} • Trombosit: {{ $pSup['trombosit'] ?: '-' }} • Gol. Darah: {{ $pSup['blood_type'] ?: '-' }}<br>
-                    PT/INR: {{ $pSup['pt_inr'] ?: '-' }} • aPTT: {{ $pSup['aptt'] ?: '-' }} • Elektrolit: {{ $pSup['electrolytes'] ?: '-' }} • Gula Darah: {{ $pSup['blood_glucose'] ?: '-' }} • Ginjal: {{ $pSup['renal_function'] ?: '-' }}
+                    @if(!$isNeuroPdf)PT/INR: {{ $pSup['pt_inr'] ?: '-' }} • aPTT: {{ $pSup['aptt'] ?: '-' }} • @endif
+                    Elektrolit: {{ $pSup['electrolytes'] ?: '-' }} • Gula Darah: {{ $pSup['blood_glucose'] ?: '-' }} • Ginjal: {{ $pSup['renal_function'] ?: '-' }}
                 </td>
             </tr>
             <tr>
@@ -286,7 +300,7 @@
                 <th>Pra-Anestesi &amp; Pelaksanaan</th>
                 <td>
                     Jalan Napas: {{ $pAnPre['airway_exam'] ?: '-' }} • Kardiopulmonal: {{ $pAnPre['cardiopulmonary'] ?: '-' }} • ASA: {{ $pAnPre['asa_class'] ?: '-' }} • Rencana: {{ $pAnPre['planned_anesthesia'] ?: '-' }}<br>
-                    Metode: {{ $pAnExec['anesthesia_method'] ?: '-' }} ({{ $pAnExec['anesthesia_start_time'] ?: '-' }} - {{ $pAnExec['anesthesia_end_time'] ?: '-' }}) • ETT/Alat: {{ $pAnExec['ett_type_size'] ?: '-' }} ({{ $pAnExec['ett_depth_cm'] ?: '-' }} cm) / {{ $pAnExec['airway_aid'] ?: '-' }}<br>
+                    Metode: {{ $pAnExec['anesthesia_method'] ?: '-' }} ({{ $pAnExec['anesthesia_start_time'] ?: '-' }} - {{ $pAnExec['anesthesia_end_time'] ?: '-' }}) • ETT: {{ $pAnExec['ett_type_size'] ?: '-' }} ({{ $pAnExec['ett_depth_cm'] ?: '-' }} cm)@if(!$isNeuroPdf) / {{ $pAnExec['airway_aid'] ?: '-' }}@endif<br>
                     Ventilator: {{ $pAnExec['ventilator_setting'] ?: '-' }} • Obat/Dosis: {{ $pAnExec['medications_summary'] ?: '-' }} ({{ $pAnExec['medication_dose'] ?: '-' }} @ {{ $pAnExec['medication_time'] ?: '-' }}) • Cairan: {{ $pAnExec['fluids_given'] ?: '-' }} • Komplikasi: {{ $pAnExec['complications'] ?: '-' }}
                 </td>
             </tr>
@@ -448,7 +462,7 @@
             <th>Mulai Anestesi</th>
             <th>Mulai Insisi</th>
             <th>Selesai Operasi</th>
-            <th>Keluar OK</th>
+            @if(!$isNeuroPdf)<th>Keluar OK</th>@endif
             <th>Selesai Anestesi</th>
         </tr>
         <tr>
@@ -456,7 +470,7 @@
             <td>{{ $case->anesthesia_start_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->incision_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->surgery_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
-            <td>{{ $case->left_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
+            @if(!$isNeuroPdf)<td>{{ $case->left_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>@endif
             <td>{{ $case->anesthesia_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
         </tr>
     </table>
@@ -467,18 +481,33 @@
             $ip = $intraopProcedure ?? [];
         @endphp
         <table>
-            <tr>
-                <th style="width: 22%;">Posisi Pembedahan</th>
-                <td>{{ $ir->position?->label() ?? '-' }}</td>
-                <th style="width: 22%;">Grounding ESU</th>
-                <td>{{ $ir->grounding_plate_site ?: '-' }} (Pre: {{ $ir->skin_condition_pre?->label() ?? '-' }}, Post: {{ $ir->skin_condition_post?->label() ?? '-' }})</td>
-            </tr>
-            <tr>
-                <th>Suhu Kamar / Draping</th>
-                <td>{{ $ir->room_temperature_c ? "{$ir->room_temperature_c}°C" : '-' }} / Draping: {{ $ir->draping_done ? 'Ya' : 'Tidak' }}</td>
-                <th>Komplikasi Intra-Op</th>
-                <td>{{ $ir->has_complication ? "{$ir->complication_description} (Penanganan: {$ir->complication_handling})" : 'Tidak ada' }}</td>
-            </tr>
+            @if($isNeuroPdf)
+                <tr>
+                    <th style="width: 22%;">Posisi Pembedahan</th>
+                    <td>{{ $ir->position?->label() ?? '-' }}</td>
+                    <th style="width: 22%;">Kondisi Kulit (Pre / Post)</th>
+                    <td>Pre: {{ $ir->skin_condition_pre?->label() ?? '-' }}, Post: {{ $ir->skin_condition_post?->label() ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <th>Persiapan Area (Draping)</th>
+                    <td>{{ $ir->draping_done ? 'Draping Steril Baik' : 'Belum / Tidak' }}</td>
+                    <th>Komplikasi Intra-Op</th>
+                    <td>{{ $ir->has_complication ? "{$ir->complication_description} (Penanganan: {$ir->complication_handling})" : 'Tidak ada' }}</td>
+                </tr>
+            @else
+                <tr>
+                    <th style="width: 22%;">Posisi Pembedahan</th>
+                    <td>{{ $ir->position?->label() ?? '-' }}</td>
+                    <th style="width: 22%;">Grounding ESU</th>
+                    <td>{{ $ir->grounding_plate_site ?: '-' }} (Pre: {{ $ir->skin_condition_pre?->label() ?? '-' }}, Post: {{ $ir->skin_condition_post?->label() ?? '-' }})</td>
+                </tr>
+                <tr>
+                    <th>Suhu Kamar / Draping</th>
+                    <td>{{ $ir->room_temperature_c ? "{$ir->room_temperature_c}°C" : '-' }} / Draping: {{ $ir->draping_done ? 'Ya' : 'Tidak' }}</td>
+                    <th>Komplikasi Intra-Op</th>
+                    <td>{{ $ir->has_complication ? "{$ir->complication_description} (Penanganan: {$ir->complication_handling})" : 'Tidak ada' }}</td>
+                </tr>
+            @endif
             <tr>
                 <th>Tindakan Aktual &amp; Lokasi Insisi</th>
                 <td>{{ $case->operation_plan_actual ?: '-' }}<br><span class="small">Insisi: {{ $ip['incision_location_side'] ?: '-' }}</span></td>
@@ -492,7 +521,7 @@
                 <tr>
                     <th>Detail Kraniotomi &amp; EDH</th>
                     <td colspan="3">
-                        Lokasi Kraniotomi: {{ $ip['craniotomy_location'] ?: '-' }} • Hematoma: {{ $ip['hematoma_volume_condition'] ?: '-' }}<br>
+                        Lokasi Kraniotomi: {{ $ip['craniotomy_location'] ?: '-' }} • Tulang/Jaringan: {{ $ip['bone_tissue_condition'] ?: '-' }} • Hematoma: {{ $ip['hematoma_volume_condition'] ?: '-' }}<br>
                         Pembukaan Tulang: {{ $ip['craniotomy_opening_process'] ?: '-' }} • Evakuasi: {{ $ip['hematoma_evacuation_process'] ?: '-' }}<br>
                         Hemostasis: {{ $ip['hemostasis_action'] ?: '-' }} • Kondisi Otak: {{ $ip['brain_tissue_condition'] ?: '-' }} • Bone Flap: {{ $ip['bone_flap_management'] ?: '-' }}
                     </td>
@@ -673,9 +702,9 @@
                 <td><strong>{{ $case->postopSummary->ready_to_transfer ? 'Layak Dipindahkan' : 'Belum Layak' }}</strong> - {{ $case->postopSummary->pre_transfer_condition_notes ?: '-' }}</td>
             </tr>
             <tr>
-                <th>Obat, Cairan &amp; Instruksi</th>
+                <th>Obat @if(!$isNeuroPdf), Cairan @endif&amp; Instruksi</th>
                 <td>
-                    Obat: {{ $pf['medications_given'] ?: '-' }} • Cairan: {{ $pf['iv_fluid_plan'] ?: '-' }}<br>
+                    Obat: {{ $pf['medications_given'] ?: '-' }}@if(!$isNeuroPdf) • Cairan: {{ $pf['iv_fluid_plan'] ?: '-' }}@endif<br>
                     Instruksi Dokter: {{ $pf['doctor_postop_instructions'] ?: '-' }}
                     @if($isNeuroPdf)
                         <br>Pemantauan Neurologis: {{ $pf['neuro_followup_monitoring'] ?: '-' }}

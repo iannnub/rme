@@ -1,3 +1,4 @@
+import { IntraopEdhView } from '@/components/cases/intraop/IntraopEdhView';
 import {
     IntraopProcedureDetailsCard,
     type IntraopImplantRow,
@@ -141,6 +142,8 @@ interface IntraopPageProps {
         anesthesia_end_at: string;
         sign_in_completed: boolean;
         time_out_completed: boolean;
+        time_out_label?: string;
+        sign_out_label?: string;
     };
     positionArea: {
         updated_at: string | null;
@@ -547,815 +550,538 @@ export default function IntraopPage({
                     </Card>
                 )}
 
-                {/* 1 & 2. Identitas Tindakan & Kronologi Waktu */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <Clock className="text-primary h-5 w-5" />1 & 2. Identitas Tindakan, Jenis Anestesi & Kronologi Waktu Intra-Operatif
-                        </CardTitle>
-                        <CardDescription>
-                            Urutan waktu harus menaik. Mulai Anestesi terkunci sampai SSC Sign In Selesai; Mulai Insisi terkunci sampai SSC Time Out
-                            Selesai.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submitChronology} className="space-y-4">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="anesthesia_type_id">Jenis Anestesi</Label>
-                                    <Select
-                                        value={chronoForm.data.anesthesia_type_id}
-                                        onValueChange={(val) => chronoForm.setData('anesthesia_type_id', val)}
-                                        disabled={!permissions.canEditIntraop}
-                                    >
-                                        <SelectTrigger id="anesthesia_type_id" className="min-h-11">
-                                            <SelectValue placeholder="Pilih jenis anestesi" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.anesthesiaTypes.map((a) => (
-                                                <SelectItem key={a.id} value={String(a.id)}>
-                                                    {a.code} - {a.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="operation_plan_actual">Rencana / Actual Operasi</Label>
-                                    <Input
-                                        id="operation_plan_actual"
-                                        value={chronoForm.data.operation_plan_actual}
-                                        onChange={(e) => chronoForm.setData('operation_plan_actual', e.target.value)}
-                                        disabled={!permissions.canEditIntraop}
-                                        placeholder="Tindakan operasi yang sebenarnya dilakukan"
-                                        className="min-h-11"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="postop_diagnosis">Diagnosis Pasca-Operasi</Label>
-                                    <Input
-                                        id="postop_diagnosis"
-                                        value={chronoForm.data.postop_diagnosis}
-                                        onChange={(e) => chronoForm.setData('postop_diagnosis', e.target.value)}
-                                        disabled={!permissions.canEditIntraop}
-                                        placeholder="Diagnosis akhir setelah operasi"
-                                        className="min-h-11"
-                                    />
-                                    <InputError message={chronoForm.errors.postop_diagnosis} />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-                                {[
-                                    { key: 'entered_or_at', label: '1. Masuk OK', locked: false, lockReason: '' },
-                                    {
-                                        key: 'anesthesia_start_at',
-                                        label: '2. Mulai Anestesi',
-                                        locked: !chronology.sign_in_completed,
-                                        lockReason: 'Selesaikan SSC Sign In dulu',
-                                    },
-                                    {
-                                        key: 'incision_at',
-                                        label: '3. Mulai Insisi',
-                                        locked: !chronology.time_out_completed,
-                                        lockReason: 'Selesaikan SSC Time Out dulu',
-                                    },
-                                    { key: 'surgery_end_at', label: '4. Selesai Operasi', locked: false, lockReason: '' },
-                                    { key: 'left_or_at', label: '5. Keluar OK', locked: false, lockReason: '' },
-                                    { key: 'anesthesia_end_at', label: '6. Selesai Anestesi', locked: false, lockReason: '' },
-                                ].map((item) => {
-                                    const k = item.key as
-                                        | 'entered_or_at'
-                                        | 'anesthesia_start_at'
-                                        | 'incision_at'
-                                        | 'surgery_end_at'
-                                        | 'left_or_at'
-                                        | 'anesthesia_end_at';
-                                    return (
-                                        <div key={item.key} className="space-y-1.5 rounded-lg border p-3">
-                                            <div className="flex items-center justify-between gap-1">
-                                                <Label htmlFor={item.key} className="text-xs font-semibold">
-                                                    {item.label}
-                                                </Label>
-                                                {item.locked && <Lock className="h-3.5 w-3.5 text-amber-600" />}
-                                            </div>
-                                            <Input
-                                                id={item.key}
-                                                type="datetime-local"
-                                                value={chronoForm.data[k]}
-                                                onChange={(e) => chronoForm.setData(k, e.target.value)}
-                                                disabled={!permissions.canEditIntraop || item.locked}
-                                                className="min-h-11 text-xs"
-                                            />
-                                            {permissions.canEditIntraop && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="w-full text-xs"
-                                                    disabled={item.locked}
-                                                    onClick={() => chronoForm.setData(k, nowWibLocalInput())}
-                                                >
-                                                    Catat Sekarang
-                                                </Button>
-                                            )}
-                                            {item.locked && <p className="text-[11px] text-amber-700">{item.lockReason}</p>}
-                                            <InputError message={chronoForm.errors[k]} />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {permissions.canEditIntraop && (
-                                <div className="flex justify-end">
-                                    <Button type="submit" className="min-h-11" disabled={chronoForm.processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Simpan Kronologi Waktu
-                                    </Button>
-                                </div>
-                            )}
-                        </form>
-                    </CardContent>
-                </Card>
-
-                {/* 3. Persiapan Posisi & Area Operasi */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <Stethoscope className="text-primary h-5 w-5" />
-                            3. Persiapan Posisi & Area Operasi (KF-5 & KF-30)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submitPosition} className="space-y-5">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="position">Posisi Pembedahan</Label>
-                                    <Select
-                                        value={posForm.data.position}
-                                        onValueChange={(val) => posForm.setData('position', val)}
-                                        disabled={!permissions.canEditIntraop}
-                                    >
-                                        <SelectTrigger id="position" className="min-h-11">
-                                            <SelectValue placeholder="Pilih posisi pasien" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.positions.map((p) => (
-                                                <SelectItem key={p.value} value={p.value}>
-                                                    {p.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="grounding_plate_site">Lokasi Plate Grounding (ESU)</Label>
-                                    <Input
-                                        id="grounding_plate_site"
-                                        value={posForm.data.grounding_plate_site}
-                                        onChange={(e) => posForm.setData('grounding_plate_site', e.target.value)}
-                                        disabled={!permissions.canEditIntraop}
-                                        placeholder="mis. Paha kanan lateral"
-                                        className="min-h-11"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="room_temperature_c">Suhu Kamar Operasi (°C, standar 19–24)</Label>
-                                    <Input
-                                        id="room_temperature_c"
-                                        type="number"
-                                        step="0.1"
-                                        value={posForm.data.room_temperature_c}
-                                        onChange={(e) => posForm.setData('room_temperature_c', e.target.value)}
-                                        disabled={!permissions.canEditIntraop}
-                                        placeholder="mis. 21.5"
-                                        className="min-h-11"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="skin_condition_pre">Kondisi Kulit Plate Pre-Op</Label>
-                                    <Select
-                                        value={posForm.data.skin_condition_pre}
-                                        onValueChange={(val) => posForm.setData('skin_condition_pre', val)}
-                                        disabled={!permissions.canEditIntraop}
-                                    >
-                                        <SelectTrigger id="skin_condition_pre" className="min-h-11">
-                                            <SelectValue placeholder="Pilih kondisi kulit pre" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.skinIntegrities.map((s) => (
-                                                <SelectItem key={s.value} value={s.value}>
-                                                    {s.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="skin_condition_post">Kondisi Kulit Plate Post-Op</Label>
-                                    <Select
-                                        value={posForm.data.skin_condition_post}
-                                        onValueChange={(val) => posForm.setData('skin_condition_post', val)}
-                                        disabled={!permissions.canEditIntraop}
-                                    >
-                                        <SelectTrigger id="skin_condition_post" className="min-h-11">
-                                            <SelectValue placeholder="Pilih kondisi kulit post" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.skinIntegrities.map((s) => (
-                                                <SelectItem key={s.value} value={s.value}>
-                                                    {s.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                                <div className="space-y-2 rounded-lg border p-3">
-                                    <Label className="text-xs font-semibold">Proteksi Area Penekanan</Label>
-                                    {PRESSURE_LABELS.map((opt) => (
-                                        <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
-                                            <Checkbox
-                                                checked={posForm.data.pressure_protection.includes(opt.key)}
-                                                disabled={!permissions.canEditIntraop}
-                                                onCheckedChange={() =>
-                                                    posForm.setData(
-                                                        'pressure_protection',
-                                                        toggleArrayValue(posForm.data.pressure_protection, opt.key),
-                                                    )
-                                                }
-                                            />
-                                            <span>{opt.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="space-y-2 rounded-lg border p-3">
-                                    <Label className="text-xs font-semibold">Persiapan Kulit (Antiseptik)</Label>
-                                    {ANTISEPTIC_LABELS.map((opt) => (
-                                        <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
-                                            <Checkbox
-                                                checked={posForm.data.skin_antiseptic.includes(opt.key)}
-                                                disabled={!permissions.canEditIntraop}
-                                                onCheckedChange={() =>
-                                                    posForm.setData('skin_antiseptic', toggleArrayValue(posForm.data.skin_antiseptic, opt.key))
-                                                }
-                                            />
-                                            <span>{opt.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="space-y-2 rounded-lg border p-3">
-                                    <Label className="text-xs font-semibold">Warming & Draping</Label>
-                                    {WARMING_LABELS.map((opt) => (
-                                        <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
-                                            <Checkbox
-                                                checked={posForm.data.warming.includes(opt.key)}
-                                                disabled={!permissions.canEditIntraop}
-                                                onCheckedChange={() => posForm.setData('warming', toggleArrayValue(posForm.data.warming, opt.key))}
-                                            />
-                                            <span>{opt.label}</span>
-                                        </label>
-                                    ))}
-                                    <label className="flex cursor-pointer items-center gap-2 border-t pt-2 text-sm font-medium">
-                                        <Checkbox
-                                            checked={posForm.data.draping_done}
-                                            disabled={!permissions.canEditIntraop}
-                                            onCheckedChange={(c) => posForm.setData('draping_done', c === true)}
-                                        />
-                                        <span>Draping Steril Terpasang</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {permissions.canEditIntraop && (
-                                <div className="flex justify-end">
-                                    <Button type="submit" className="min-h-11" disabled={posForm.processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Simpan Posisi & Area
-                                    </Button>
-                                </div>
-                            )}
-                        </form>
-                    </CardContent>
-                </Card>
-
-                {/* 4. Diagnosis Keperawatan Intra-Op (SDKI/SLKI/SIKI) */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <ListChecks className="text-primary h-5 w-5" />
-                            4. Diagnosis Keperawatan Intra-Operatif + SLKI/SIKI (KF-31 & KF-35)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {permissions.canEditIntraop && (
-                            <form onSubmit={submitDiagnosis} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-3">
-                                <Select
-                                    value={diagForm.data.nursing_diagnosis_id}
-                                    onValueChange={(val) => diagForm.setData('nursing_diagnosis_id', val)}
-                                >
-                                    <SelectTrigger className="min-h-11">
-                                        <SelectValue placeholder="Pilih diagnosis intra-op (master)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.masterNursingDiagnoses.map((d) => (
-                                            <SelectItem key={d.id} value={String(d.id)}>
-                                                {d.code ? `${d.code} - ` : ''}
-                                                {d.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <Input
-                                    value={diagForm.data.custom_text}
-                                    onChange={(e) => diagForm.setData('custom_text', e.target.value)}
-                                    placeholder="Atau tuliskan diagnosis lainnya (opsional)"
-                                    className="min-h-11"
-                                />
-                                <Button type="submit" className="min-h-11" disabled={diagForm.processing}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Tambah Diagnosis
-                                </Button>
-                            </form>
-                        )}
-
-                        {caseNursingDiagnoses.length === 0 ? (
-                            <p className="text-muted-foreground text-center text-sm">Belum ada diagnosis keperawatan intra-op ditambahkan.</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {caseNursingDiagnoses.map((cd) => (
-                                    <div key={cd.id} className="space-y-2 rounded-lg border p-4">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="font-semibold">
-                                                {cd.code ? `${cd.code} - ` : ''}
-                                                {cd.name}
-                                            </div>
-                                            {permissions.canEditIntraop && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        router.delete(route('cases.intraop.remove-diagnosis', [caseHeader.id, cd.id]), {
-                                                            preserveScroll: true,
-                                                        })
-                                                    }
-                                                >
-                                                    <Trash2 className="text-destructive h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                        {cd.slki.length > 0 && (
-                                            <div className="text-muted-foreground text-xs">
-                                                <strong>Luaran SLKI:</strong>{' '}
-                                                {cd.slki.map((c) => `${c.criterion_text} (${c.expectation}, target ${c.target_score})`).join(' • ')}
-                                            </div>
-                                        )}
-                                        {cd.siki.map((int) => (
-                                            <div key={int.id} className="space-y-1 pt-1">
-                                                <div className="text-foreground text-xs font-semibold">{int.name}</div>
-                                                <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
-                                                    {int.items.map((item) => (
-                                                        <label
-                                                            key={item.siki_item_id}
-                                                            className="hover:bg-muted/40 flex cursor-pointer items-start gap-2 rounded border px-2.5 py-1.5 text-xs"
-                                                        >
-                                                            <Checkbox
-                                                                checked={item.is_done}
-                                                                disabled={!permissions.canEditIntraop || item.id === null}
-                                                                onCheckedChange={() => {
-                                                                    if (item.id !== null) {
-                                                                        router.post(
-                                                                            route('cases.intraop.toggle-intervention', [caseHeader.id, item.id]),
-                                                                            {},
-                                                                            { preserveScroll: true },
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <span>
-                                                                <Badge variant="outline" className="mr-1 text-[10px]">
-                                                                    {item.section_label}
-                                                                </Badge>
-                                                                {item.text}
-                                                                {item.done_at && (
-                                                                    <span className="ml-1 font-medium text-emerald-700">({item.done_at})</span>
-                                                                )}
-                                                            </span>
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
-                {/* 5. Tindakan Keperawatan (Timeline + Template) */}
-                <Card>
-                    <CardHeader>
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                            <div>
-                                <CardTitle className="text-base">5. Tindakan Keperawatan Intra-Operatif (Timeline - KF-12)</CardTitle>
+                {caseHeader.surgery_profile === 'bedah_saraf' ? (
+                    <IntraopEdhView
+                        caseHeader={caseHeader}
+                        chronology={chronology}
+                        positionArea={positionArea}
+                        vitalSigns={vitalSigns}
+                        fluids={fluids}
+                        nursingActions={nursingActions}
+                        instrumentCounts={instrumentCounts}
+                        specimenComplication={specimenComplication}
+                        procedureDetails={procedureDetails}
+                        options={options}
+                        permissions={permissions}
+                        pressureLabels={PRESSURE_LABELS}
+                        antisepticLabels={ANTISEPTIC_LABELS}
+                        discrepancyLabels={DISCREPANCY_LABELS}
+                        nowWibLocalInput={nowWibLocalInput}
+                    />
+                ) : (
+                    <>
+                        {/* 1 & 2. Identitas Tindakan & Kronologi Waktu */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Clock className="text-primary h-5 w-5" />1 & 2. Identitas Tindakan, Jenis Anestesi & Kronologi Waktu
+                                    Intra-Operatif
+                                </CardTitle>
                                 <CardDescription>
-                                    Catat tindakan perawat sirkuler/instrumen beserta evaluasi dan paraf otomatis pembuat.
+                                    Urutan waktu harus menaik. Mulai Anestesi terkunci sampai SSC Sign In Selesai; Mulai Insisi terkunci sampai SSC
+                                    Time Out Selesai.
                                 </CardDescription>
-                            </div>
-                            {permissions.canEditIntraop && (
-                                <Button type="button" variant="outline" className="min-h-11" onClick={applyTemplates}>
-                                    <ClipboardList className="mr-2 h-4 w-4" aria-hidden="true" />
-                                    Tambah dari Template (7 Item PDF)
-                                </Button>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {permissions.canEditIntraop && (
-                            <form onSubmit={submitNursingAction} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-12">
-                                <div className="md:col-span-3">
-                                    <Label htmlFor="action_performed_at" className="sr-only">
-                                        Waktu tindakan
-                                    </Label>
-                                    <Input
-                                        id="action_performed_at"
-                                        type="datetime-local"
-                                        value={actionForm.data.performed_at}
-                                        onChange={(e) => actionForm.setData('performed_at', e.target.value)}
-                                        className="min-h-11 text-xs"
-                                    />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <Label htmlFor="action_performed_by_role" className="sr-only">
-                                        Peran perawat pelaksana
-                                    </Label>
-                                    <Select
-                                        value={actionForm.data.performed_by_role}
-                                        onValueChange={(v) => actionForm.setData('performed_by_role', v)}
-                                    >
-                                        <SelectTrigger id="action_performed_by_role" className="min-h-11 text-xs">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="sirkuler">Sirkuler</SelectItem>
-                                            <SelectItem value="instrumen">Instrumen</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="md:col-span-3">
-                                    <Label htmlFor="action_text" className="sr-only">
-                                        Tindakan keperawatan
-                                    </Label>
-                                    <Input
-                                        id="action_text"
-                                        value={actionForm.data.action}
-                                        onChange={(e) => actionForm.setData('action', e.target.value)}
-                                        placeholder="Tindakan keperawatan *"
-                                        className="min-h-11 text-xs"
-                                    />
-                                    <InputError message={actionForm.errors.action} />
-                                </div>
-                                <div className="md:col-span-3">
-                                    <Label htmlFor="action_evaluation" className="sr-only">
-                                        Evaluasi atau respons pasien
-                                    </Label>
-                                    <Input
-                                        id="action_evaluation"
-                                        value={actionForm.data.evaluation}
-                                        onChange={(e) => actionForm.setData('evaluation', e.target.value)}
-                                        placeholder="Evaluasi / respons pasien"
-                                        className="min-h-11 text-xs"
-                                    />
-                                </div>
-                                <div className="md:col-span-1">
-                                    <Button
-                                        type="submit"
-                                        aria-label="Tambah tindakan keperawatan"
-                                        className="min-h-11 w-full"
-                                        disabled={actionForm.processing}
-                                    >
-                                        <Plus className="h-4 w-4" aria-hidden="true" />
-                                    </Button>
-                                </div>
-                            </form>
-                        )}
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={submitChronology} className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="anesthesia_type_id">Jenis Anestesi</Label>
+                                            <Select
+                                                value={chronoForm.data.anesthesia_type_id}
+                                                onValueChange={(val) => chronoForm.setData('anesthesia_type_id', val)}
+                                                disabled={!permissions.canEditIntraop}
+                                            >
+                                                <SelectTrigger id="anesthesia_type_id" className="min-h-11">
+                                                    <SelectValue placeholder="Pilih jenis anestesi" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.anesthesiaTypes.map((a) => (
+                                                        <SelectItem key={a.id} value={String(a.id)}>
+                                                            {a.code} - {a.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="operation_plan_actual">Rencana / Actual Operasi</Label>
+                                            <Input
+                                                id="operation_plan_actual"
+                                                value={chronoForm.data.operation_plan_actual}
+                                                onChange={(e) => chronoForm.setData('operation_plan_actual', e.target.value)}
+                                                disabled={!permissions.canEditIntraop}
+                                                placeholder="Tindakan operasi yang sebenarnya dilakukan"
+                                                className="min-h-11"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="postop_diagnosis">Diagnosis Pasca-Operasi</Label>
+                                            <Input
+                                                id="postop_diagnosis"
+                                                value={chronoForm.data.postop_diagnosis}
+                                                onChange={(e) => chronoForm.setData('postop_diagnosis', e.target.value)}
+                                                disabled={!permissions.canEditIntraop}
+                                                placeholder="Diagnosis akhir setelah operasi"
+                                                className="min-h-11"
+                                            />
+                                            <InputError message={chronoForm.errors.postop_diagnosis} />
+                                        </div>
+                                    </div>
 
-                        <div className="overflow-x-auto rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[80px]">Waktu</TableHead>
-                                        <TableHead className="w-[130px]">Peran</TableHead>
-                                        <TableHead>Tindakan Keperawatan</TableHead>
-                                        <TableHead>Evaluasi / Respons</TableHead>
-                                        <TableHead className="w-[140px]">Paraf</TableHead>
-                                        {permissions.canEditIntraop && <TableHead className="w-[50px]" />}
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {nursingActions.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-muted-foreground py-6 text-center text-sm">
-                                                Belum ada catatan tindakan keperawatan intra-op.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        nursingActions.map((act) => (
-                                            <TableRow key={act.id}>
-                                                <TableCell className="font-mono text-xs">{act.performed_at}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {act.performed_by_role_label}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-sm">{act.action}</TableCell>
-                                                <TableCell className="text-muted-foreground text-sm">{act.evaluation}</TableCell>
-                                                <TableCell className="text-xs">{act.creator_name}</TableCell>
-                                                {permissions.canEditIntraop && (
-                                                    <TableCell>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+                                        {[
+                                            { key: 'entered_or_at', label: '1. Masuk OK', locked: false, lockReason: '' },
+                                            {
+                                                key: 'anesthesia_start_at',
+                                                label: '2. Mulai Anestesi',
+                                                locked: !chronology.sign_in_completed,
+                                                lockReason: 'Selesaikan SSC Sign In dulu',
+                                            },
+                                            {
+                                                key: 'incision_at',
+                                                label: '3. Mulai Insisi',
+                                                locked: !chronology.time_out_completed,
+                                                lockReason: 'Selesaikan SSC Time Out dulu',
+                                            },
+                                            { key: 'surgery_end_at', label: '4. Selesai Operasi', locked: false, lockReason: '' },
+                                            { key: 'left_or_at', label: '5. Keluar OK', locked: false, lockReason: '' },
+                                            { key: 'anesthesia_end_at', label: '6. Selesai Anestesi', locked: false, lockReason: '' },
+                                        ].map((item) => {
+                                            const k = item.key as
+                                                | 'entered_or_at'
+                                                | 'anesthesia_start_at'
+                                                | 'incision_at'
+                                                | 'surgery_end_at'
+                                                | 'left_or_at'
+                                                | 'anesthesia_end_at';
+                                            return (
+                                                <div key={item.key} className="space-y-1.5 rounded-lg border p-3">
+                                                    <div className="flex items-center justify-between gap-1">
+                                                        <Label htmlFor={item.key} className="text-xs font-semibold">
+                                                            {item.label}
+                                                        </Label>
+                                                        {item.locked && <Lock className="h-3.5 w-3.5 text-amber-600" />}
+                                                    </div>
+                                                    <Input
+                                                        id={item.key}
+                                                        type="datetime-local"
+                                                        value={chronoForm.data[k]}
+                                                        onChange={(e) => chronoForm.setData(k, e.target.value)}
+                                                        disabled={!permissions.canEditIntraop || item.locked}
+                                                        className="min-h-11 text-xs"
+                                                    />
+                                                    {permissions.canEditIntraop && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="w-full text-xs"
+                                                            disabled={item.locked}
+                                                            onClick={() => chronoForm.setData(k, nowWibLocalInput())}
+                                                        >
+                                                            Catat Sekarang
+                                                        </Button>
+                                                    )}
+                                                    {item.locked && <p className="text-[11px] text-amber-700">{item.lockReason}</p>}
+                                                    <InputError message={chronoForm.errors[k]} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {permissions.canEditIntraop && (
+                                        <div className="flex justify-end">
+                                            <Button type="submit" className="min-h-11" disabled={chronoForm.processing}>
+                                                <Save className="mr-2 h-4 w-4" />
+                                                Simpan Kronologi Waktu
+                                            </Button>
+                                        </div>
+                                    )}
+                                </form>
+                            </CardContent>
+                        </Card>
+
+                        {/* 3. Persiapan Posisi & Area Operasi */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Stethoscope className="text-primary h-5 w-5" />
+                                    3. Persiapan Posisi & Area Operasi (KF-5 & KF-30)
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={submitPosition} className="space-y-5">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="position">Posisi Pembedahan</Label>
+                                            <Select
+                                                value={posForm.data.position}
+                                                onValueChange={(val) => posForm.setData('position', val)}
+                                                disabled={!permissions.canEditIntraop}
+                                            >
+                                                <SelectTrigger id="position" className="min-h-11">
+                                                    <SelectValue placeholder="Pilih posisi pasien" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.positions.map((p) => (
+                                                        <SelectItem key={p.value} value={p.value}>
+                                                            {p.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="grounding_plate_site">Lokasi Plate Grounding (ESU)</Label>
+                                            <Input
+                                                id="grounding_plate_site"
+                                                value={posForm.data.grounding_plate_site}
+                                                onChange={(e) => posForm.setData('grounding_plate_site', e.target.value)}
+                                                disabled={!permissions.canEditIntraop}
+                                                placeholder="mis. Paha kanan lateral"
+                                                className="min-h-11"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="room_temperature_c">Suhu Kamar Operasi (°C, standar 19–24)</Label>
+                                            <Input
+                                                id="room_temperature_c"
+                                                type="number"
+                                                step="0.1"
+                                                value={posForm.data.room_temperature_c}
+                                                onChange={(e) => posForm.setData('room_temperature_c', e.target.value)}
+                                                disabled={!permissions.canEditIntraop}
+                                                placeholder="mis. 21.5"
+                                                className="min-h-11"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="skin_condition_pre">Kondisi Kulit Plate Pre-Op</Label>
+                                            <Select
+                                                value={posForm.data.skin_condition_pre}
+                                                onValueChange={(val) => posForm.setData('skin_condition_pre', val)}
+                                                disabled={!permissions.canEditIntraop}
+                                            >
+                                                <SelectTrigger id="skin_condition_pre" className="min-h-11">
+                                                    <SelectValue placeholder="Pilih kondisi kulit pre" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.skinIntegrities.map((s) => (
+                                                        <SelectItem key={s.value} value={s.value}>
+                                                            {s.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="skin_condition_post">Kondisi Kulit Plate Post-Op</Label>
+                                            <Select
+                                                value={posForm.data.skin_condition_post}
+                                                onValueChange={(val) => posForm.setData('skin_condition_post', val)}
+                                                disabled={!permissions.canEditIntraop}
+                                            >
+                                                <SelectTrigger id="skin_condition_post" className="min-h-11">
+                                                    <SelectValue placeholder="Pilih kondisi kulit post" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.skinIntegrities.map((s) => (
+                                                        <SelectItem key={s.value} value={s.value}>
+                                                            {s.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                        <div className="space-y-2 rounded-lg border p-3">
+                                            <Label className="text-xs font-semibold">Proteksi Area Penekanan</Label>
+                                            {PRESSURE_LABELS.map((opt) => (
+                                                <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
+                                                    <Checkbox
+                                                        checked={posForm.data.pressure_protection.includes(opt.key)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        onCheckedChange={() =>
+                                                            posForm.setData(
+                                                                'pressure_protection',
+                                                                toggleArrayValue(posForm.data.pressure_protection, opt.key),
+                                                            )
+                                                        }
+                                                    />
+                                                    <span>{opt.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <div className="space-y-2 rounded-lg border p-3">
+                                            <Label className="text-xs font-semibold">Persiapan Kulit (Antiseptik)</Label>
+                                            {ANTISEPTIC_LABELS.map((opt) => (
+                                                <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
+                                                    <Checkbox
+                                                        checked={posForm.data.skin_antiseptic.includes(opt.key)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        onCheckedChange={() =>
+                                                            posForm.setData(
+                                                                'skin_antiseptic',
+                                                                toggleArrayValue(posForm.data.skin_antiseptic, opt.key),
+                                                            )
+                                                        }
+                                                    />
+                                                    <span>{opt.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <div className="space-y-2 rounded-lg border p-3">
+                                            <Label className="text-xs font-semibold">Warming & Draping</Label>
+                                            {WARMING_LABELS.map((opt) => (
+                                                <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
+                                                    <Checkbox
+                                                        checked={posForm.data.warming.includes(opt.key)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        onCheckedChange={() =>
+                                                            posForm.setData('warming', toggleArrayValue(posForm.data.warming, opt.key))
+                                                        }
+                                                    />
+                                                    <span>{opt.label}</span>
+                                                </label>
+                                            ))}
+                                            <label className="flex cursor-pointer items-center gap-2 border-t pt-2 text-sm font-medium">
+                                                <Checkbox
+                                                    checked={posForm.data.draping_done}
+                                                    disabled={!permissions.canEditIntraop}
+                                                    onCheckedChange={(c) => posForm.setData('draping_done', c === true)}
+                                                />
+                                                <span>Draping Steril Terpasang</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {permissions.canEditIntraop && (
+                                        <div className="flex justify-end">
+                                            <Button type="submit" className="min-h-11" disabled={posForm.processing}>
+                                                <Save className="mr-2 h-4 w-4" />
+                                                Simpan Posisi & Area
+                                            </Button>
+                                        </div>
+                                    )}
+                                </form>
+                            </CardContent>
+                        </Card>
+
+                        {/* 4. Diagnosis Keperawatan Intra-Op (SDKI/SLKI/SIKI) */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <ListChecks className="text-primary h-5 w-5" />
+                                    4. Diagnosis Keperawatan Intra-Operatif + SLKI/SIKI (KF-31 & KF-35)
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {permissions.canEditIntraop && (
+                                    <form onSubmit={submitDiagnosis} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-3">
+                                        <Select
+                                            value={diagForm.data.nursing_diagnosis_id}
+                                            onValueChange={(val) => diagForm.setData('nursing_diagnosis_id', val)}
+                                        >
+                                            <SelectTrigger className="min-h-11">
+                                                <SelectValue placeholder="Pilih diagnosis intra-op (master)" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.masterNursingDiagnoses.map((d) => (
+                                                    <SelectItem key={d.id} value={String(d.id)}>
+                                                        {d.code ? `${d.code} - ` : ''}
+                                                        {d.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <Input
+                                            value={diagForm.data.custom_text}
+                                            onChange={(e) => diagForm.setData('custom_text', e.target.value)}
+                                            placeholder="Atau tuliskan diagnosis lainnya (opsional)"
+                                            className="min-h-11"
+                                        />
+                                        <Button type="submit" className="min-h-11" disabled={diagForm.processing}>
+                                            <Plus className="mr-2 h-4 w-4" />
+                                            Tambah Diagnosis
+                                        </Button>
+                                    </form>
+                                )}
+
+                                {caseNursingDiagnoses.length === 0 ? (
+                                    <p className="text-muted-foreground text-center text-sm">Belum ada diagnosis keperawatan intra-op ditambahkan.</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {caseNursingDiagnoses.map((cd) => (
+                                            <div key={cd.id} className="space-y-2 rounded-lg border p-4">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="font-semibold">
+                                                        {cd.code ? `${cd.code} - ` : ''}
+                                                        {cd.name}
+                                                    </div>
+                                                    {permissions.canEditIntraop && (
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
-                                                            size="icon"
-                                                            aria-label="Hapus tindakan keperawatan"
+                                                            size="sm"
                                                             onClick={() =>
-                                                                router.delete(route('cases.intraop.actions.destroy', [caseHeader.id, act.id]), {
+                                                                router.delete(route('cases.intraop.remove-diagnosis', [caseHeader.id, cd.id]), {
                                                                     preserveScroll: true,
                                                                 })
                                                             }
                                                         >
-                                                            <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
+                                                            <Trash2 className="text-destructive h-4 w-4" />
                                                         </Button>
-                                                    </TableCell>
-                                                )}
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* 6. Pemantauan TTV + Grafik, Obat, dan Cairan */}
-                <div className="space-y-6">
-                    <VitalSignChart data={vitalSigns} />
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base">
-                                <Activity className="text-primary h-5 w-5" />
-                                6A. Tabel Pemantauan TTV & Oksigenasi Intra-Op (KF-7 & KF-8)
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {permissions.canEditIntraop && (
-                                <form onSubmit={submitVital} className="space-y-3 rounded-lg border p-3">
-                                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
-                                        <div>
-                                            <Label className="text-xs">Waktu *</Label>
-                                            <Input
-                                                type="datetime-local"
-                                                value={vitalForm.data.recorded_at}
-                                                onChange={(e) => vitalForm.setData('recorded_at', e.target.value)}
-                                                className="min-h-10 text-xs"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Sistolik</Label>
-                                            <Input
-                                                type="number"
-                                                value={vitalForm.data.bp_systolic}
-                                                onChange={(e) => vitalForm.setData('bp_systolic', e.target.value)}
-                                                placeholder="120"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Diastolik</Label>
-                                            <Input
-                                                type="number"
-                                                value={vitalForm.data.bp_diastolic}
-                                                onChange={(e) => vitalForm.setData('bp_diastolic', e.target.value)}
-                                                placeholder="80"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Nadi</Label>
-                                            <Input
-                                                type="number"
-                                                value={vitalForm.data.pulse}
-                                                onChange={(e) => vitalForm.setData('pulse', e.target.value)}
-                                                placeholder="80"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Suhu (°C)</Label>
-                                            <Input
-                                                type="number"
-                                                step="0.1"
-                                                value={vitalForm.data.temperature}
-                                                onChange={(e) => vitalForm.setData('temperature', e.target.value)}
-                                                placeholder="36.5"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">RR</Label>
-                                            <Input
-                                                type="number"
-                                                value={vitalForm.data.respiratory_rate}
-                                                onChange={(e) => vitalForm.setData('respiratory_rate', e.target.value)}
-                                                placeholder="16"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">SpO₂ (%)</Label>
-                                            <Input
-                                                type="number"
-                                                value={vitalForm.data.spo2}
-                                                onChange={(e) => vitalForm.setData('spo2', e.target.value)}
-                                                placeholder="99"
-                                                className="min-h-10"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-                                        <div>
-                                            <Label className="text-xs">Pola Napas *</Label>
-                                            <Select
-                                                value={vitalForm.data.breathing_pattern}
-                                                onValueChange={(v) => vitalForm.setData('breathing_pattern', v)}
-                                            >
-                                                <SelectTrigger className="min-h-10">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {options.breathingPatterns.map((b) => (
-                                                        <SelectItem key={b.value} value={b.value}>
-                                                            {b.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Alat Bantu O₂ *</Label>
-                                            <Select value={vitalForm.data.oxygen_device} onValueChange={(v) => vitalForm.setData('oxygen_device', v)}>
-                                                <SelectTrigger className="min-h-10">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {options.oxygenDevices.map((o) => (
-                                                        <SelectItem key={o.value} value={o.value}>
-                                                            {o.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">
-                                                Aliran O₂ (LPM 1–15) {vitalForm.data.oxygen_device !== 'tanpa_oksigen' ? '*' : ''}
-                                            </Label>
-                                            <Input
-                                                type="number"
-                                                min={1}
-                                                max={15}
-                                                disabled={vitalForm.data.oxygen_device === 'tanpa_oksigen'}
-                                                value={vitalForm.data.oxygen_flow_lpm}
-                                                onChange={(e) => vitalForm.setData('oxygen_flow_lpm', e.target.value)}
-                                                placeholder="1–15"
-                                                className="min-h-10"
-                                            />
-                                            <InputError message={vitalForm.errors.oxygen_flow_lpm} />
-                                        </div>
-                                        <div className="flex items-end">
-                                            <Button type="submit" className="min-h-10 w-full" disabled={vitalForm.processing}>
-                                                <Plus className="mr-2 h-4 w-4" />
-                                                Catat TTV
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </form>
-                            )}
-
-                            <div className="overflow-x-auto rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Waktu</TableHead>
-                                            <TableHead>TD (mmHg)</TableHead>
-                                            <TableHead>Nadi</TableHead>
-                                            <TableHead>Suhu</TableHead>
-                                            <TableHead>RR</TableHead>
-                                            <TableHead>SpO₂</TableHead>
-                                            <TableHead>Pola Napas</TableHead>
-                                            <TableHead>Oksigen</TableHead>
-                                            {permissions.canEditIntraop && <TableHead className="w-[50px]" />}
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {vitalSigns.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={9} className="text-muted-foreground py-6 text-center text-sm">
-                                                    Belum ada data pemantauan TTV intra-op.
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            vitalSigns.map((v) => (
-                                                <TableRow key={v.id}>
-                                                    <TableCell className="font-mono text-xs">{v.recorded_at}</TableCell>
-                                                    <TableCell>
-                                                        {v.bp_systolic ?? '-'}/{v.bp_diastolic ?? '-'}
-                                                    </TableCell>
-                                                    <TableCell>{v.pulse ?? '-'}</TableCell>
-                                                    <TableCell>{v.temperature ?? '-'}</TableCell>
-                                                    <TableCell>{v.respiratory_rate ?? '-'}</TableCell>
-                                                    <TableCell>{v.spo2 ? `${v.spo2}%` : '-'}</TableCell>
-                                                    <TableCell className="text-xs">{v.breathing_pattern}</TableCell>
-                                                    <TableCell className="text-xs">
-                                                        {v.oxygen_device}
-                                                        {v.oxygen_flow_lpm ? ` (${v.oxygen_flow_lpm} LPM)` : ''}
-                                                    </TableCell>
-                                                    {permissions.canEditIntraop && (
-                                                        <TableCell>
-                                                            <Button
-                                                                type="button"
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                aria-label="Hapus pemantauan TTV"
-                                                                onClick={() =>
-                                                                    router.delete(route('cases.intraop.vitals.destroy', [caseHeader.id, v.id]), {
-                                                                        preserveScroll: true,
-                                                                    })
-                                                                }
-                                                            >
-                                                                <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
-                                                            </Button>
-                                                        </TableCell>
                                                     )}
-                                                </TableRow>
-                                            ))
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                                </div>
+                                                {cd.slki.length > 0 && (
+                                                    <div className="text-muted-foreground text-xs">
+                                                        <strong>Luaran SLKI:</strong>{' '}
+                                                        {cd.slki
+                                                            .map((c) => `${c.criterion_text} (${c.expectation}, target ${c.target_score})`)
+                                                            .join(' • ')}
+                                                    </div>
+                                                )}
+                                                {cd.siki.map((int) => (
+                                                    <div key={int.id} className="space-y-1 pt-1">
+                                                        <div className="text-foreground text-xs font-semibold">{int.name}</div>
+                                                        <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+                                                            {int.items.map((item) => (
+                                                                <label
+                                                                    key={item.siki_item_id}
+                                                                    className="hover:bg-muted/40 flex cursor-pointer items-start gap-2 rounded border px-2.5 py-1.5 text-xs"
+                                                                >
+                                                                    <Checkbox
+                                                                        checked={item.is_done}
+                                                                        disabled={!permissions.canEditIntraop || item.id === null}
+                                                                        onCheckedChange={() => {
+                                                                            if (item.id !== null) {
+                                                                                router.post(
+                                                                                    route('cases.intraop.toggle-intervention', [
+                                                                                        caseHeader.id,
+                                                                                        item.id,
+                                                                                    ]),
+                                                                                    {},
+                                                                                    { preserveScroll: true },
+                                                                                );
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <span>
+                                                                        <Badge variant="outline" className="mr-1 text-[10px]">
+                                                                            {item.section_label}
+                                                                        </Badge>
+                                                                        {item.text}
+                                                                        {item.done_at && (
+                                                                            <span className="ml-1 font-medium text-emerald-700">
+                                                                                ({item.done_at})
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
 
-                    {/* 6B Obat & 6C Cairan */}
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {/* 5. Tindakan Keperawatan (Timeline + Template) */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-base">
-                                    <Pill className="text-primary h-5 w-5" />
-                                    6B. Pemberian Obat Intra-Op (KF-6)
-                                </CardTitle>
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div>
+                                        <CardTitle className="text-base">5. Tindakan Keperawatan Intra-Operatif (Timeline - KF-12)</CardTitle>
+                                        <CardDescription>
+                                            Catat tindakan perawat sirkuler/instrumen beserta evaluasi dan paraf otomatis pembuat.
+                                        </CardDescription>
+                                    </div>
+                                    {permissions.canEditIntraop && (
+                                        <Button type="button" variant="outline" className="min-h-11" onClick={applyTemplates}>
+                                            <ClipboardList className="mr-2 h-4 w-4" aria-hidden="true" />
+                                            Tambah dari Template (7 Item PDF)
+                                        </Button>
+                                    )}
+                                </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {permissions.canEditAnesthesia && (
-                                    <form onSubmit={submitMedication} className="grid grid-cols-1 gap-2 rounded-lg border p-3 sm:grid-cols-2">
-                                        <Input
-                                            value={medForm.data.name}
-                                            onChange={(e) => medForm.setData('name', e.target.value)}
-                                            placeholder="Nama obat *"
-                                            className="min-h-10"
-                                        />
-                                        <Input
-                                            value={medForm.data.dose}
-                                            onChange={(e) => medForm.setData('dose', e.target.value)}
-                                            placeholder="Dosis (mis. 100 mg) *"
-                                            className="min-h-10"
-                                        />
-                                        <Input
-                                            value={medForm.data.route}
-                                            onChange={(e) => medForm.setData('route', e.target.value)}
-                                            placeholder="Rute (IV/IM/Inhalasi)"
-                                            className="min-h-10"
-                                        />
-                                        <Input
-                                            type="datetime-local"
-                                            value={medForm.data.given_at}
-                                            onChange={(e) => medForm.setData('given_at', e.target.value)}
-                                            className="min-h-10 text-xs"
-                                        />
-                                        <Button type="submit" className="min-h-10 sm:col-span-2" disabled={medForm.processing}>
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            Tambah Obat
-                                        </Button>
+                                {permissions.canEditIntraop && (
+                                    <form onSubmit={submitNursingAction} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-12">
+                                        <div className="md:col-span-3">
+                                            <Label htmlFor="action_performed_at" className="sr-only">
+                                                Waktu tindakan
+                                            </Label>
+                                            <Input
+                                                id="action_performed_at"
+                                                type="datetime-local"
+                                                value={actionForm.data.performed_at}
+                                                onChange={(e) => actionForm.setData('performed_at', e.target.value)}
+                                                className="min-h-11 text-xs"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <Label htmlFor="action_performed_by_role" className="sr-only">
+                                                Peran perawat pelaksana
+                                            </Label>
+                                            <Select
+                                                value={actionForm.data.performed_by_role}
+                                                onValueChange={(v) => actionForm.setData('performed_by_role', v)}
+                                            >
+                                                <SelectTrigger id="action_performed_by_role" className="min-h-11 text-xs">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="sirkuler">Sirkuler</SelectItem>
+                                                    <SelectItem value="instrumen">Instrumen</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <Label htmlFor="action_text" className="sr-only">
+                                                Tindakan keperawatan
+                                            </Label>
+                                            <Input
+                                                id="action_text"
+                                                value={actionForm.data.action}
+                                                onChange={(e) => actionForm.setData('action', e.target.value)}
+                                                placeholder="Tindakan keperawatan *"
+                                                className="min-h-11 text-xs"
+                                            />
+                                            <InputError message={actionForm.errors.action} />
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <Label htmlFor="action_evaluation" className="sr-only">
+                                                Evaluasi atau respons pasien
+                                            </Label>
+                                            <Input
+                                                id="action_evaluation"
+                                                value={actionForm.data.evaluation}
+                                                onChange={(e) => actionForm.setData('evaluation', e.target.value)}
+                                                placeholder="Evaluasi / respons pasien"
+                                                className="min-h-11 text-xs"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-1">
+                                            <Button
+                                                type="submit"
+                                                aria-label="Tambah tindakan keperawatan"
+                                                className="min-h-11 w-full"
+                                                disabled={actionForm.processing}
+                                            >
+                                                <Plus className="h-4 w-4" aria-hidden="true" />
+                                            </Button>
+                                        </div>
                                     </form>
                                 )}
 
@@ -1363,38 +1089,46 @@ export default function IntraopPage({
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead>Waktu</TableHead>
-                                                <TableHead>Obat & Dosis</TableHead>
-                                                <TableHead>Rute</TableHead>
-                                                {permissions.canEditAnesthesia && <TableHead className="w-[44px]" />}
+                                                <TableHead className="w-[80px]">Waktu</TableHead>
+                                                <TableHead className="w-[130px]">Peran</TableHead>
+                                                <TableHead>Tindakan Keperawatan</TableHead>
+                                                <TableHead>Evaluasi / Respons</TableHead>
+                                                <TableHead className="w-[140px]">Paraf</TableHead>
+                                                {permissions.canEditIntraop && <TableHead className="w-[50px]" />}
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {medications.length === 0 ? (
+                                            {nursingActions.length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={4} className="text-muted-foreground py-4 text-center text-xs">
-                                                        Belum ada obat tercatat.
+                                                    <TableCell colSpan={6} className="text-muted-foreground py-6 text-center text-sm">
+                                                        Belum ada catatan tindakan keperawatan intra-op.
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
-                                                medications.map((m) => (
-                                                    <TableRow key={m.id}>
-                                                        <TableCell className="text-xs">{m.given_at}</TableCell>
-                                                        <TableCell className="text-sm font-medium">
-                                                            {m.name} <span className="text-muted-foreground">({m.dose})</span>
+                                                nursingActions.map((act) => (
+                                                    <TableRow key={act.id}>
+                                                        <TableCell className="font-mono text-xs">{act.performed_at}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {act.performed_by_role_label}
+                                                            </Badge>
                                                         </TableCell>
-                                                        <TableCell className="text-xs">{m.route}</TableCell>
-                                                        {permissions.canEditAnesthesia && (
+                                                        <TableCell className="text-sm">{act.action}</TableCell>
+                                                        <TableCell className="text-muted-foreground text-sm">{act.evaluation}</TableCell>
+                                                        <TableCell className="text-xs">{act.creator_name}</TableCell>
+                                                        {permissions.canEditIntraop && (
                                                             <TableCell>
                                                                 <Button
                                                                     type="button"
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    aria-label="Hapus obat intra-operasi"
+                                                                    aria-label="Hapus tindakan keperawatan"
                                                                     onClick={() =>
                                                                         router.delete(
-                                                                            route('cases.intraop.medications.destroy', [caseHeader.id, m.id]),
-                                                                            { preserveScroll: true },
+                                                                            route('cases.intraop.actions.destroy', [caseHeader.id, act.id]),
+                                                                            {
+                                                                                preserveScroll: true,
+                                                                            },
                                                                         )
                                                                     }
                                                                 >
@@ -1411,411 +1145,732 @@ export default function IntraopPage({
                             </CardContent>
                         </Card>
 
+                        {/* 6. Pemantauan TTV + Grafik, Obat, dan Cairan */}
+                        <div className="space-y-6">
+                            <VitalSignChart data={vitalSigns} />
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-base">
+                                        <Activity className="text-primary h-5 w-5" />
+                                        6A. Tabel Pemantauan TTV & Oksigenasi Intra-Op (KF-7 & KF-8)
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {permissions.canEditIntraop && (
+                                        <form onSubmit={submitVital} className="space-y-3 rounded-lg border p-3">
+                                            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
+                                                <div>
+                                                    <Label className="text-xs">Waktu *</Label>
+                                                    <Input
+                                                        type="datetime-local"
+                                                        value={vitalForm.data.recorded_at}
+                                                        onChange={(e) => vitalForm.setData('recorded_at', e.target.value)}
+                                                        className="min-h-10 text-xs"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">Sistolik</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={vitalForm.data.bp_systolic}
+                                                        onChange={(e) => vitalForm.setData('bp_systolic', e.target.value)}
+                                                        placeholder="120"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">Diastolik</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={vitalForm.data.bp_diastolic}
+                                                        onChange={(e) => vitalForm.setData('bp_diastolic', e.target.value)}
+                                                        placeholder="80"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">Nadi</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={vitalForm.data.pulse}
+                                                        onChange={(e) => vitalForm.setData('pulse', e.target.value)}
+                                                        placeholder="80"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">Suhu (°C)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        step="0.1"
+                                                        value={vitalForm.data.temperature}
+                                                        onChange={(e) => vitalForm.setData('temperature', e.target.value)}
+                                                        placeholder="36.5"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">RR</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={vitalForm.data.respiratory_rate}
+                                                        onChange={(e) => vitalForm.setData('respiratory_rate', e.target.value)}
+                                                        placeholder="16"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">SpO₂ (%)</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={vitalForm.data.spo2}
+                                                        onChange={(e) => vitalForm.setData('spo2', e.target.value)}
+                                                        placeholder="99"
+                                                        className="min-h-10"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                                                <div>
+                                                    <Label className="text-xs">Pola Napas *</Label>
+                                                    <Select
+                                                        value={vitalForm.data.breathing_pattern}
+                                                        onValueChange={(v) => vitalForm.setData('breathing_pattern', v)}
+                                                    >
+                                                        <SelectTrigger className="min-h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {options.breathingPatterns.map((b) => (
+                                                                <SelectItem key={b.value} value={b.value}>
+                                                                    {b.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">Alat Bantu O₂ *</Label>
+                                                    <Select
+                                                        value={vitalForm.data.oxygen_device}
+                                                        onValueChange={(v) => vitalForm.setData('oxygen_device', v)}
+                                                    >
+                                                        <SelectTrigger className="min-h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {options.oxygenDevices.map((o) => (
+                                                                <SelectItem key={o.value} value={o.value}>
+                                                                    {o.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <Label className="text-xs">
+                                                        Aliran O₂ (LPM 1–15) {vitalForm.data.oxygen_device !== 'tanpa_oksigen' ? '*' : ''}
+                                                    </Label>
+                                                    <Input
+                                                        type="number"
+                                                        min={1}
+                                                        max={15}
+                                                        disabled={vitalForm.data.oxygen_device === 'tanpa_oksigen'}
+                                                        value={vitalForm.data.oxygen_flow_lpm}
+                                                        onChange={(e) => vitalForm.setData('oxygen_flow_lpm', e.target.value)}
+                                                        placeholder="1–15"
+                                                        className="min-h-10"
+                                                    />
+                                                    <InputError message={vitalForm.errors.oxygen_flow_lpm} />
+                                                </div>
+                                                <div className="flex items-end">
+                                                    <Button type="submit" className="min-h-10 w-full" disabled={vitalForm.processing}>
+                                                        <Plus className="mr-2 h-4 w-4" />
+                                                        Catat TTV
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    )}
+
+                                    <div className="overflow-x-auto rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Waktu</TableHead>
+                                                    <TableHead>TD (mmHg)</TableHead>
+                                                    <TableHead>Nadi</TableHead>
+                                                    <TableHead>Suhu</TableHead>
+                                                    <TableHead>RR</TableHead>
+                                                    <TableHead>SpO₂</TableHead>
+                                                    <TableHead>Pola Napas</TableHead>
+                                                    <TableHead>Oksigen</TableHead>
+                                                    {permissions.canEditIntraop && <TableHead className="w-[50px]" />}
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {vitalSigns.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={9} className="text-muted-foreground py-6 text-center text-sm">
+                                                            Belum ada data pemantauan TTV intra-op.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    vitalSigns.map((v) => (
+                                                        <TableRow key={v.id}>
+                                                            <TableCell className="font-mono text-xs">{v.recorded_at}</TableCell>
+                                                            <TableCell>
+                                                                {v.bp_systolic ?? '-'}/{v.bp_diastolic ?? '-'}
+                                                            </TableCell>
+                                                            <TableCell>{v.pulse ?? '-'}</TableCell>
+                                                            <TableCell>{v.temperature ?? '-'}</TableCell>
+                                                            <TableCell>{v.respiratory_rate ?? '-'}</TableCell>
+                                                            <TableCell>{v.spo2 ? `${v.spo2}%` : '-'}</TableCell>
+                                                            <TableCell className="text-xs">{v.breathing_pattern}</TableCell>
+                                                            <TableCell className="text-xs">
+                                                                {v.oxygen_device}
+                                                                {v.oxygen_flow_lpm ? ` (${v.oxygen_flow_lpm} LPM)` : ''}
+                                                            </TableCell>
+                                                            {permissions.canEditIntraop && (
+                                                                <TableCell>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        aria-label="Hapus pemantauan TTV"
+                                                                        onClick={() =>
+                                                                            router.delete(
+                                                                                route('cases.intraop.vitals.destroy', [caseHeader.id, v.id]),
+                                                                                {
+                                                                                    preserveScroll: true,
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
+                                                                    </Button>
+                                                                </TableCell>
+                                                            )}
+                                                        </TableRow>
+                                                    ))
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* 6B Obat & 6C Cairan */}
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-base">
+                                            <Pill className="text-primary h-5 w-5" />
+                                            6B. Pemberian Obat Intra-Op (KF-6)
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {permissions.canEditAnesthesia && (
+                                            <form onSubmit={submitMedication} className="grid grid-cols-1 gap-2 rounded-lg border p-3 sm:grid-cols-2">
+                                                <Input
+                                                    value={medForm.data.name}
+                                                    onChange={(e) => medForm.setData('name', e.target.value)}
+                                                    placeholder="Nama obat *"
+                                                    className="min-h-10"
+                                                />
+                                                <Input
+                                                    value={medForm.data.dose}
+                                                    onChange={(e) => medForm.setData('dose', e.target.value)}
+                                                    placeholder="Dosis (mis. 100 mg) *"
+                                                    className="min-h-10"
+                                                />
+                                                <Input
+                                                    value={medForm.data.route}
+                                                    onChange={(e) => medForm.setData('route', e.target.value)}
+                                                    placeholder="Rute (IV/IM/Inhalasi)"
+                                                    className="min-h-10"
+                                                />
+                                                <Input
+                                                    type="datetime-local"
+                                                    value={medForm.data.given_at}
+                                                    onChange={(e) => medForm.setData('given_at', e.target.value)}
+                                                    className="min-h-10 text-xs"
+                                                />
+                                                <Button type="submit" className="min-h-10 sm:col-span-2" disabled={medForm.processing}>
+                                                    <Plus className="mr-2 h-4 w-4" />
+                                                    Tambah Obat
+                                                </Button>
+                                            </form>
+                                        )}
+
+                                        <div className="overflow-x-auto rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Waktu</TableHead>
+                                                        <TableHead>Obat & Dosis</TableHead>
+                                                        <TableHead>Rute</TableHead>
+                                                        {permissions.canEditAnesthesia && <TableHead className="w-[44px]" />}
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {medications.length === 0 ? (
+                                                        <TableRow>
+                                                            <TableCell colSpan={4} className="text-muted-foreground py-4 text-center text-xs">
+                                                                Belum ada obat tercatat.
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ) : (
+                                                        medications.map((m) => (
+                                                            <TableRow key={m.id}>
+                                                                <TableCell className="text-xs">{m.given_at}</TableCell>
+                                                                <TableCell className="text-sm font-medium">
+                                                                    {m.name} <span className="text-muted-foreground">({m.dose})</span>
+                                                                </TableCell>
+                                                                <TableCell className="text-xs">{m.route}</TableCell>
+                                                                {permissions.canEditAnesthesia && (
+                                                                    <TableCell>
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            aria-label="Hapus obat intra-operasi"
+                                                                            onClick={() =>
+                                                                                router.delete(
+                                                                                    route('cases.intraop.medications.destroy', [caseHeader.id, m.id]),
+                                                                                    { preserveScroll: true },
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                )}
+                                                            </TableRow>
+                                                        ))
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-base">
+                                            <Droplets className="text-primary h-5 w-5" />
+                                            6C. Cairan Masuk & Keluar Intra-Op (KF-9..11)
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="grid grid-cols-3 gap-2 text-center">
+                                            <div className="rounded-lg border bg-blue-50/60 p-2 dark:bg-blue-950/30">
+                                                <div className="text-muted-foreground text-[11px]">Total Intake</div>
+                                                <div className="text-base font-bold">{fluids.total_intake_ml} ml</div>
+                                            </div>
+                                            <div className="rounded-lg border bg-amber-50/60 p-2 dark:bg-amber-950/30">
+                                                <div className="text-muted-foreground text-[11px]">Total Output</div>
+                                                <div className="text-base font-bold">{fluids.total_output_ml} ml</div>
+                                            </div>
+                                            <div className="rounded-lg border p-2">
+                                                <div className="text-muted-foreground text-[11px]">Balans</div>
+                                                <div className="text-base font-bold">
+                                                    {fluids.balance_ml >= 0 ? `+${fluids.balance_ml}` : fluids.balance_ml} ml
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {permissions.canEditIntraop && (
+                                            <form onSubmit={submitFluid} className="grid grid-cols-1 gap-2 rounded-lg border p-3 sm:grid-cols-3">
+                                                <Select value={fluidForm.data.kind} onValueChange={(v) => fluidForm.setData('kind', v)}>
+                                                    <SelectTrigger className="min-h-10 sm:col-span-2">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.fluidKinds.map((k) => (
+                                                            <SelectItem key={k.value} value={k.value}>
+                                                                [{k.direction === 'intake' ? 'Masuk' : 'Keluar'}] {k.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    value={fluidForm.data.volume_ml}
+                                                    onChange={(e) => fluidForm.setData('volume_ml', e.target.value)}
+                                                    placeholder="Volume (ml) *"
+                                                    className="min-h-10"
+                                                />
+                                                <Button type="submit" className="min-h-10 sm:col-span-3" disabled={fluidForm.processing}>
+                                                    <Plus className="mr-2 h-4 w-4" />
+                                                    Catat Cairan
+                                                </Button>
+                                            </form>
+                                        )}
+
+                                        <div className="overflow-x-auto rounded-md border">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Jenis</TableHead>
+                                                        <TableHead>Arah</TableHead>
+                                                        <TableHead className="text-right">Volume</TableHead>
+                                                        {permissions.canEditIntraop && <TableHead className="w-[44px]" />}
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {fluids.items.length === 0 ? (
+                                                        <TableRow>
+                                                            <TableCell colSpan={4} className="text-muted-foreground py-4 text-center text-xs">
+                                                                Belum ada catatan cairan.
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ) : (
+                                                        fluids.items.map((f) => (
+                                                            <TableRow key={f.id}>
+                                                                <TableCell className="text-xs font-medium">{f.kind_label}</TableCell>
+                                                                <TableCell>
+                                                                    <Badge
+                                                                        variant={f.direction === 'intake' ? 'secondary' : 'outline'}
+                                                                        className="text-[10px]"
+                                                                    >
+                                                                        {f.direction === 'intake' ? 'Masuk' : 'Keluar'}
+                                                                    </Badge>
+                                                                </TableCell>
+                                                                <TableCell className="text-right font-mono text-xs">{f.volume_ml} ml</TableCell>
+                                                                {permissions.canEditIntraop && (
+                                                                    <TableCell>
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            aria-label="Hapus catatan cairan"
+                                                                            onClick={() =>
+                                                                                router.delete(
+                                                                                    route('cases.intraop.fluids.destroy', [caseHeader.id, f.id]),
+                                                                                    {
+                                                                                        preserveScroll: true,
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                )}
+                                                            </TableRow>
+                                                        ))
+                                                    )}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+
+                        {/* 7. Hitung Instrumen, Kasa, dan Jarum */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Droplets className="text-primary h-5 w-5" />
-                                    6C. Cairan Masuk & Keluar Intra-Op (KF-9..11)
+                                    <FileCheck2 className="text-primary h-5 w-5" />
+                                    7. Penghitungan Instrumen, Kasa, dan Jarum (Safety Instrument Count - KF-32)
                                 </CardTitle>
+                                <CardDescription>
+                                    Status otomatis <strong>S (Sesuai)</strong> jika Hitungan Akhir = Awal + Tambahan; selain itu otomatis{' '}
+                                    <strong>TS (Tidak Sesuai)</strong> dan wajib tindak lanjut SOP.
+                                </CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-3 gap-2 text-center">
-                                    <div className="rounded-lg border bg-blue-50/60 p-2 dark:bg-blue-950/30">
-                                        <div className="text-muted-foreground text-[11px]">Total Intake</div>
-                                        <div className="text-base font-bold">{fluids.total_intake_ml} ml</div>
+                            <CardContent>
+                                <form onSubmit={submitCounts} className="space-y-4">
+                                    <div className="overflow-x-auto rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Item Operasi</TableHead>
+                                                    <TableHead className="w-[130px]">Hitungan Awal</TableHead>
+                                                    <TableHead className="w-[130px]">Tambahan</TableHead>
+                                                    <TableHead className="w-[130px]">Hitungan Akhir</TableHead>
+                                                    <TableHead className="w-[120px] text-center">Status (Auto)</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {Object.values(instrumentCounts.rows).map((row) => {
+                                                    const liveStatus = computedLiveCountStatus(row.item);
+                                                    const current = countForm.data.counts[row.item] ?? {
+                                                        initial_count: '0',
+                                                        additional_count: '0',
+                                                        final_count: '',
+                                                    };
+                                                    const setField = (field: 'initial_count' | 'additional_count' | 'final_count', val: string) => {
+                                                        countForm.setData('counts', {
+                                                            ...countForm.data.counts,
+                                                            [row.item]: { ...current, [field]: val },
+                                                        });
+                                                    };
+
+                                                    return (
+                                                        <TableRow
+                                                            key={row.item}
+                                                            className={cn(liveStatus === 'TS' && 'bg-red-50/70 dark:bg-red-950/30')}
+                                                        >
+                                                            <TableCell className="font-medium">{row.label}</TableCell>
+                                                            <TableCell>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={0}
+                                                                    disabled={!permissions.canEditIntraop}
+                                                                    value={current.initial_count}
+                                                                    onChange={(e) => setField('initial_count', e.target.value)}
+                                                                    className="min-h-10"
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={0}
+                                                                    disabled={!permissions.canEditIntraop}
+                                                                    value={current.additional_count}
+                                                                    onChange={(e) => setField('additional_count', e.target.value)}
+                                                                    className="min-h-10"
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Input
+                                                                    type="number"
+                                                                    min={0}
+                                                                    disabled={!permissions.canEditIntraop}
+                                                                    value={current.final_count}
+                                                                    onChange={(e) => setField('final_count', e.target.value)}
+                                                                    placeholder="Belum"
+                                                                    className="min-h-10"
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell className="text-center">
+                                                                {liveStatus === 'S' && (
+                                                                    <Badge className="bg-emerald-600 text-white">S (Sesuai)</Badge>
+                                                                )}
+                                                                {liveStatus === 'TS' && <Badge variant="destructive">TS (Tidak Sesuai)</Badge>}
+                                                                {liveStatus === '' && <Badge variant="outline">Belum</Badge>}
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })}
+                                            </TableBody>
+                                        </Table>
                                     </div>
-                                    <div className="rounded-lg border bg-amber-50/60 p-2 dark:bg-amber-950/30">
-                                        <div className="text-muted-foreground text-[11px]">Total Output</div>
-                                        <div className="text-base font-bold">{fluids.total_output_ml} ml</div>
-                                    </div>
-                                    <div className="rounded-lg border p-2">
-                                        <div className="text-muted-foreground text-[11px]">Balans</div>
-                                        <div className="text-base font-bold">
-                                            {fluids.balance_ml >= 0 ? `+${fluids.balance_ml}` : fluids.balance_ml} ml
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="count_verification">Verifikasi Akhir Hitungan</Label>
+                                            <Select
+                                                value={countForm.data.count_verification}
+                                                onValueChange={(v) => countForm.setData('count_verification', v)}
+                                                disabled={!permissions.canEditIntraop}
+                                            >
+                                                <SelectTrigger id="count_verification" className="min-h-11">
+                                                    <SelectValue placeholder="Pilih hasil verifikasi akhir" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.countVerifications.map((opt) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError message={countForm.errors.count_verification} />
+                                        </div>
+
+                                        <div className="space-y-2 rounded-lg border p-3">
+                                            <Label className="text-xs font-semibold">
+                                                Tindakan bila tidak sesuai / selisih{' '}
+                                                {(anyCountMismatch || countForm.data.count_verification === 'tidak_sesuai') && (
+                                                    <span className="text-destructive">* (Wajib)</span>
+                                                )}
+                                            </Label>
+                                            {DISCREPANCY_LABELS.map((opt) => (
+                                                <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
+                                                    <Checkbox
+                                                        checked={countForm.data.count_discrepancy_actions.includes(opt.key)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        onCheckedChange={() =>
+                                                            countForm.setData(
+                                                                'count_discrepancy_actions',
+                                                                toggleArrayValue(countForm.data.count_discrepancy_actions, opt.key),
+                                                            )
+                                                        }
+                                                    />
+                                                    <span>{opt.label}</span>
+                                                </label>
+                                            ))}
+                                            <InputError message={countForm.errors.count_discrepancy_actions} />
                                         </div>
                                     </div>
-                                </div>
 
-                                {permissions.canEditIntraop && (
-                                    <form onSubmit={submitFluid} className="grid grid-cols-1 gap-2 rounded-lg border p-3 sm:grid-cols-3">
-                                        <Select value={fluidForm.data.kind} onValueChange={(v) => fluidForm.setData('kind', v)}>
-                                            <SelectTrigger className="min-h-10 sm:col-span-2">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.fluidKinds.map((k) => (
-                                                    <SelectItem key={k.value} value={k.value}>
-                                                        [{k.direction === 'intake' ? 'Masuk' : 'Keluar'}] {k.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            value={fluidForm.data.volume_ml}
-                                            onChange={(e) => fluidForm.setData('volume_ml', e.target.value)}
-                                            placeholder="Volume (ml) *"
-                                            className="min-h-10"
-                                        />
-                                        <Button type="submit" className="min-h-10 sm:col-span-3" disabled={fluidForm.processing}>
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            Catat Cairan
-                                        </Button>
-                                    </form>
-                                )}
-
-                                <div className="overflow-x-auto rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Jenis</TableHead>
-                                                <TableHead>Arah</TableHead>
-                                                <TableHead className="text-right">Volume</TableHead>
-                                                {permissions.canEditIntraop && <TableHead className="w-[44px]" />}
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {fluids.items.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={4} className="text-muted-foreground py-4 text-center text-xs">
-                                                        Belum ada catatan cairan.
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                fluids.items.map((f) => (
-                                                    <TableRow key={f.id}>
-                                                        <TableCell className="text-xs font-medium">{f.kind_label}</TableCell>
-                                                        <TableCell>
-                                                            <Badge
-                                                                variant={f.direction === 'intake' ? 'secondary' : 'outline'}
-                                                                className="text-[10px]"
-                                                            >
-                                                                {f.direction === 'intake' ? 'Masuk' : 'Keluar'}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell className="text-right font-mono text-xs">{f.volume_ml} ml</TableCell>
-                                                        {permissions.canEditIntraop && (
-                                                            <TableCell>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    aria-label="Hapus catatan cairan"
-                                                                    onClick={() =>
-                                                                        router.delete(route('cases.intraop.fluids.destroy', [caseHeader.id, f.id]), {
-                                                                            preserveScroll: true,
-                                                                        })
-                                                                    }
-                                                                >
-                                                                    <Trash2 className="text-destructive h-4 w-4" aria-hidden="true" />
-                                                                </Button>
-                                                            </TableCell>
-                                                        )}
-                                                    </TableRow>
-                                                ))
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                    {permissions.canEditIntraop && (
+                                        <div className="flex justify-end">
+                                            <Button type="submit" className="min-h-11" disabled={countForm.processing}>
+                                                <Save className="mr-2 h-4 w-4" />
+                                                Simpan Hitung Instrumen
+                                            </Button>
+                                        </div>
+                                    )}
+                                </form>
                             </CardContent>
                         </Card>
-                    </div>
-                </div>
 
-                {/* 7. Hitung Instrumen, Kasa, dan Jarum */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <FileCheck2 className="text-primary h-5 w-5" />
-                            7. Penghitungan Instrumen, Kasa, dan Jarum (Safety Instrument Count - KF-32)
-                        </CardTitle>
-                        <CardDescription>
-                            Status otomatis <strong>S (Sesuai)</strong> jika Hitungan Akhir = Awal + Tambahan; selain itu otomatis{' '}
-                            <strong>TS (Tidak Sesuai)</strong> dan wajib tindak lanjut SOP.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submitCounts} className="space-y-4">
-                            <div className="overflow-x-auto rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Item Operasi</TableHead>
-                                            <TableHead className="w-[130px]">Hitungan Awal</TableHead>
-                                            <TableHead className="w-[130px]">Tambahan</TableHead>
-                                            <TableHead className="w-[130px]">Hitungan Akhir</TableHead>
-                                            <TableHead className="w-[120px] text-center">Status (Auto)</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.values(instrumentCounts.rows).map((row) => {
-                                            const liveStatus = computedLiveCountStatus(row.item);
-                                            const current = countForm.data.counts[row.item] ?? {
-                                                initial_count: '0',
-                                                additional_count: '0',
-                                                final_count: '',
-                                            };
-                                            const setField = (field: 'initial_count' | 'additional_count' | 'final_count', val: string) => {
-                                                countForm.setData('counts', {
-                                                    ...countForm.data.counts,
-                                                    [row.item]: { ...current, [field]: val },
-                                                });
-                                            };
-
-                                            return (
-                                                <TableRow key={row.item} className={cn(liveStatus === 'TS' && 'bg-red-50/70 dark:bg-red-950/30')}>
-                                                    <TableCell className="font-medium">{row.label}</TableCell>
-                                                    <TableCell>
-                                                        <Input
-                                                            type="number"
-                                                            min={0}
-                                                            disabled={!permissions.canEditIntraop}
-                                                            value={current.initial_count}
-                                                            onChange={(e) => setField('initial_count', e.target.value)}
-                                                            className="min-h-10"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Input
-                                                            type="number"
-                                                            min={0}
-                                                            disabled={!permissions.canEditIntraop}
-                                                            value={current.additional_count}
-                                                            onChange={(e) => setField('additional_count', e.target.value)}
-                                                            className="min-h-10"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Input
-                                                            type="number"
-                                                            min={0}
-                                                            disabled={!permissions.canEditIntraop}
-                                                            value={current.final_count}
-                                                            onChange={(e) => setField('final_count', e.target.value)}
-                                                            placeholder="Belum"
-                                                            className="min-h-10"
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell className="text-center">
-                                                        {liveStatus === 'S' && <Badge className="bg-emerald-600 text-white">S (Sesuai)</Badge>}
-                                                        {liveStatus === 'TS' && <Badge variant="destructive">TS (Tidak Sesuai)</Badge>}
-                                                        {liveStatus === '' && <Badge variant="outline">Belum</Badge>}
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="count_verification">Verifikasi Akhir Hitungan</Label>
-                                    <Select
-                                        value={countForm.data.count_verification}
-                                        onValueChange={(v) => countForm.setData('count_verification', v)}
-                                        disabled={!permissions.canEditIntraop}
-                                    >
-                                        <SelectTrigger id="count_verification" className="min-h-11">
-                                            <SelectValue placeholder="Pilih hasil verifikasi akhir" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.countVerifications.map((opt) => (
-                                                <SelectItem key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError message={countForm.errors.count_verification} />
-                                </div>
-
-                                <div className="space-y-2 rounded-lg border p-3">
-                                    <Label className="text-xs font-semibold">
-                                        Tindakan bila tidak sesuai / selisih{' '}
-                                        {(anyCountMismatch || countForm.data.count_verification === 'tidak_sesuai') && (
-                                            <span className="text-destructive">* (Wajib)</span>
-                                        )}
-                                    </Label>
-                                    {DISCREPANCY_LABELS.map((opt) => (
-                                        <label key={opt.key} className="flex cursor-pointer items-center gap-2 text-sm">
+                        {/* 8. Spesimen & Kejadian Khusus / Komplikasi */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <FlaskConical className="text-primary h-5 w-5" />
+                                    8. Pengelolaan Spesimen & Catatan Kejadian Khusus / Komplikasi (KF-33)
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={submitSpecimenComp} className="space-y-5">
+                                    <div className="space-y-3 rounded-lg border p-4">
+                                        <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
                                             <Checkbox
-                                                checked={countForm.data.count_discrepancy_actions.includes(opt.key)}
+                                                checked={specForm.data.has_specimen}
                                                 disabled={!permissions.canEditIntraop}
-                                                onCheckedChange={() =>
-                                                    countForm.setData(
-                                                        'count_discrepancy_actions',
-                                                        toggleArrayValue(countForm.data.count_discrepancy_actions, opt.key),
-                                                    )
-                                                }
+                                                onCheckedChange={(c) => specForm.setData('has_specimen', c === true)}
                                             />
-                                            <span>{opt.label}</span>
+                                            <span>Ada Spesimen Jaringan / Cairan Operasi</span>
                                         </label>
-                                    ))}
-                                    <InputError message={countForm.errors.count_discrepancy_actions} />
-                                </div>
-                            </div>
 
-                            {permissions.canEditIntraop && (
-                                <div className="flex justify-end">
-                                    <Button type="submit" className="min-h-11" disabled={countForm.processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Simpan Hitung Instrumen
-                                    </Button>
-                                </div>
-                            )}
-                        </form>
-                    </CardContent>
-                </Card>
-
-                {/* 8. Spesimen & Kejadian Khusus / Komplikasi */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <FlaskConical className="text-primary h-5 w-5" />
-                            8. Pengelolaan Spesimen & Catatan Kejadian Khusus / Komplikasi (KF-33)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submitSpecimenComp} className="space-y-5">
-                            <div className="space-y-3 rounded-lg border p-4">
-                                <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
-                                    <Checkbox
-                                        checked={specForm.data.has_specimen}
-                                        disabled={!permissions.canEditIntraop}
-                                        onCheckedChange={(c) => specForm.setData('has_specimen', c === true)}
-                                    />
-                                    <span>Ada Spesimen Jaringan / Cairan Operasi</span>
-                                </label>
-
-                                {specForm.data.has_specimen && (
-                                    <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="specimen_type">Jenis Spesimen / Jaringan *</Label>
-                                            <Input
-                                                id="specimen_type"
-                                                value={specForm.data.specimen_type}
-                                                onChange={(e) => specForm.setData('specimen_type', e.target.value)}
-                                                disabled={!permissions.canEditIntraop}
-                                                className="min-h-11"
-                                            />
-                                            <InputError message={specForm.errors.specimen_type} />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="origin_organ">Asal Jaringan / Organ *</Label>
-                                            <Input
-                                                id="origin_organ"
-                                                value={specForm.data.origin_organ}
-                                                onChange={(e) => specForm.setData('origin_organ', e.target.value)}
-                                                disabled={!permissions.canEditIntraop}
-                                                className="min-h-11"
-                                            />
-                                            <InputError message={specForm.errors.origin_organ} />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="purpose">Tujuan Pemeriksaan *</Label>
-                                            <Select
-                                                value={specForm.data.purpose}
-                                                onValueChange={(v) => specForm.setData('purpose', v)}
-                                                disabled={!permissions.canEditIntraop}
-                                            >
-                                                <SelectTrigger id="purpose" className="min-h-11">
-                                                    <SelectValue placeholder="Pilih tujuan pemeriksaan" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {options.specimenPurposes.map((p) => (
-                                                        <SelectItem key={p.value} value={p.value}>
-                                                            {p.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <InputError message={specForm.errors.purpose} />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="preservative">Pengawet *</Label>
-                                            <Select
-                                                value={specForm.data.preservative}
-                                                onValueChange={(v) => specForm.setData('preservative', v)}
-                                                disabled={!permissions.canEditIntraop}
-                                            >
-                                                <SelectTrigger id="preservative" className="min-h-11">
-                                                    <SelectValue placeholder="Pilih pengawet" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {options.specimenPreservatives.map((p) => (
-                                                        <SelectItem key={p.value} value={p.value}>
-                                                            {p.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <InputError message={specForm.errors.preservative} />
-                                        </div>
+                                        {specForm.data.has_specimen && (
+                                            <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="specimen_type">Jenis Spesimen / Jaringan *</Label>
+                                                    <Input
+                                                        id="specimen_type"
+                                                        value={specForm.data.specimen_type}
+                                                        onChange={(e) => specForm.setData('specimen_type', e.target.value)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        className="min-h-11"
+                                                    />
+                                                    <InputError message={specForm.errors.specimen_type} />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="origin_organ">Asal Jaringan / Organ *</Label>
+                                                    <Input
+                                                        id="origin_organ"
+                                                        value={specForm.data.origin_organ}
+                                                        onChange={(e) => specForm.setData('origin_organ', e.target.value)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                        className="min-h-11"
+                                                    />
+                                                    <InputError message={specForm.errors.origin_organ} />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="purpose">Tujuan Pemeriksaan *</Label>
+                                                    <Select
+                                                        value={specForm.data.purpose}
+                                                        onValueChange={(v) => specForm.setData('purpose', v)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                    >
+                                                        <SelectTrigger id="purpose" className="min-h-11">
+                                                            <SelectValue placeholder="Pilih tujuan pemeriksaan" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {options.specimenPurposes.map((p) => (
+                                                                <SelectItem key={p.value} value={p.value}>
+                                                                    {p.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <InputError message={specForm.errors.purpose} />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="preservative">Pengawet *</Label>
+                                                    <Select
+                                                        value={specForm.data.preservative}
+                                                        onValueChange={(v) => specForm.setData('preservative', v)}
+                                                        disabled={!permissions.canEditIntraop}
+                                                    >
+                                                        <SelectTrigger id="preservative" className="min-h-11">
+                                                            <SelectValue placeholder="Pilih pengawet" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {options.specimenPreservatives.map((p) => (
+                                                                <SelectItem key={p.value} value={p.value}>
+                                                                    {p.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <InputError message={specForm.errors.preservative} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
 
-                            <div className="space-y-3 rounded-lg border p-4">
-                                <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
-                                    <Checkbox
-                                        checked={specForm.data.has_complication}
-                                        disabled={!permissions.canEditComplication}
-                                        onCheckedChange={(c) => specForm.setData('has_complication', c === true)}
-                                    />
-                                    <span>Terdapat Kejadian Khusus / Komplikasi Intra-Operatif</span>
-                                </label>
+                                    <div className="space-y-3 rounded-lg border p-4">
+                                        <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
+                                            <Checkbox
+                                                checked={specForm.data.has_complication}
+                                                disabled={!permissions.canEditComplication}
+                                                onCheckedChange={(c) => specForm.setData('has_complication', c === true)}
+                                            />
+                                            <span>Terdapat Kejadian Khusus / Komplikasi Intra-Operatif</span>
+                                        </label>
 
-                                {specForm.data.has_complication && (
-                                    <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="complication_description">Uraian Kejadian Khusus / Komplikasi *</Label>
-                                            <textarea
-                                                id="complication_description"
-                                                rows={3}
-                                                value={specForm.data.complication_description}
-                                                onChange={(e) => specForm.setData('complication_description', e.target.value)}
-                                                disabled={!permissions.canEditComplication}
-                                                className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
-                                            />
-                                            <InputError message={specForm.errors.complication_description} />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="complication_handling">Tindakan Penanganan *</Label>
-                                            <textarea
-                                                id="complication_handling"
-                                                rows={3}
-                                                value={specForm.data.complication_handling}
-                                                onChange={(e) => specForm.setData('complication_handling', e.target.value)}
-                                                disabled={!permissions.canEditComplication}
-                                                className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
-                                            />
-                                            <InputError message={specForm.errors.complication_handling} />
-                                        </div>
+                                        {specForm.data.has_complication && (
+                                            <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="complication_description">Uraian Kejadian Khusus / Komplikasi *</Label>
+                                                    <textarea
+                                                        id="complication_description"
+                                                        rows={3}
+                                                        value={specForm.data.complication_description}
+                                                        onChange={(e) => specForm.setData('complication_description', e.target.value)}
+                                                        disabled={!permissions.canEditComplication}
+                                                        className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
+                                                    />
+                                                    <InputError message={specForm.errors.complication_description} />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="complication_handling">Tindakan Penanganan *</Label>
+                                                    <textarea
+                                                        id="complication_handling"
+                                                        rows={3}
+                                                        value={specForm.data.complication_handling}
+                                                        onChange={(e) => specForm.setData('complication_handling', e.target.value)}
+                                                        disabled={!permissions.canEditComplication}
+                                                        className="border-input bg-background flex w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
+                                                    />
+                                                    <InputError message={specForm.errors.complication_handling} />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
 
-                            {permissions.canEditComplication && (
-                                <div className="flex justify-end">
-                                    <Button type="submit" className="min-h-11" disabled={specForm.processing}>
-                                        <Save className="mr-2 h-4 w-4" />
-                                        Simpan Spesimen &amp; Komplikasi
-                                    </Button>
-                                </div>
-                            )}
-                        </form>
-                    </CardContent>
-                </Card>
+                                    {permissions.canEditComplication && (
+                                        <div className="flex justify-end">
+                                            <Button type="submit" className="min-h-11" disabled={specForm.processing}>
+                                                <Save className="mr-2 h-4 w-4" />
+                                                Simpan Spesimen &amp; Komplikasi
+                                            </Button>
+                                        </div>
+                                    )}
+                                </form>
+                            </CardContent>
+                        </Card>
 
-                {/* 8B. Detail Tindakan Khusus & Data Implan (Sesuai Profil Operasi) */}
-                <IntraopProcedureDetailsCard
-                    caseId={caseHeader.id}
-                    surgeryProfile={caseHeader.surgery_profile}
-                    initialData={procedureDetails}
-                    canEdit={permissions.canEditComplication}
-                />
+                        {/* 8B. Detail Tindakan Khusus & Data Implan (Sesuai Profil Operasi) */}
+                        <IntraopProcedureDetailsCard
+                            caseId={caseHeader.id}
+                            surgeryProfile={caseHeader.surgery_profile}
+                            initialData={procedureDetails}
+                            canEdit={permissions.canEditComplication}
+                        />
+                    </>
+                )}
 
                 {/* 9. Pengesahan Dokumentasi Intra-Operatif (4 Pihak) */}
                 <Card>

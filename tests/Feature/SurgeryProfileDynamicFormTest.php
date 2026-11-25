@@ -3,13 +3,20 @@
 use App\Enums\AllergyStatus;
 use App\Enums\AnxietyLevel;
 use App\Enums\CaseStatus;
+use App\Enums\CountVerification;
 use App\Enums\Gender;
 use App\Enums\NurseType;
 use App\Enums\ReadinessStatus;
+use App\Enums\SignoffKind;
+use App\Enums\SignoffSection;
+use App\Enums\SignOutStatus;
 use App\Enums\SscStatus;
 use App\Enums\SurgeryProfile;
 use App\Models\AnesthesiaType;
+use App\Models\CaseSignoff;
+use App\Models\MedicalDiagnosis;
 use App\Models\SscSignIn;
+use App\Models\SscSignOut;
 use App\Models\SscTimeOut;
 use App\Models\SurgeryCase;
 use App\Models\SurgeryType;
@@ -310,4 +317,166 @@ test('alur profil bedah ortopedi fraktur femur menyediakan 66 alat, implan ORIF,
     $pdf = $this->actingAs($perawat)->get("/kasus/{$case->id}/pdf");
     $pdf->assertOk();
     expect(substr((string) $pdf->getContent(), 0, 5))->toBe('%PDF-');
+});
+
+test('skpl bedah saraf edh menyederhanakan preop tanpa cemas, 3 item hitung intraop, merge procedure details, dan transisi pascaop tanpa keluar ok', function () {
+    $sirkuler = User::factory()->perawat(NurseType::Sirkuler)->create(['name' => 'Ns. Sirkuler EDH']);
+    $instrumen = User::factory()->perawat(NurseType::Instrumen)->create();
+    $surgeon = User::factory()->dokterOperator()->create();
+    $anesthesiologist = User::factory()->dokterAnestesi()->create();
+
+    $neuroType = SurgeryType::query()->where('code', SurgeryProfile::BedahSaraf->value)->firstOrFail();
+    $diagnosis = MedicalDiagnosis::query()->where('name', 'like', '%Epidural Hematoma%')->first() ?? MedicalDiagnosis::query()->firstOrFail();
+    $anesthesia = AnesthesiaType::query()->firstOrFail();
+
+    $case = SurgeryCase::factory()->create([
+        'surgery_type_id' => $neuroType->id,
+        'medical_diagnosis_id' => $diagnosis->id,
+        'anesthesia_type_id' => $anesthesia->id,
+        'surgeon_id' => $surgeon->id,
+        'anesthesiologist_id' => $anesthesiologist->id,
+        'scrub_nurse_id' => $instrumen->id,
+        'circulating_nurse_id' => $sirkuler->id,
+        'created_by' => $sirkuler->id,
+        'status' => CaseStatus::PreOp,
+    ]);
+
+    $this->actingAs($sirkuler)
+        ->get("/kasus/{$case->id}/pre-op")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('cases/pre-op')
+            ->has('prepProgress.instrument_checks_count')
+            ->has('caseHeader.created_by_name')
+            ->has('caseHeader.patient.address')
+        );
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/pre-op", [
+            'medical_diagnosis_id' => (string) $diagnosis->id,
+            'anesthesia_type_id' => (string) $anesthesia->id,
+            'surgery_site' => 'Kranium Frontotemporoparietal Kanan',
+            'chief_complaint' => 'Penurunan kesadaran pascatrauma',
+            'allergy_status' => AllergyStatus::TidakAda->value,
+            'fasting_status' => false,
+            'readiness_status' => ReadinessStatus::Siap->value,
+            'preparation' => [
+                'informed_consent_surgery' => true,
+                'iv_access' => true,
+                'site_marked' => true,
+            ],
+            'vital_signs' => [
+                'bp_systolic' => 140,
+                'bp_diastolic' => 88,
+                'pulse' => 92,
+                'respiratory_rate' => 22,
+                'temperature' => 36.8,
+                'spo2' => 97,
+                'consciousness' => 'somnolen',
+            ],
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $case->refresh();
+    expect($case->preopAssessment?->anxiety_level)->toBe(AnxietyLevel::TidakCemas);
+
+    $case->forceFill(['status' => CaseStatus::IntraOp])->save();
+    SscSignIn::factory()->create(['case_id' => $case->id, 'status' => SscStatus::Selesai]);
+    SscTimeOut::factory()->create(['case_id' => $case->id, 'status' => SscStatus::Selesai]);
+    SscSignOut::factory()->create(['case_id' => $case->id, 'status' => SignOutStatus::Terverifikasi]);
+
+    $this->actingAs($sirkuler)
+        ->get("/kasus/{$case->id}/intra-op")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('cases/intra-op')
+            ->has('instrumentCounts.rows.kasa_steril')
+            ->has('instrumentCounts.rows.jarum')
+            ->has('instrumentCounts.rows.instrumen_set')
+            ->missing('instrumentCounts.rows.pisau_bisturi')
+            ->missing('instrumentCounts.rows.implant')
+            ->has('chronology.time_out_label')
+            ->has('chronology.sign_out_label')
+        );
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/detail-tindakan", [
+            'procedure_details' => [
+                'bone_tissue_condition' => 'Fraktur linear os temporoparietal kanan',
+                'hematoma_volume_condition' => 'Bekuan 50 mL',
+            ],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/detail-tindakan", [
+            'procedure_details' => [
+                'cautery_usage' => 'Bipolar 25 W berfungsi baik',
+            ],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $case->refresh();
+    expect($case->intraopRecord?->procedure_details['bone_tissue_condition'] ?? null)
+        ->toBe('Fraktur linear os temporoparietal kanan');
+    expect($case->intraopRecord?->procedure_details['cautery_usage'] ?? null)
+        ->toBe('Bipolar 25 W berfungsi baik');
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/kronologi", [
+            'operation_plan_actual' => 'Kraniotomi evakuasi hematoma',
+            'postop_diagnosis' => 'Post Kraniotomi EDH',
+            'entered_or_at' => '2026-11-23T09:00',
+            'anesthesia_start_at' => '2026-11-23T09:10',
+            'incision_at' => '2026-11-23T09:25',
+            'surgery_end_at' => '2026-11-23T11:10',
+            'anesthesia_end_at' => '2026-11-23T11:25',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($anesthesiologist)
+        ->post("/kasus/{$case->id}/intra-op/ttv", [
+            'recorded_at' => '2026-11-23T09:30',
+            'bp_systolic' => 122,
+            'bp_diastolic' => 78,
+            'pulse' => 84,
+            'temperature' => 36.6,
+            'respiratory_rate' => 16,
+            'spo2' => 99,
+            'breathing_pattern' => 'eupnea',
+            'oxygen_device' => 'tanpa_oksigen',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/hitung-instrumen", [
+            'counts' => [
+                'kasa_steril' => ['initial_count' => 20, 'additional_count' => 0, 'final_count' => 20],
+                'jarum' => ['initial_count' => 6, 'additional_count' => 0, 'final_count' => 6],
+                'instrumen_set' => ['initial_count' => 33, 'additional_count' => 0, 'final_count' => 33],
+            ],
+            'count_verification' => CountVerification::LengkapSesuai->value,
+        ])
+        ->assertSessionHasNoErrors();
+
+    foreach (['perawat_sirkuler' => $sirkuler, 'perawat_instrumen' => $instrumen, 'dokter_anestesi' => $anesthesiologist, 'dokter_operator' => $surgeon] as $role => $signer) {
+        CaseSignoff::query()->create([
+            'case_id' => $case->id,
+            'section' => SignoffSection::IntraOp,
+            'kind' => SignoffKind::Signoff,
+            'role_label' => $role,
+            'user_id' => $signer->id,
+            'signed_at' => now(),
+        ]);
+    }
+
+    $this->actingAs($sirkuler)
+        ->post("/kasus/{$case->id}/lanjut-status", [
+            'target_status' => CaseStatus::PascaOp->value,
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect($case->fresh()->status)->toBe(CaseStatus::PascaOp);
 });

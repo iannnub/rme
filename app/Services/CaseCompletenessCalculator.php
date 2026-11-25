@@ -11,6 +11,7 @@ use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
 use App\Enums\SignOutStatus;
 use App\Enums\SscStatus;
+use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\InstrumentCheck;
@@ -89,18 +90,24 @@ class CaseCompletenessCalculator
 
         $counts = $case->instrumentCounts;
         $record = $case->intraopRecord;
-        $allFiveCounts = $counts->count() >= count(InstrumentCountItem::cases())
-            && $counts->every(fn (InstrumentCount $c): bool => $c->final_count !== null);
+        $profile = $case->surgeryProfile();
+        $requiredItems = InstrumentCountItem::casesForProfile($profile);
+        $allRequiredCounts = collect($requiredItems)->every(function (InstrumentCountItem $enumItem) use ($counts): bool {
+            $row = $counts->firstWhere('item', $enumItem);
+
+            return $row instanceof InstrumentCount && $row->final_count !== null;
+        });
         $hasTs = $counts->contains(fn (InstrumentCount $c): bool => $c->status === InstrumentCountStatus::TidakSesuai);
         $verification = $record !== null ? $record->count_verification : null;
         $discrepancyActions = $record !== null ? ($record->count_discrepancy_actions ?? []) : [];
-        $countsValid = $allFiveCounts
+        $countsValid = $allRequiredCounts
             && $verification !== null
             && ((! $hasTs && $verification === CountVerification::LengkapSesuai) || ($verification === CountVerification::TidakSesuai && $discrepancyActions !== []));
 
+        $closingTime = $profile === SurgeryProfile::BedahSaraf ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
         $intraopComplete = $case->entered_or_at !== null
             && $case->surgery_end_at !== null
-            && $case->left_or_at !== null
+            && $closingTime !== null
             && $countsValid
             && $fourSigned;
 

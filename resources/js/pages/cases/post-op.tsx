@@ -440,39 +440,46 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                                <div className={`grid grid-cols-1 gap-3 ${isNeuro ? '' : 'md:grid-cols-3'}`}>
+                                    {!isNeuro && (
+                                        <>
+                                            <div>
+                                                <Label className="text-xs">Kondisi Umum *</Label>
+                                                <Select
+                                                    value={obsForm.data.general_condition}
+                                                    onValueChange={(v) => obsForm.setData('general_condition', v)}
+                                                >
+                                                    <SelectTrigger className="min-h-10">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.generalConditions.map((o) => (
+                                                            <SelectItem key={o.value} value={o.value}>
+                                                                {o.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">Respons Pasien *</Label>
+                                                <Select value={obsForm.data.response} onValueChange={(v) => obsForm.setData('response', v)}>
+                                                    <SelectTrigger className="min-h-10">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.patientResponses.map((o) => (
+                                                            <SelectItem key={o.value} value={o.value}>
+                                                                {o.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </>
+                                    )}
                                     <div>
-                                        <Label className="text-xs">Kondisi Umum *</Label>
-                                        <Select value={obsForm.data.general_condition} onValueChange={(v) => obsForm.setData('general_condition', v)}>
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.generalConditions.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Respons Pasien *</Label>
-                                        <Select value={obsForm.data.response} onValueChange={(v) => obsForm.setData('response', v)}>
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.patientResponses.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Kepatenan Jalan Napas *</Label>
+                                        <Label className="text-xs">{isNeuro ? 'Kondisi Jalan Napas *' : 'Kepatenan Jalan Napas *'}</Label>
                                         <Select value={obsForm.data.airway_patency} onValueChange={(v) => obsForm.setData('airway_patency', v)}>
                                             <SelectTrigger className="min-h-10">
                                                 <SelectValue />
@@ -553,24 +560,29 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                                <div className={`grid grid-cols-1 gap-3 ${isNeuro ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+                                    {!isNeuro && (
+                                        <div>
+                                            <Label className="text-xs">Pola Pernapasan *</Label>
+                                            <Select
+                                                value={obsForm.data.breathing_pattern}
+                                                onValueChange={(v) => obsForm.setData('breathing_pattern', v)}
+                                            >
+                                                <SelectTrigger className="min-h-10">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.breathingPatterns.map((o) => (
+                                                        <SelectItem key={o.value} value={o.value}>
+                                                            {o.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
                                     <div>
-                                        <Label className="text-xs">Pola Pernapasan *</Label>
-                                        <Select value={obsForm.data.breathing_pattern} onValueChange={(v) => obsForm.setData('breathing_pattern', v)}>
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.breathingPatterns.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Penggunaan Oksigen *</Label>
+                                        <Label className="text-xs">{isNeuro ? 'Alat Bantu O2 / Ventilator *' : 'Penggunaan Oksigen *'}</Label>
                                         <Select value={obsForm.data.oxygen_device} onValueChange={(v) => obsForm.setData('oxygen_device', v)}>
                                             <SelectTrigger className="min-h-10">
                                                 <SelectValue />
@@ -602,7 +614,7 @@ export default function PostopPage({
                                 </div>
 
                                 {/* 3. Nyeri NRS & 4. Luka */}
-                                <div className="grid grid-cols-1 gap-3 border-t pt-3 md:grid-cols-5">
+                                <div className={`grid grid-cols-1 gap-3 border-t pt-3 ${isNeuro ? '' : 'md:grid-cols-5'}`}>
                                     <div>
                                         <Label className="text-xs">Skala Nyeri (NRS 0–10) *</Label>
                                         <Input
@@ -614,57 +626,64 @@ export default function PostopPage({
                                             className="min-h-10"
                                         />
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">Lokasi Nyeri</Label>
-                                        <Input
-                                            value={obsForm.data.pain_location}
-                                            onChange={(e) => obsForm.setData('pain_location', e.target.value)}
-                                            placeholder="Area insisi"
-                                            className="min-h-10"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Karakteristik Nyeri</Label>
-                                        <Select value={obsForm.data.pain_character} onValueChange={(v) => obsForm.setData('pain_character', v)}>
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue placeholder="Pilih" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.painCharacters.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Durasi Nyeri</Label>
-                                        <Input
-                                            value={obsForm.data.pain_duration}
-                                            onChange={(e) => obsForm.setData('pain_duration', e.target.value)}
-                                            placeholder="Intermiten / menetap"
-                                            className="min-h-10"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">Respons Antinyeri</Label>
-                                        <Select
-                                            value={obsForm.data.analgesic_response}
-                                            onValueChange={(v) => obsForm.setData('analgesic_response', v)}
-                                        >
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue placeholder="Pilih" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.analgesicResponses.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                    {!isNeuro && (
+                                        <>
+                                            <div>
+                                                <Label className="text-xs">Lokasi Nyeri</Label>
+                                                <Input
+                                                    value={obsForm.data.pain_location}
+                                                    onChange={(e) => obsForm.setData('pain_location', e.target.value)}
+                                                    placeholder="Area insisi"
+                                                    className="min-h-10"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">Karakteristik Nyeri</Label>
+                                                <Select
+                                                    value={obsForm.data.pain_character}
+                                                    onValueChange={(v) => obsForm.setData('pain_character', v)}
+                                                >
+                                                    <SelectTrigger className="min-h-10">
+                                                        <SelectValue placeholder="Pilih" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.painCharacters.map((o) => (
+                                                            <SelectItem key={o.value} value={o.value}>
+                                                                {o.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">Durasi Nyeri</Label>
+                                                <Input
+                                                    value={obsForm.data.pain_duration}
+                                                    onChange={(e) => obsForm.setData('pain_duration', e.target.value)}
+                                                    placeholder="Intermiten / menetap"
+                                                    className="min-h-10"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">Respons Antinyeri</Label>
+                                                <Select
+                                                    value={obsForm.data.analgesic_response}
+                                                    onValueChange={(v) => obsForm.setData('analgesic_response', v)}
+                                                >
+                                                    <SelectTrigger className="min-h-10">
+                                                        <SelectValue placeholder="Pilih" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.analgesicResponses.map((o) => (
+                                                            <SelectItem key={o.value} value={o.value}>
+                                                                {o.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-3 border-t pt-3 md:grid-cols-5">
@@ -826,13 +845,15 @@ export default function PostopPage({
                                             />
                                             <span>Mual / Muntah</span>
                                         </label>
-                                        <label className="flex cursor-pointer items-center gap-2">
-                                            <Checkbox
-                                                checked={obsForm.data.shivering_hypothermia}
-                                                onCheckedChange={(c) => obsForm.setData('shivering_hypothermia', c === true)}
-                                            />
-                                            <span>Menggigil / Hipotermia</span>
-                                        </label>
+                                        {!isNeuro && (
+                                            <label className="flex cursor-pointer items-center gap-2">
+                                                <Checkbox
+                                                    checked={obsForm.data.shivering_hypothermia}
+                                                    onCheckedChange={(c) => obsForm.setData('shivering_hypothermia', c === true)}
+                                                />
+                                                <span>Menggigil / Hipotermia</span>
+                                            </label>
+                                        )}
                                     </div>
                                     <div>
                                         <Label className="text-xs">Catatan Observasi</Label>
@@ -845,20 +866,22 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <Label className="text-xs font-semibold">Komplikasi Pasca-Operasi (centang bila ada)</Label>
-                                    <div className="flex flex-wrap gap-3">
-                                        {COMPLICATION_LABELS.map((c) => (
-                                            <label key={c.key} className="flex cursor-pointer items-center gap-2 text-xs">
-                                                <Checkbox
-                                                    checked={obsForm.data.complications.includes(c.key)}
-                                                    onCheckedChange={() => toggleComplication(c.key)}
-                                                />
-                                                <span>{c.label}</span>
-                                            </label>
-                                        ))}
+                                {!isNeuro && (
+                                    <div className="space-y-1.5">
+                                        <Label className="text-xs font-semibold">Komplikasi Pasca-Operasi (centang bila ada)</Label>
+                                        <div className="flex flex-wrap gap-3">
+                                            {COMPLICATION_LABELS.map((c) => (
+                                                <label key={c.key} className="flex cursor-pointer items-center gap-2 text-xs">
+                                                    <Checkbox
+                                                        checked={obsForm.data.complications.includes(c.key)}
+                                                        onCheckedChange={() => toggleComplication(c.key)}
+                                                    />
+                                                    <span>{c.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 <div className="space-y-3 border-t pt-3">
                                     <h4 className="text-foreground text-xs font-semibold">
@@ -1267,124 +1290,133 @@ export default function PostopPage({
                     </CardContent>
                 </Card>
 
-                {/* B. Diagnosis Keperawatan Pasca-Op + SLKI/SIKI */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <ListChecks className="text-primary h-5 w-5" />
-                            B. Diagnosis Keperawatan Pasca-Operasi + SLKI / SIKI (10 Master SDKI)
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {permissions.canEdit && (
-                            <form onSubmit={submitDiagnosis} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-3">
-                                <Select value={diagForm.data.nursing_diagnosis_id} onValueChange={(v) => diagForm.setData('nursing_diagnosis_id', v)}>
-                                    <SelectTrigger className="min-h-11">
-                                        <SelectValue placeholder="Pilih diagnosis pasca-op (master)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.masterNursingDiagnoses.map((d) => (
-                                            <SelectItem key={d.id} value={String(d.id)}>
-                                                {d.code ? `${d.code} - ` : ''}
-                                                {d.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <Input
-                                    value={diagForm.data.custom_text}
-                                    onChange={(e) => diagForm.setData('custom_text', e.target.value)}
-                                    placeholder="Atau teks diagnosis lainnya"
-                                    className="min-h-11"
-                                />
-                                <Button type="submit" className="min-h-11" disabled={diagForm.processing}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Tambah Diagnosis
-                                </Button>
-                            </form>
-                        )}
+                {/* B. Diagnosis Keperawatan Pasca-Op + SLKI/SIKI (disembunyikan untuk Bedah Saraf EDH sesuai SKPL) */}
+                {!isNeuro && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                                <ListChecks className="text-primary h-5 w-5" />
+                                B. Diagnosis Keperawatan Pasca-Operasi + SLKI / SIKI (10 Master SDKI)
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {permissions.canEdit && (
+                                <form onSubmit={submitDiagnosis} className="grid grid-cols-1 gap-3 rounded-lg border p-3 md:grid-cols-3">
+                                    <Select
+                                        value={diagForm.data.nursing_diagnosis_id}
+                                        onValueChange={(v) => diagForm.setData('nursing_diagnosis_id', v)}
+                                    >
+                                        <SelectTrigger className="min-h-11">
+                                            <SelectValue placeholder="Pilih diagnosis pasca-op (master)" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {options.masterNursingDiagnoses.map((d) => (
+                                                <SelectItem key={d.id} value={String(d.id)}>
+                                                    {d.code ? `${d.code} - ` : ''}
+                                                    {d.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        value={diagForm.data.custom_text}
+                                        onChange={(e) => diagForm.setData('custom_text', e.target.value)}
+                                        placeholder="Atau teks diagnosis lainnya"
+                                        className="min-h-11"
+                                    />
+                                    <Button type="submit" className="min-h-11" disabled={diagForm.processing}>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Tambah Diagnosis
+                                    </Button>
+                                </form>
+                            )}
 
-                        {caseNursingDiagnoses.length === 0 ? (
-                            <p className="text-muted-foreground text-center text-sm">Belum ada diagnosis keperawatan pasca-op ditambahkan.</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {caseNursingDiagnoses.map((cd) => (
-                                    <div key={cd.id} className="space-y-2 rounded-lg border p-4">
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="font-semibold">
-                                                {cd.code ? `${cd.code} - ` : ''}
-                                                {cd.name}
-                                            </div>
-                                            {permissions.canEdit && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        router.delete(route('cases.postop.remove-diagnosis', [caseHeader.id, cd.id]), {
-                                                            preserveScroll: true,
-                                                        })
-                                                    }
-                                                >
-                                                    <Trash2 className="text-destructive h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                        {cd.slki.length > 0 && (
-                                            <div className="text-muted-foreground text-xs">
-                                                <strong>Luaran SLKI:</strong>{' '}
-                                                {cd.slki.map((c) => `${c.criterion_text} (${c.expectation}, target ${c.target_score})`).join(' • ')}
-                                            </div>
-                                        )}
-                                        {cd.siki.map((int) => (
-                                            <div key={int.id} className="space-y-1 pt-1">
-                                                <div className="text-xs font-semibold">{int.name}</div>
-                                                <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
-                                                    {int.items.map((item) => (
-                                                        <label
-                                                            key={item.siki_item_id}
-                                                            className="hover:bg-muted/40 flex cursor-pointer items-start gap-2 rounded border px-2.5 py-1.5 text-xs"
-                                                        >
-                                                            <Checkbox
-                                                                checked={item.is_done}
-                                                                disabled={!permissions.canEdit || item.id === null}
-                                                                onCheckedChange={() => {
-                                                                    if (item.id !== null) {
-                                                                        router.post(
-                                                                            route('cases.postop.toggle-intervention', [caseHeader.id, item.id]),
-                                                                            {},
-                                                                            { preserveScroll: true },
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <span>
-                                                                <Badge variant="outline" className="mr-1 text-[10px]">
-                                                                    {item.section_label}
-                                                                </Badge>
-                                                                {item.text}
-                                                                {item.done_at && (
-                                                                    <span className="ml-1 font-medium text-emerald-700">({item.done_at})</span>
-                                                                )}
-                                                            </span>
-                                                        </label>
-                                                    ))}
+                            {caseNursingDiagnoses.length === 0 ? (
+                                <p className="text-muted-foreground text-center text-sm">Belum ada diagnosis keperawatan pasca-op ditambahkan.</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {caseNursingDiagnoses.map((cd) => (
+                                        <div key={cd.id} className="space-y-2 rounded-lg border p-4">
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="font-semibold">
+                                                    {cd.code ? `${cd.code} - ` : ''}
+                                                    {cd.name}
                                                 </div>
+                                                {permissions.canEdit && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            router.delete(route('cases.postop.remove-diagnosis', [caseHeader.id, cd.id]), {
+                                                                preserveScroll: true,
+                                                            })
+                                                        }
+                                                    >
+                                                        <Trash2 className="text-destructive h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </div>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                            {cd.slki.length > 0 && (
+                                                <div className="text-muted-foreground text-xs">
+                                                    <strong>Luaran SLKI:</strong>{' '}
+                                                    {cd.slki
+                                                        .map((c) => `${c.criterion_text} (${c.expectation}, target ${c.target_score})`)
+                                                        .join(' • ')}
+                                                </div>
+                                            )}
+                                            {cd.siki.map((int) => (
+                                                <div key={int.id} className="space-y-1 pt-1">
+                                                    <div className="text-xs font-semibold">{int.name}</div>
+                                                    <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2">
+                                                        {int.items.map((item) => (
+                                                            <label
+                                                                key={item.siki_item_id}
+                                                                className="hover:bg-muted/40 flex cursor-pointer items-start gap-2 rounded border px-2.5 py-1.5 text-xs"
+                                                            >
+                                                                <Checkbox
+                                                                    checked={item.is_done}
+                                                                    disabled={!permissions.canEdit || item.id === null}
+                                                                    onCheckedChange={() => {
+                                                                        if (item.id !== null) {
+                                                                            router.post(
+                                                                                route('cases.postop.toggle-intervention', [caseHeader.id, item.id]),
+                                                                                {},
+                                                                                { preserveScroll: true },
+                                                                            );
+                                                                        }
+                                                                    }}
+                                                                />
+                                                                <span>
+                                                                    <Badge variant="outline" className="mr-1 text-[10px]">
+                                                                        {item.section_label}
+                                                                    </Badge>
+                                                                    {item.text}
+                                                                    {item.done_at && (
+                                                                        <span className="ml-1 font-medium text-emerald-700">({item.done_at})</span>
+                                                                    )}
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* C. Kondisi Pasien Sebelum Dipindahkan (KF-17) */}
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <ClipboardCheck className="text-primary h-5 w-5" />
-                            C. Kondisi Pasien Sebelum Dipindahkan (Wajib Sebelum Serah Terima - KF-17)
+                            {isNeuro
+                                ? 'B. Pemindahan Pasien & Kondisi Sebelum Dipindahkan'
+                                : 'C. Kondisi Pasien Sebelum Dipindahkan (Wajib Sebelum Serah Terima - KF-17)'}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -1444,19 +1476,21 @@ export default function PostopPage({
                                             className="min-h-11"
                                         />
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label htmlFor="followup_iv_fluid_plan" className="text-xs">
-                                            Rencana Cairan Infus Lanjutan
-                                        </Label>
-                                        <Input
-                                            id="followup_iv_fluid_plan"
-                                            value={summaryForm.data.followup_plan.iv_fluid_plan ?? ''}
-                                            onChange={(e) => updateFollowupPlan('iv_fluid_plan', e.target.value)}
-                                            disabled={!permissions.canEdit}
-                                            placeholder="NaCl 0.9% / RL 20 tpm"
-                                            className="min-h-11"
-                                        />
-                                    </div>
+                                    {!isNeuro && (
+                                        <div className="space-y-1">
+                                            <Label htmlFor="followup_iv_fluid_plan" className="text-xs">
+                                                Rencana Cairan Infus Lanjutan
+                                            </Label>
+                                            <Input
+                                                id="followup_iv_fluid_plan"
+                                                value={summaryForm.data.followup_plan.iv_fluid_plan ?? ''}
+                                                onChange={(e) => updateFollowupPlan('iv_fluid_plan', e.target.value)}
+                                                disabled={!permissions.canEdit}
+                                                placeholder="NaCl 0.9% / RL 20 tpm"
+                                                className="min-h-11"
+                                            />
+                                        </div>
+                                    )}
                                     <div className="space-y-1 md:col-span-2">
                                         <Label htmlFor="followup_doctor_postop_instructions" className="text-xs">
                                             Instruksi Pasca-Operasi Dokter
@@ -1580,7 +1614,9 @@ export default function PostopPage({
                             <div>
                                 <CardTitle className="flex items-center gap-2 text-base">
                                     <ShieldCheck className="text-primary h-5 w-5" />
-                                    D. Verifikasi & Koreksi Dokter (Pasca-Operasi - KF-38)
+                                    {isNeuro
+                                        ? 'C. Verifikasi & Koreksi Dokter (Pasca-Operasi - KF-38)'
+                                        : 'D. Verifikasi & Koreksi Dokter (Pasca-Operasi - KF-38)'}
                                 </CardTitle>
                                 <CardDescription>
                                     Dokter kasus dapat memverifikasi pasca-op atau melakukan koreksi medis (dengan alasan wajib, termasuk setelah

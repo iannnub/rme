@@ -53,7 +53,7 @@ test('master seeder dan demo seeder bersifat idempoten serta menghasilkan seluru
     expect(SscSignIn::query()->count())->toBe(3);
     expect(SscTimeOut::query()->count())->toBe(2);
     expect(SscSignOut::query()->count())->toBe(2);
-    expect(InstrumentCount::query()->count())->toBe(10);
+    expect(InstrumentCount::query()->count())->toBe(8);
     expect(Handover::query()->count())->toBe(1);
 
     expect(Patient::query()->where('rm_number', 'DEMO-001')->exists())->toBeTrue();

@@ -67,6 +67,9 @@ export default function HandoverPage({ caseHeader, canHandoverNow, summaryItems,
         });
     };
 
+    const isNeuro = caseHeader.surgery_profile === 'bedah_saraf';
+    const destinationOptions = isNeuro ? options.destinations.filter((d) => d.value !== 'lainnya') : options.destinations;
+
     const formErrors = form.errors as Record<string, string | undefined>;
 
     return (
@@ -165,7 +168,7 @@ export default function HandoverPage({ caseHeader, canHandoverNow, summaryItems,
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {options.destinations.map((d) => (
+                                            {destinationOptions.map((d) => (
                                                 <SelectItem key={d.value} value={d.value}>
                                                     {d.label}
                                                 </SelectItem>

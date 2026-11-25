@@ -1,4 +1,5 @@
 import { PreopAnesthesiaCard } from '@/components/cases/preop/PreopAnesthesiaCard';
+import { PreopEdhForm } from '@/components/cases/preop/PreopEdhForm';
 import { PreopNeuroDetailsCard } from '@/components/cases/preop/PreopNeuroDetailsCard';
 import { PreopOrthoDetailsCard } from '@/components/cases/preop/PreopOrthoDetailsCard';
 import { type PreopClinicalDetails, type UpdateClinicalFieldFn } from '@/components/cases/preop/types';
@@ -176,6 +177,12 @@ interface PreopPageProps {
     canManage: boolean;
     canSign: boolean;
     canVerify: boolean;
+    prepProgress?: {
+        instrument_checks_count: number;
+        instrument_checks_ready: boolean;
+        ssc_sign_in_status: string;
+        ssc_sign_in_label: string;
+    };
 }
 
 export default function PreopPage({
@@ -190,6 +197,7 @@ export default function PreopPage({
     canManage,
     canSign,
     canVerify,
+    prepProgress,
 }: PreopPageProps) {
     const { flash } = usePage<{ flash?: { success?: string; error?: string } }>().props;
 
@@ -309,6 +317,10 @@ export default function PreopPage({
         e.preventDefault();
         mainForm.transform((data) => ({
             ...data,
+            vital_signs: {
+                ...data.vital_signs,
+                recorded_at: data.vital_signs.recorded_at || new Date().toISOString().slice(0, 16),
+            },
             expected_updated_at: assessment.updated_at ?? '',
             supporting_exams: exams.filter((x) => x.exam_type && x.result.trim() !== ''),
         }));
@@ -521,963 +533,1034 @@ export default function PreopPage({
                 </div>
 
                 <form onSubmit={handleSaveMainForm} className="space-y-6">
-                    {/* BAGIAN A: Rencana Tindakan Operasi */}
-                    <Card>
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-base font-semibold">A. Rencana Tindakan Operasi</CardTitle>
-                            <CardDescription>Diagnosis medis, prosedur bedah yang direncanakan, dan dokter penanggung jawab.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            <div className="space-y-2">
-                                <Label htmlFor="med_diag">Diagnosis Medis</Label>
-                                <Select
-                                    value={mainForm.data.medical_diagnosis_id}
-                                    onValueChange={(val) => mainForm.setData('medical_diagnosis_id', val)}
-                                    disabled={!canManage}
-                                >
-                                    <SelectTrigger id="med_diag">
-                                        <SelectValue placeholder="Pilih Diagnosis Medis" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.medicalDiagnoses.map((d) => (
-                                            <SelectItem key={d.id} value={String(d.id)}>
-                                                {d.name}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectItem value="other">Diagnosis Lainnya (Ketik Manual)</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {mainForm.data.medical_diagnosis_id === 'other' && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="med_diag_other">Diagnosis Medis Lainnya</Label>
-                                    <Input
-                                        id="med_diag_other"
-                                        value={mainForm.data.medical_diagnosis_other}
-                                        onChange={(e) => mainForm.setData('medical_diagnosis_other', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Ketik diagnosis medis..."
-                                    />
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <Label htmlFor="surg_type">Jenis Operasi</Label>
-                                <Select
-                                    value={mainForm.data.surgery_type_id}
-                                    onValueChange={(val) => {
-                                        const chosen = options.surgeryTypes.find((t) => String(t.id) === val);
-                                        mainForm.setData((prev) => ({
-                                            ...prev,
-                                            surgery_type_id: val,
-                                            medical_diagnosis_id: chosen?.default_medical_diagnosis_id
-                                                ? String(chosen.default_medical_diagnosis_id)
-                                                : prev.medical_diagnosis_id,
-                                        }));
-                                    }}
-                                    disabled={!canManage}
-                                >
-                                    <SelectTrigger id="surg_type">
-                                        <SelectValue placeholder="Pilih Jenis Operasi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.surgeryTypes.map((t) => (
-                                            <SelectItem key={t.id} value={String(t.id)}>
-                                                {t.name}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectItem value="other">Jenis Operasi Lainnya</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {mainForm.data.surgery_type_id === 'other' && (
-                                <div className="space-y-2">
-                                    <Label htmlFor="surg_type_other">Jenis Operasi Lainnya</Label>
-                                    <Input
-                                        id="surg_type_other"
-                                        value={mainForm.data.surgery_type_other}
-                                        onChange={(e) => mainForm.setData('surgery_type_other', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Ketik jenis operasi..."
-                                    />
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <Label htmlFor="surgery_site">Lokasi / Sisi Operasi</Label>
-                                <Input
-                                    id="surgery_site"
-                                    value={mainForm.data.surgery_site}
-                                    onChange={(e) => mainForm.setData('surgery_site', e.target.value)}
-                                    disabled={!canManage}
-                                    placeholder="Contoh: Abdomen kanan bawah"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="anest_type">Jenis Anestesi</Label>
-                                <Select
-                                    value={mainForm.data.anesthesia_type_id}
-                                    onValueChange={(val) => mainForm.setData('anesthesia_type_id', val)}
-                                    disabled={!canManage}
-                                >
-                                    <SelectTrigger id="anest_type">
-                                        <SelectValue placeholder="Pilih Jenis Anestesi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.anesthesiaTypes.map((a) => (
-                                            <SelectItem key={a.id} value={String(a.id)}>
-                                                {a.name} ({a.code})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="surgeon_id">Dokter Operator</Label>
-                                <Select
-                                    value={mainForm.data.surgeon_id}
-                                    onValueChange={(val) => mainForm.setData('surgeon_id', val)}
-                                    disabled={!canManage}
-                                >
-                                    <SelectTrigger id="surgeon_id">
-                                        <SelectValue placeholder="Pilih Dokter Operator" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.surgeons.map((s) => (
-                                            <SelectItem key={s.id} value={String(s.id)}>
-                                                {s.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="anesthesiologist_id">Dokter Anestesi</Label>
-                                <Select
-                                    value={mainForm.data.anesthesiologist_id}
-                                    onValueChange={(val) => mainForm.setData('anesthesiologist_id', val)}
-                                    disabled={!canManage}
-                                >
-                                    <SelectTrigger id="anesthesiologist_id">
-                                        <SelectValue placeholder="Pilih Dokter Anestesi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {options.anesthesiologists.map((a) => (
-                                            <SelectItem key={a.id} value={String(a.id)}>
-                                                {a.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* BAGIAN B: Asesmen Praoperasi */}
-                    <Card>
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-base font-semibold">B. Asesmen Praoperasi (Anamnesis & Riwayat)</CardTitle>
-                            <CardDescription>Riwayat keluhan, alergi, puasa, riwayat anestesi, dan pengobatan.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="chief_complaint">Keluhan Utama</Label>
-                                    <Input
-                                        id="chief_complaint"
-                                        value={mainForm.data.chief_complaint}
-                                        onChange={(e) => mainForm.setData('chief_complaint', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Keluhan utama pasien saat ini..."
-                                    />
-                                    <InputError message={mainForm.errors.chief_complaint} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="current_illness_history">Riwayat Penyakit Sekarang</Label>
-                                    <Input
-                                        id="current_illness_history"
-                                        value={mainForm.data.current_illness_history}
-                                        onChange={(e) => mainForm.setData('current_illness_history', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Perjalanan penyakit yang dialami..."
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="past_illness_history">Riwayat Penyakit Dahulu</Label>
-                                    <Input
-                                        id="past_illness_history"
-                                        value={mainForm.data.past_illness_history}
-                                        onChange={(e) => mainForm.setData('past_illness_history', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Riwayat penyakit terdahulu..."
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="surgery_history">Riwayat Operasi Sebelumnya</Label>
-                                    <Input
-                                        id="surgery_history"
-                                        value={mainForm.data.surgery_history}
-                                        onChange={(e) => mainForm.setData('surgery_history', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Riwayat pembedahan sebelumnya..."
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Alergi (KF-2) */}
-                            <div className="bg-muted/30 grid grid-cols-1 items-start gap-4 rounded-lg border p-3 md:grid-cols-3">
-                                <div className="space-y-2">
-                                    <Label htmlFor="allergy_status" className="flex items-center gap-1.5 font-semibold">
-                                        <ShieldAlert className="h-4 w-4 text-amber-500" />
-                                        Riwayat Alergi
-                                    </Label>
-                                    <Select
-                                        value={mainForm.data.allergy_status}
-                                        onValueChange={(val) => mainForm.setData('allergy_status', val)}
-                                        disabled={!canManage}
-                                    >
-                                        <SelectTrigger id="allergy_status">
-                                            <SelectValue placeholder="Pilih Status Alergi" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.allergyStatuses.map((s) => (
-                                                <SelectItem key={s.value} value={s.value}>
-                                                    {s.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError message={mainForm.errors.allergy_status} />
-                                </div>
-
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="allergy_detail">
-                                        Detail Alergi{' '}
-                                        {mainForm.data.allergy_status === 'ada' && <span className="text-red-500">* (Wajib diisi)</span>}
-                                    </Label>
-                                    <Input
-                                        id="allergy_detail"
-                                        value={mainForm.data.allergy_detail}
-                                        onChange={(e) => mainForm.setData('allergy_detail', e.target.value)}
-                                        disabled={!canManage || mainForm.data.allergy_status !== 'ada'}
-                                        placeholder={
-                                            mainForm.data.allergy_status === 'ada' ? 'Sebutkan alergi obat/makanan/lateks...' : 'Tidak ada alergi'
-                                        }
-                                    />
-                                    <InputError message={mainForm.errors.allergy_detail} />
-                                </div>
-                            </div>
-
-                            {/* Puasa & Penggunaan Obat */}
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="bg-muted/30 space-y-3 rounded-lg border p-3">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                            id="fasting_status"
-                                            checked={mainForm.data.fasting_status}
-                                            onCheckedChange={(checked) => mainForm.setData('fasting_status', Boolean(checked))}
+                    {activeSurgeryProfile === 'bedah_saraf' ? (
+                        <PreopEdhForm
+                            caseHeader={caseHeader}
+                            prepProgress={
+                                prepProgress ?? {
+                                    instrument_checks_count: 0,
+                                    instrument_checks_ready: false,
+                                    ssc_sign_in_status: 'belum',
+                                    ssc_sign_in_label: 'Belum Diisi',
+                                }
+                            }
+                            data={mainForm.data}
+                            errors={mainForm.errors as Record<string, string | undefined>}
+                            options={options}
+                            canManage={canManage}
+                            onSetField={(field, value) => mainForm.setData((prev) => ({ ...prev, [field]: value }))}
+                            onUpdateClinical={updateClinicalField}
+                            onUpdateVital={(field, value) =>
+                                mainForm.setData('vital_signs', {
+                                    ...mainForm.data.vital_signs,
+                                    [field]: value,
+                                })
+                            }
+                            onTogglePrep={(field, checked) =>
+                                mainForm.setData('preparation', {
+                                    ...mainForm.data.preparation,
+                                    [field]: checked,
+                                })
+                            }
+                        />
+                    ) : (
+                        <>
+                            {/* BAGIAN A: Rencana Tindakan Operasi */}
+                            <Card>
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-base font-semibold">A. Rencana Tindakan Operasi</CardTitle>
+                                    <CardDescription>Diagnosis medis, prosedur bedah yang direncanakan, dan dokter penanggung jawab.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="med_diag">Diagnosis Medis</Label>
+                                        <Select
+                                            value={mainForm.data.medical_diagnosis_id}
+                                            onValueChange={(val) => mainForm.setData('medical_diagnosis_id', val)}
                                             disabled={!canManage}
-                                        />
-                                        <Label htmlFor="fasting_status" className="cursor-pointer font-medium">
-                                            Pasien Sudah Puasa
-                                        </Label>
+                                        >
+                                            <SelectTrigger id="med_diag">
+                                                <SelectValue placeholder="Pilih Diagnosis Medis" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.medicalDiagnoses.map((d) => (
+                                                    <SelectItem key={d.id} value={String(d.id)}>
+                                                        {d.name}
+                                                    </SelectItem>
+                                                ))}
+                                                <SelectItem value="other">Diagnosis Lainnya (Ketik Manual)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                    {mainForm.data.fasting_status && (
-                                        <div className="space-y-1">
-                                            <Label htmlFor="fasting_since" className="text-xs">
-                                                Puasa Sejak Jam Berapa <span className="text-red-500">*</span>
-                                            </Label>
+
+                                    {mainForm.data.medical_diagnosis_id === 'other' && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="med_diag_other">Diagnosis Medis Lainnya</Label>
                                             <Input
-                                                id="fasting_since"
-                                                type="datetime-local"
-                                                value={mainForm.data.fasting_since}
-                                                onChange={(e) => mainForm.setData('fasting_since', e.target.value)}
+                                                id="med_diag_other"
+                                                value={mainForm.data.medical_diagnosis_other}
+                                                onChange={(e) => mainForm.setData('medical_diagnosis_other', e.target.value)}
                                                 disabled={!canManage}
+                                                placeholder="Ketik diagnosis medis..."
                                             />
-                                            <InputError message={mainForm.errors.fasting_since} />
                                         </div>
                                     )}
-                                </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="medication_history">Riwayat Penggunaan Obat Rutin</Label>
-                                    <Input
-                                        id="medication_history"
-                                        value={mainForm.data.medication_history}
-                                        onChange={(e) => mainForm.setData('medication_history', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Obat antihipertensi, antikoagulan, insulin..."
-                                    />
-                                </div>
-                            </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="surg_type">Jenis Operasi</Label>
+                                        <Select
+                                            value={mainForm.data.surgery_type_id}
+                                            onValueChange={(val) => {
+                                                const chosen = options.surgeryTypes.find((t) => String(t.id) === val);
+                                                mainForm.setData((prev) => ({
+                                                    ...prev,
+                                                    surgery_type_id: val,
+                                                    medical_diagnosis_id: chosen?.default_medical_diagnosis_id
+                                                        ? String(chosen.default_medical_diagnosis_id)
+                                                        : prev.medical_diagnosis_id,
+                                                }));
+                                            }}
+                                            disabled={!canManage}
+                                        >
+                                            <SelectTrigger id="surg_type">
+                                                <SelectValue placeholder="Pilih Jenis Operasi" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.surgeryTypes.map((t) => (
+                                                    <SelectItem key={t.id} value={String(t.id)}>
+                                                        {t.name}
+                                                    </SelectItem>
+                                                ))}
+                                                <SelectItem value="other">Jenis Operasi Lainnya</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="anesthesia_history">Riwayat Anestesi Sebelumnya</Label>
-                                    <Input
-                                        id="anesthesia_history"
-                                        value={mainForm.data.anesthesia_history}
-                                        onChange={(e) => mainForm.setData('anesthesia_history', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Riwayat komplikasi atau reaksi anestesi..."
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="skin_condition">Kondisi Kulit</Label>
-                                    <Input
-                                        id="skin_condition"
-                                        value={mainForm.data.skin_condition}
-                                        onChange={(e) => mainForm.setData('skin_condition', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Kulit utuh, lesi, ruam, turgor..."
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                    {mainForm.data.surgery_type_id === 'other' && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="surg_type_other">Jenis Operasi Lainnya</Label>
+                                            <Input
+                                                id="surg_type_other"
+                                                value={mainForm.data.surgery_type_other}
+                                                onChange={(e) => mainForm.setData('surgery_type_other', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Ketik jenis operasi..."
+                                            />
+                                        </div>
+                                    )}
 
-                    {/* BAGIAN C: Pemeriksaan Fisik & TTV (KF-3) */}
-                    <Card>
-                        <CardHeader className="pb-4">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                                        <HeartPulse className="h-5 w-5 text-rose-500" />
-                                        C. Pemeriksaan Fisik & Tanda-Tanda Vital
-                                    </CardTitle>
-                                    <CardDescription>TTV pra-bedah untuk dasar pemantauan kestabilan hemodinamik.</CardDescription>
-                                </div>
-                                {(bpWarning || pulseWarning || tempWarning || rrWarning || spo2Warning) && (
-                                    <Badge
-                                        variant="outline"
-                                        className="flex items-center gap-1 border-amber-300 bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-300"
-                                    >
-                                        <AlertTriangle className="h-3.5 w-3.5" />
-                                        Peringatan: TTV di luar batas normal
-                                    </Badge>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="bp_systolic" className="text-xs">
-                                        TD Sistolik (mmHg)
-                                    </Label>
-                                    <Input
-                                        id="bp_systolic"
-                                        type="number"
-                                        value={mainForm.data.vital_signs.bp_systolic}
-                                        onChange={(e) =>
-                                            mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, bp_systolic: e.target.value })
-                                        }
-                                        disabled={!canManage}
-                                        placeholder="120"
-                                    />
-                                    {bpWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 90–140</p>}
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="surgery_site">Lokasi / Sisi Operasi</Label>
+                                        <Input
+                                            id="surgery_site"
+                                            value={mainForm.data.surgery_site}
+                                            onChange={(e) => mainForm.setData('surgery_site', e.target.value)}
+                                            disabled={!canManage}
+                                            placeholder="Contoh: Abdomen kanan bawah"
+                                        />
+                                    </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="bp_diastolic" className="text-xs">
-                                        TD Diastolik (mmHg)
-                                    </Label>
-                                    <Input
-                                        id="bp_diastolic"
-                                        type="number"
-                                        value={mainForm.data.vital_signs.bp_diastolic}
-                                        onChange={(e) =>
-                                            mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, bp_diastolic: e.target.value })
-                                        }
-                                        disabled={!canManage}
-                                        placeholder="80"
-                                    />
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="anest_type">Jenis Anestesi</Label>
+                                        <Select
+                                            value={mainForm.data.anesthesia_type_id}
+                                            onValueChange={(val) => mainForm.setData('anesthesia_type_id', val)}
+                                            disabled={!canManage}
+                                        >
+                                            <SelectTrigger id="anest_type">
+                                                <SelectValue placeholder="Pilih Jenis Anestesi" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.anesthesiaTypes.map((a) => (
+                                                    <SelectItem key={a.id} value={String(a.id)}>
+                                                        {a.name} ({a.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="pulse" className="text-xs">
-                                        Nadi (x/menit)
-                                    </Label>
-                                    <Input
-                                        id="pulse"
-                                        type="number"
-                                        value={mainForm.data.vital_signs.pulse}
-                                        onChange={(e) => mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, pulse: e.target.value })}
-                                        disabled={!canManage}
-                                        placeholder="80"
-                                    />
-                                    {pulseWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 60–100</p>}
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="surgeon_id">Dokter Operator</Label>
+                                        <Select
+                                            value={mainForm.data.surgeon_id}
+                                            onValueChange={(val) => mainForm.setData('surgeon_id', val)}
+                                            disabled={!canManage}
+                                        >
+                                            <SelectTrigger id="surgeon_id">
+                                                <SelectValue placeholder="Pilih Dokter Operator" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.surgeons.map((s) => (
+                                                    <SelectItem key={s.id} value={String(s.id)}>
+                                                        {s.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="temperature" className="text-xs">
-                                        Suhu (°C)
-                                    </Label>
-                                    <Input
-                                        id="temperature"
-                                        type="number"
-                                        step="0.1"
-                                        value={mainForm.data.vital_signs.temperature}
-                                        onChange={(e) =>
-                                            mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, temperature: e.target.value })
-                                        }
-                                        disabled={!canManage}
-                                        placeholder="36.5"
-                                    />
-                                    {tempWarning && <p className="text-[11px] font-medium text-amber-600">Di luar 36.0–37.5°C</p>}
-                                </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="anesthesiologist_id">Dokter Anestesi</Label>
+                                        <Select
+                                            value={mainForm.data.anesthesiologist_id}
+                                            onValueChange={(val) => mainForm.setData('anesthesiologist_id', val)}
+                                            disabled={!canManage}
+                                        >
+                                            <SelectTrigger id="anesthesiologist_id">
+                                                <SelectValue placeholder="Pilih Dokter Anestesi" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {options.anesthesiologists.map((a) => (
+                                                    <SelectItem key={a.id} value={String(a.id)}>
+                                                        {a.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="rr" className="text-xs">
-                                        Pernapasan / RR (x/mnt)
-                                    </Label>
-                                    <Input
-                                        id="rr"
-                                        type="number"
-                                        value={mainForm.data.vital_signs.respiratory_rate}
-                                        onChange={(e) =>
-                                            mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, respiratory_rate: e.target.value })
-                                        }
-                                        disabled={!canManage}
-                                        placeholder="18"
-                                    />
-                                    {rrWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 12–22</p>}
-                                </div>
+                            {/* BAGIAN B: Asesmen Praoperasi */}
+                            <Card>
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-base font-semibold">B. Asesmen Praoperasi (Anamnesis & Riwayat)</CardTitle>
+                                    <CardDescription>Riwayat keluhan, alergi, puasa, riwayat anestesi, dan pengobatan.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="chief_complaint">Keluhan Utama</Label>
+                                            <Input
+                                                id="chief_complaint"
+                                                value={mainForm.data.chief_complaint}
+                                                onChange={(e) => mainForm.setData('chief_complaint', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Keluhan utama pasien saat ini..."
+                                            />
+                                            <InputError message={mainForm.errors.chief_complaint} />
+                                        </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="spo2" className="text-xs">
-                                        SpO2 (%)
-                                    </Label>
-                                    <Input
-                                        id="spo2"
-                                        type="number"
-                                        value={mainForm.data.vital_signs.spo2}
-                                        onChange={(e) => mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, spo2: e.target.value })}
-                                        disabled={!canManage}
-                                        placeholder="98"
-                                    />
-                                    {spo2Warning && <p className="text-[11px] font-medium text-amber-600">SpO2 &lt; 95%</p>}
-                                </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="current_illness_history">Riwayat Penyakit Sekarang</Label>
+                                            <Input
+                                                id="current_illness_history"
+                                                value={mainForm.data.current_illness_history}
+                                                onChange={(e) => mainForm.setData('current_illness_history', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Perjalanan penyakit yang dialami..."
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="weight_kg" className="text-xs">
-                                        Berat Badan (kg)
-                                    </Label>
-                                    <Input
-                                        id="weight_kg"
-                                        type="number"
-                                        step="0.1"
-                                        value={mainForm.data.vital_signs.weight_kg}
-                                        onChange={(e) => mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, weight_kg: e.target.value })}
-                                        disabled={!canManage}
-                                        placeholder="60"
-                                    />
-                                </div>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="past_illness_history">Riwayat Penyakit Dahulu</Label>
+                                            <Input
+                                                id="past_illness_history"
+                                                value={mainForm.data.past_illness_history}
+                                                onChange={(e) => mainForm.setData('past_illness_history', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Riwayat penyakit terdahulu..."
+                                            />
+                                        </div>
 
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="height_cm" className="text-xs">
-                                        Tinggi Badan (cm)
-                                    </Label>
-                                    <Input
-                                        id="height_cm"
-                                        type="number"
-                                        step="0.1"
-                                        value={mainForm.data.vital_signs.height_cm}
-                                        onChange={(e) => mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, height_cm: e.target.value })}
-                                        disabled={!canManage}
-                                        placeholder="165"
-                                    />
-                                </div>
-                            </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="surgery_history">Riwayat Operasi Sebelumnya</Label>
+                                            <Input
+                                                id="surgery_history"
+                                                value={mainForm.data.surgery_history}
+                                                onChange={(e) => mainForm.setData('surgery_history', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Riwayat pembedahan sebelumnya..."
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="consciousness">Tingkat Kesadaran</Label>
-                                    <Select
-                                        value={mainForm.data.vital_signs.consciousness}
-                                        onValueChange={(val) => mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, consciousness: val })}
-                                        disabled={!canManage}
-                                    >
-                                        <SelectTrigger id="consciousness">
-                                            <SelectValue placeholder="Pilih Kesadaran" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {options.consciousnessList.map((c) => (
-                                                <SelectItem key={c.value} value={c.value}>
-                                                    {c.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="vital_recorded_at">Waktu Pengukuran TTV</Label>
-                                    <Input
-                                        id="vital_recorded_at"
-                                        type="datetime-local"
-                                        value={mainForm.data.vital_signs.recorded_at}
-                                        onChange={(e) =>
-                                            mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, recorded_at: e.target.value })
-                                        }
-                                        disabled={!canManage}
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* BAGIAN D: Pemeriksaan Penunjang (KF-19) */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-4">
-                            <div>
-                                <CardTitle className="text-base font-semibold">D. Pemeriksaan Penunjang</CardTitle>
-                                <CardDescription>Laboratorium, radiologi, dan pemeriksaan diagnostik lainnya.</CardDescription>
-                            </div>
-                            {canManage && (
-                                <Button type="button" variant="outline" size="sm" onClick={addExamRow} className="gap-1.5">
-                                    <Plus className="h-3.5 w-3.5" />
-                                    Tambah Pemeriksaan
-                                </Button>
-                            )}
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {exams.map((row, index) => (
-                                    <div
-                                        key={index}
-                                        className="bg-muted/20 grid grid-cols-1 items-center gap-2 rounded-lg border p-2 sm:grid-cols-12"
-                                    >
-                                        <div className="sm:col-span-4">
+                                    {/* Alergi (KF-2) */}
+                                    <div className="bg-muted/30 grid grid-cols-1 items-start gap-4 rounded-lg border p-3 md:grid-cols-3">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="allergy_status" className="flex items-center gap-1.5 font-semibold">
+                                                <ShieldAlert className="h-4 w-4 text-amber-500" />
+                                                Riwayat Alergi
+                                            </Label>
                                             <Select
-                                                value={row.exam_type}
-                                                onValueChange={(val) => updateExamRow(index, 'exam_type', val)}
+                                                value={mainForm.data.allergy_status}
+                                                onValueChange={(val) => mainForm.setData('allergy_status', val)}
                                                 disabled={!canManage}
                                             >
-                                                <SelectTrigger className="h-9">
-                                                    <SelectValue placeholder="Jenis Pemeriksaan" />
+                                                <SelectTrigger id="allergy_status">
+                                                    <SelectValue placeholder="Pilih Status Alergi" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {options.examTypes.map((t) => (
-                                                        <SelectItem key={t.value} value={t.value}>
-                                                            {t.label}
+                                                    {options.allergyStatuses.map((s) => (
+                                                        <SelectItem key={s.value} value={s.value}>
+                                                            {s.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <InputError message={mainForm.errors.allergy_status} />
+                                        </div>
+
+                                        <div className="space-y-2 md:col-span-2">
+                                            <Label htmlFor="allergy_detail">
+                                                Detail Alergi{' '}
+                                                {mainForm.data.allergy_status === 'ada' && <span className="text-red-500">* (Wajib diisi)</span>}
+                                            </Label>
+                                            <Input
+                                                id="allergy_detail"
+                                                value={mainForm.data.allergy_detail}
+                                                onChange={(e) => mainForm.setData('allergy_detail', e.target.value)}
+                                                disabled={!canManage || mainForm.data.allergy_status !== 'ada'}
+                                                placeholder={
+                                                    mainForm.data.allergy_status === 'ada'
+                                                        ? 'Sebutkan alergi obat/makanan/lateks...'
+                                                        : 'Tidak ada alergi'
+                                                }
+                                            />
+                                            <InputError message={mainForm.errors.allergy_detail} />
+                                        </div>
+                                    </div>
+
+                                    {/* Puasa & Penggunaan Obat */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="bg-muted/30 space-y-3 rounded-lg border p-3">
+                                            <div className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id="fasting_status"
+                                                    checked={mainForm.data.fasting_status}
+                                                    onCheckedChange={(checked) => mainForm.setData('fasting_status', Boolean(checked))}
+                                                    disabled={!canManage}
+                                                />
+                                                <Label htmlFor="fasting_status" className="cursor-pointer font-medium">
+                                                    Pasien Sudah Puasa
+                                                </Label>
+                                            </div>
+                                            {mainForm.data.fasting_status && (
+                                                <div className="space-y-1">
+                                                    <Label htmlFor="fasting_since" className="text-xs">
+                                                        Puasa Sejak Jam Berapa <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <Input
+                                                        id="fasting_since"
+                                                        type="datetime-local"
+                                                        value={mainForm.data.fasting_since}
+                                                        onChange={(e) => mainForm.setData('fasting_since', e.target.value)}
+                                                        disabled={!canManage}
+                                                    />
+                                                    <InputError message={mainForm.errors.fasting_since} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="medication_history">Riwayat Penggunaan Obat Rutin</Label>
+                                            <Input
+                                                id="medication_history"
+                                                value={mainForm.data.medication_history}
+                                                onChange={(e) => mainForm.setData('medication_history', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Obat antihipertensi, antikoagulan, insulin..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="anesthesia_history">Riwayat Anestesi Sebelumnya</Label>
+                                            <Input
+                                                id="anesthesia_history"
+                                                value={mainForm.data.anesthesia_history}
+                                                onChange={(e) => mainForm.setData('anesthesia_history', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Riwayat komplikasi atau reaksi anestesi..."
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="skin_condition">Kondisi Kulit</Label>
+                                            <Input
+                                                id="skin_condition"
+                                                value={mainForm.data.skin_condition}
+                                                onChange={(e) => mainForm.setData('skin_condition', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Kulit utuh, lesi, ruam, turgor..."
+                                            />
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* BAGIAN C: Pemeriksaan Fisik & TTV (KF-3) */}
+                            <Card>
+                                <CardHeader className="pb-4">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                                                <HeartPulse className="h-5 w-5 text-rose-500" />
+                                                C. Pemeriksaan Fisik & Tanda-Tanda Vital
+                                            </CardTitle>
+                                            <CardDescription>TTV pra-bedah untuk dasar pemantauan kestabilan hemodinamik.</CardDescription>
+                                        </div>
+                                        {(bpWarning || pulseWarning || tempWarning || rrWarning || spo2Warning) && (
+                                            <Badge
+                                                variant="outline"
+                                                className="flex items-center gap-1 border-amber-300 bg-amber-50 text-amber-800 dark:bg-amber-950/20 dark:text-amber-300"
+                                            >
+                                                <AlertTriangle className="h-3.5 w-3.5" />
+                                                Peringatan: TTV di luar batas normal
+                                            </Badge>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="bp_systolic" className="text-xs">
+                                                TD Sistolik (mmHg)
+                                            </Label>
+                                            <Input
+                                                id="bp_systolic"
+                                                type="number"
+                                                value={mainForm.data.vital_signs.bp_systolic}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, bp_systolic: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="120"
+                                            />
+                                            {bpWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 90–140</p>}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="bp_diastolic" className="text-xs">
+                                                TD Diastolik (mmHg)
+                                            </Label>
+                                            <Input
+                                                id="bp_diastolic"
+                                                type="number"
+                                                value={mainForm.data.vital_signs.bp_diastolic}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, bp_diastolic: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="80"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="pulse" className="text-xs">
+                                                Nadi (x/menit)
+                                            </Label>
+                                            <Input
+                                                id="pulse"
+                                                type="number"
+                                                value={mainForm.data.vital_signs.pulse}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, pulse: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="80"
+                                            />
+                                            {pulseWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 60–100</p>}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="temperature" className="text-xs">
+                                                Suhu (°C)
+                                            </Label>
+                                            <Input
+                                                id="temperature"
+                                                type="number"
+                                                step="0.1"
+                                                value={mainForm.data.vital_signs.temperature}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, temperature: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="36.5"
+                                            />
+                                            {tempWarning && <p className="text-[11px] font-medium text-amber-600">Di luar 36.0–37.5°C</p>}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="rr" className="text-xs">
+                                                Pernapasan / RR (x/mnt)
+                                            </Label>
+                                            <Input
+                                                id="rr"
+                                                type="number"
+                                                value={mainForm.data.vital_signs.respiratory_rate}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', {
+                                                        ...mainForm.data.vital_signs,
+                                                        respiratory_rate: e.target.value,
+                                                    })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="18"
+                                            />
+                                            {rrWarning && <p className="text-[11px] font-medium text-amber-600">Di luar rentang 12–22</p>}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="spo2" className="text-xs">
+                                                SpO2 (%)
+                                            </Label>
+                                            <Input
+                                                id="spo2"
+                                                type="number"
+                                                value={mainForm.data.vital_signs.spo2}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, spo2: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="98"
+                                            />
+                                            {spo2Warning && <p className="text-[11px] font-medium text-amber-600">SpO2 &lt; 95%</p>}
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="weight_kg" className="text-xs">
+                                                Berat Badan (kg)
+                                            </Label>
+                                            <Input
+                                                id="weight_kg"
+                                                type="number"
+                                                step="0.1"
+                                                value={mainForm.data.vital_signs.weight_kg}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, weight_kg: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="60"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="height_cm" className="text-xs">
+                                                Tinggi Badan (cm)
+                                            </Label>
+                                            <Input
+                                                id="height_cm"
+                                                type="number"
+                                                step="0.1"
+                                                value={mainForm.data.vital_signs.height_cm}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, height_cm: e.target.value })
+                                                }
+                                                disabled={!canManage}
+                                                placeholder="165"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="consciousness">Tingkat Kesadaran</Label>
+                                            <Select
+                                                value={mainForm.data.vital_signs.consciousness}
+                                                onValueChange={(val) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, consciousness: val })
+                                                }
+                                                disabled={!canManage}
+                                            >
+                                                <SelectTrigger id="consciousness">
+                                                    <SelectValue placeholder="Pilih Kesadaran" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {options.consciousnessList.map((c) => (
+                                                        <SelectItem key={c.value} value={c.value}>
+                                                            {c.label}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="sm:col-span-5">
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="vital_recorded_at">Waktu Pengukuran TTV</Label>
                                             <Input
-                                                className="h-9"
-                                                placeholder="Hasil pemeriksaan..."
-                                                value={row.result}
-                                                onChange={(e) => updateExamRow(index, 'result', e.target.value)}
+                                                id="vital_recorded_at"
+                                                type="datetime-local"
+                                                value={mainForm.data.vital_signs.recorded_at}
+                                                onChange={(e) =>
+                                                    mainForm.setData('vital_signs', { ...mainForm.data.vital_signs, recorded_at: e.target.value })
+                                                }
                                                 disabled={!canManage}
                                             />
                                         </div>
-                                        <div className="sm:col-span-2">
-                                            <Input
-                                                className="h-9"
-                                                type="date"
-                                                value={row.exam_date}
-                                                onChange={(e) => updateExamRow(index, 'exam_date', e.target.value)}
-                                                disabled={!canManage}
-                                            />
-                                        </div>
-                                        <div className="flex justify-end sm:col-span-1">
-                                            {canManage && exams.length > 1 && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    aria-label="Hapus baris pemeriksaan penunjang"
-                                                    onClick={() => removeExamRow(index)}
-                                                    className="text-destructive"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                </CardContent>
+                            </Card>
 
-                    {/* BAGIAN E: Checklist Persiapan & Asesmen Psikologis (KF-4 & KF-21) */}
-                    <Card>
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-base font-semibold">E. Checklist Persiapan Pra-Operasi & Asesmen Psikologis</CardTitle>
-                            <CardDescription>
-                                Semua 10 item checklist persiapan wajib lengkap agar kesiapan operasi dapat dinyatakan Siap.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="bg-muted/20 space-y-3 rounded-xl border p-4">
-                                <Label className="text-sm font-semibold">10 Item Verifikasi Kelengkapan Persiapan Pasien:</Label>
-                                <div className="grid grid-cols-1 gap-3 pt-1 md:grid-cols-2">
-                                    {[
-                                        { key: 'identity_verified', label: '1. Identitas pasien terverifikasi' },
-                                        { key: 'informed_consent_surgery', label: '2. Informed consent bedah / operasi lengkap' },
-                                        { key: 'anesthesia_consent', label: '3. Persetujuan tindakan anestesi lengkap' },
-                                        { key: 'fasting_verified', label: '4. Status puasa terverifikasi' },
-                                        { key: 'allergy_assessed', label: '5. Alergi telah dikaji' },
-                                        { key: 'lab_available', label: '6. Hasil laboratorium tersedia' },
-                                        { key: 'iv_access', label: '7. Akses intravena (IV line) terpasang paten' },
-                                        { key: 'operation_area_prepared', label: '8. Persiapan area operasi (kebersihan/cukur bila perlu)' },
-                                        { key: 'jewelry_removed', label: '9. Pelepasan perhiasan, gigi palsu, dan benda pengganggu' },
-                                    ].map((item) => (
-                                        <div key={item.key} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={item.key}
-                                                checked={Boolean(mainForm.data.preparation[item.key as keyof typeof mainForm.data.preparation])}
-                                                onCheckedChange={(checked) => {
-                                                    mainForm.setData('preparation', {
-                                                        ...mainForm.data.preparation,
-                                                        [item.key]: Boolean(checked),
-                                                    });
-                                                }}
-                                                disabled={!canManage}
-                                            />
-                                            <Label htmlFor={item.key} className="cursor-pointer text-xs leading-tight font-normal">
-                                                {item.label}
-                                            </Label>
-                                        </div>
-                                    ))}
-
-                                    {/* Item 10: Tanda Lokasi Operasi (opsional N/A) */}
-                                    <div className="col-span-1 flex items-center space-x-2 border-t pt-2 md:col-span-2">
-                                        <Checkbox
-                                            id="site_marked"
-                                            checked={mainForm.data.preparation.site_marked === true}
-                                            onCheckedChange={(checked) => {
-                                                mainForm.setData('preparation', {
-                                                    ...mainForm.data.preparation,
-                                                    site_marked: checked ? true : false,
-                                                });
-                                            }}
-                                            disabled={!canManage}
-                                        />
-                                        <Label htmlFor="site_marked" className="cursor-pointer text-xs leading-tight font-normal">
-                                            10. Tanda lokasi operasi (site marking) telah dibuat dan terverifikasi
-                                        </Label>
+                            {/* BAGIAN D: Pemeriksaan Penunjang (KF-19) */}
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                                    <div>
+                                        <CardTitle className="text-base font-semibold">D. Pemeriksaan Penunjang</CardTitle>
+                                        <CardDescription>Laboratorium, radiologi, dan pemeriksaan diagnostik lainnya.</CardDescription>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Asesmen Psikologis (KF-21) */}
-                            <div className="space-y-4 pt-2">
-                                <Label className="text-sm font-semibold">Asesmen Psikologis Pasien:</Label>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="anxiety_level">Tingkat Kecemasan</Label>
-                                        <Select
-                                            value={mainForm.data.anxiety_level}
-                                            onValueChange={(val) => mainForm.setData('anxiety_level', val)}
-                                            disabled={!canManage}
-                                        >
-                                            <SelectTrigger id="anxiety_level">
-                                                <SelectValue placeholder="Pilih Kecemasan" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.anxietyLevels.map((a) => (
-                                                    <SelectItem key={a.value} value={a.value}>
-                                                        {a.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="surgery_knowledge">Pengetahuan Operasi</Label>
-                                        <Input
-                                            id="surgery_knowledge"
-                                            value={mainForm.data.surgery_knowledge}
-                                            onChange={(e) => mainForm.setData('surgery_knowledge', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Pemahaman tentang operasi..."
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="family_support">Dukungan Keluarga</Label>
-                                        <Input
-                                            id="family_support"
-                                            value={mainForm.data.family_support}
-                                            onChange={(e) => mainForm.setData('family_support', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Pendampingan keluarga..."
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="mental_readiness">Kesiapan Mental</Label>
-                                        <Input
-                                            id="mental_readiness"
-                                            value={mainForm.data.mental_readiness}
-                                            onChange={(e) => mainForm.setData('mental_readiness', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Sikap mental menghadapi bedah..."
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* BAGIAN F: Diagnosis Keperawatan, Implementasi, dan Evaluasi (KF-22 & KF-35) */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-4">
-                            <div>
-                                <CardTitle className="text-base font-semibold">
-                                    F. Diagnosis Keperawatan (SDKI), Luaran (SLKI) & Intervensi (SIKI)
-                                </CardTitle>
-                                <CardDescription>Checklist intervensi dan kriteria hasil standar pra-operasi.</CardDescription>
-                            </div>
-                            {canManage && (
-                                <Button type="button" variant="outline" size="sm" onClick={() => setAddDiagDialogOpen(true)} className="gap-1.5">
-                                    <Plus className="h-3.5 w-3.5" />
-                                    Tambah Diagnosis SDKI
-                                </Button>
-                            )}
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Kartu Diagnosis Terpilih */}
-                            {caseNursingDiagnoses.length === 0 ? (
-                                <div className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
-                                    Belum ada diagnosis keperawatan pra-operasi yang ditambahkan. Klik tombol "Tambah Diagnosis SDKI" di atas.
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {caseNursingDiagnoses.map((diag) => (
-                                        <div key={diag.id} className="bg-card space-y-4 rounded-xl border p-4 shadow-xs">
-                                            <div className="flex items-center justify-between border-b pb-2">
-                                                <div>
-                                                    <h4 className="text-foreground flex items-center gap-2 text-sm font-semibold">
-                                                        <Badge variant="secondary">{diag.code || 'SDKI'}</Badge>
-                                                        {diag.name}
-                                                    </h4>
-                                                    {diag.notes && <p className="text-muted-foreground mt-0.5 text-xs">{diag.notes}</p>}
-                                                </div>
-                                                {canManage && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleDeleteDiagnosis(diag.id)}
-                                                        className="text-destructive hover:bg-destructive/10 h-8"
+                                    {canManage && (
+                                        <Button type="button" variant="outline" size="sm" onClick={addExamRow} className="gap-1.5">
+                                            <Plus className="h-3.5 w-3.5" />
+                                            Tambah Pemeriksaan
+                                        </Button>
+                                    )}
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        {exams.map((row, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-muted/20 grid grid-cols-1 items-center gap-2 rounded-lg border p-2 sm:grid-cols-12"
+                                            >
+                                                <div className="sm:col-span-4">
+                                                    <Select
+                                                        value={row.exam_type}
+                                                        onValueChange={(val) => updateExamRow(index, 'exam_type', val)}
+                                                        disabled={!canManage}
                                                     >
-                                                        Hapus
-                                                    </Button>
-                                                )}
+                                                        <SelectTrigger className="h-9">
+                                                            <SelectValue placeholder="Jenis Pemeriksaan" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {options.examTypes.map((t) => (
+                                                                <SelectItem key={t.value} value={t.value}>
+                                                                    {t.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="sm:col-span-5">
+                                                    <Input
+                                                        className="h-9"
+                                                        placeholder="Hasil pemeriksaan..."
+                                                        value={row.result}
+                                                        onChange={(e) => updateExamRow(index, 'result', e.target.value)}
+                                                        disabled={!canManage}
+                                                    />
+                                                </div>
+                                                <div className="sm:col-span-2">
+                                                    <Input
+                                                        className="h-9"
+                                                        type="date"
+                                                        value={row.exam_date}
+                                                        onChange={(e) => updateExamRow(index, 'exam_date', e.target.value)}
+                                                        disabled={!canManage}
+                                                    />
+                                                </div>
+                                                <div className="flex justify-end sm:col-span-1">
+                                                    {canManage && exams.length > 1 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label="Hapus baris pemeriksaan penunjang"
+                                                            onClick={() => removeExamRow(index)}
+                                                            className="text-destructive"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* BAGIAN E: Checklist Persiapan & Asesmen Psikologis (KF-4 & KF-21) */}
+                            <Card>
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="text-base font-semibold">E. Checklist Persiapan Pra-Operasi & Asesmen Psikologis</CardTitle>
+                                    <CardDescription>
+                                        Semua 10 item checklist persiapan wajib lengkap agar kesiapan operasi dapat dinyatakan Siap.
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="bg-muted/20 space-y-3 rounded-xl border p-4">
+                                        <Label className="text-sm font-semibold">10 Item Verifikasi Kelengkapan Persiapan Pasien:</Label>
+                                        <div className="grid grid-cols-1 gap-3 pt-1 md:grid-cols-2">
+                                            {[
+                                                { key: 'identity_verified', label: '1. Identitas pasien terverifikasi' },
+                                                { key: 'informed_consent_surgery', label: '2. Informed consent bedah / operasi lengkap' },
+                                                { key: 'anesthesia_consent', label: '3. Persetujuan tindakan anestesi lengkap' },
+                                                { key: 'fasting_verified', label: '4. Status puasa terverifikasi' },
+                                                { key: 'allergy_assessed', label: '5. Alergi telah dikaji' },
+                                                { key: 'lab_available', label: '6. Hasil laboratorium tersedia' },
+                                                { key: 'iv_access', label: '7. Akses intravena (IV line) terpasang paten' },
+                                                { key: 'operation_area_prepared', label: '8. Persiapan area operasi (kebersihan/cukur bila perlu)' },
+                                                { key: 'jewelry_removed', label: '9. Pelepasan perhiasan, gigi palsu, dan benda pengganggu' },
+                                            ].map((item) => (
+                                                <div key={item.key} className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={item.key}
+                                                        checked={Boolean(
+                                                            mainForm.data.preparation[item.key as keyof typeof mainForm.data.preparation],
+                                                        )}
+                                                        onCheckedChange={(checked) => {
+                                                            mainForm.setData('preparation', {
+                                                                ...mainForm.data.preparation,
+                                                                [item.key]: Boolean(checked),
+                                                            });
+                                                        }}
+                                                        disabled={!canManage}
+                                                    />
+                                                    <Label htmlFor={item.key} className="cursor-pointer text-xs leading-tight font-normal">
+                                                        {item.label}
+                                                    </Label>
+                                                </div>
+                                            ))}
+
+                                            {/* Item 10: Tanda Lokasi Operasi (opsional N/A) */}
+                                            <div className="col-span-1 flex items-center space-x-2 border-t pt-2 md:col-span-2">
+                                                <Checkbox
+                                                    id="site_marked"
+                                                    checked={mainForm.data.preparation.site_marked === true}
+                                                    onCheckedChange={(checked) => {
+                                                        mainForm.setData('preparation', {
+                                                            ...mainForm.data.preparation,
+                                                            site_marked: checked ? true : false,
+                                                        });
+                                                    }}
+                                                    disabled={!canManage}
+                                                />
+                                                <Label htmlFor="site_marked" className="cursor-pointer text-xs leading-tight font-normal">
+                                                    10. Tanda lokasi operasi (site marking) telah dibuat dan terverifikasi
+                                                </Label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Asesmen Psikologis (KF-21) */}
+                                    <div className="space-y-4 pt-2">
+                                        <Label className="text-sm font-semibold">Asesmen Psikologis Pasien:</Label>
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="anxiety_level">Tingkat Kecemasan</Label>
+                                                <Select
+                                                    value={mainForm.data.anxiety_level}
+                                                    onValueChange={(val) => mainForm.setData('anxiety_level', val)}
+                                                    disabled={!canManage}
+                                                >
+                                                    <SelectTrigger id="anxiety_level">
+                                                        <SelectValue placeholder="Pilih Kecemasan" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.anxietyLevels.map((a) => (
+                                                            <SelectItem key={a.value} value={a.value}>
+                                                                {a.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
 
-                                            {/* Kriteria Luaran SLKI */}
-                                            {diag.criteria.length > 0 && (
-                                                <div className="space-y-2">
-                                                    <Label className="text-primary text-xs font-semibold">Kriteria Hasil Luaran (SLKI):</Label>
-                                                    <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-                                                        {diag.criteria.map((c) => (
-                                                            <div
-                                                                key={c.id}
-                                                                className="bg-muted/20 flex items-center justify-between rounded border p-2"
-                                                            >
-                                                                <span>{c.text}</span>
-                                                                <Badge variant="outline" className="text-[10px]">
-                                                                    Target: {c.target}
-                                                                </Badge>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div className="space-y-2">
+                                                <Label htmlFor="surgery_knowledge">Pengetahuan Operasi</Label>
+                                                <Input
+                                                    id="surgery_knowledge"
+                                                    value={mainForm.data.surgery_knowledge}
+                                                    onChange={(e) => mainForm.setData('surgery_knowledge', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Pemahaman tentang operasi..."
+                                                />
+                                            </div>
 
-                                            {/* Checklist Intervensi SIKI */}
-                                            {diag.interventions.length > 0 && (
-                                                <div className="space-y-3 pt-1">
-                                                    <Label className="text-primary text-xs font-semibold">Intervensi Keperawatan (SIKI):</Label>
-                                                    {diag.interventions.map((intv) => (
-                                                        <div key={intv.id} className="space-y-2">
-                                                            <p className="text-foreground text-xs font-medium">{intv.name}</p>
-                                                            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                                                {intv.items.map((item) => (
+                                            <div className="space-y-2">
+                                                <Label htmlFor="family_support">Dukungan Keluarga</Label>
+                                                <Input
+                                                    id="family_support"
+                                                    value={mainForm.data.family_support}
+                                                    onChange={(e) => mainForm.setData('family_support', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Pendampingan keluarga..."
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="mental_readiness">Kesiapan Mental</Label>
+                                                <Input
+                                                    id="mental_readiness"
+                                                    value={mainForm.data.mental_readiness}
+                                                    onChange={(e) => mainForm.setData('mental_readiness', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Sikap mental menghadapi bedah..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* BAGIAN F: Diagnosis Keperawatan, Implementasi, dan Evaluasi (KF-22 & KF-35) */}
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                                    <div>
+                                        <CardTitle className="text-base font-semibold">
+                                            F. Diagnosis Keperawatan (SDKI), Luaran (SLKI) & Intervensi (SIKI)
+                                        </CardTitle>
+                                        <CardDescription>Checklist intervensi dan kriteria hasil standar pra-operasi.</CardDescription>
+                                    </div>
+                                    {canManage && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setAddDiagDialogOpen(true)}
+                                            className="gap-1.5"
+                                        >
+                                            <Plus className="h-3.5 w-3.5" />
+                                            Tambah Diagnosis SDKI
+                                        </Button>
+                                    )}
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {/* Kartu Diagnosis Terpilih */}
+                                    {caseNursingDiagnoses.length === 0 ? (
+                                        <div className="text-muted-foreground rounded-lg border border-dashed p-4 text-center text-sm">
+                                            Belum ada diagnosis keperawatan pra-operasi yang ditambahkan. Klik tombol "Tambah Diagnosis SDKI" di atas.
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {caseNursingDiagnoses.map((diag) => (
+                                                <div key={diag.id} className="bg-card space-y-4 rounded-xl border p-4 shadow-xs">
+                                                    <div className="flex items-center justify-between border-b pb-2">
+                                                        <div>
+                                                            <h4 className="text-foreground flex items-center gap-2 text-sm font-semibold">
+                                                                <Badge variant="secondary">{diag.code || 'SDKI'}</Badge>
+                                                                {diag.name}
+                                                            </h4>
+                                                            {diag.notes && <p className="text-muted-foreground mt-0.5 text-xs">{diag.notes}</p>}
+                                                        </div>
+                                                        {canManage && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleDeleteDiagnosis(diag.id)}
+                                                                className="text-destructive hover:bg-destructive/10 h-8"
+                                                            >
+                                                                Hapus
+                                                            </Button>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Kriteria Luaran SLKI */}
+                                                    {diag.criteria.length > 0 && (
+                                                        <div className="space-y-2">
+                                                            <Label className="text-primary text-xs font-semibold">
+                                                                Kriteria Hasil Luaran (SLKI):
+                                                            </Label>
+                                                            <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+                                                                {diag.criteria.map((c) => (
                                                                     <div
-                                                                        key={item.id || item.siki_item_id}
-                                                                        className={`flex items-start gap-2.5 rounded-lg border p-2.5 text-xs transition-colors ${
-                                                                            item.is_done ? 'bg-primary/5 border-primary/30' : 'bg-muted/10'
-                                                                        }`}
+                                                                        key={c.id}
+                                                                        className="bg-muted/20 flex items-center justify-between rounded border p-2"
                                                                     >
-                                                                        <Checkbox
-                                                                            id={`siki-${item.id || item.siki_item_id}`}
-                                                                            checked={item.is_done}
-                                                                            onCheckedChange={() => handleToggleIntervention(item.id)}
-                                                                            disabled={!canManage || !item.id}
-                                                                            className="mt-0.5"
-                                                                        />
-                                                                        <div
-                                                                            className="cursor-pointer space-y-0.5 leading-snug"
-                                                                            onClick={() => item.id && handleToggleIntervention(item.id)}
-                                                                        >
-                                                                            <span className="text-muted-foreground mr-1.5 text-[10px] font-semibold tracking-wider uppercase">
-                                                                                [{item.section_label}]
-                                                                            </span>
-                                                                            <span
-                                                                                className={
-                                                                                    item.is_done
-                                                                                        ? 'text-foreground font-medium'
-                                                                                        : 'text-muted-foreground'
-                                                                                }
-                                                                            >
-                                                                                {item.text}
-                                                                            </span>
-                                                                            {item.done_at && (
-                                                                                <p className="text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
-                                                                                    ✔ Dilakukan {item.done_at}
-                                                                                </p>
-                                                                            )}
-                                                                        </div>
+                                                                        <span>{c.text}</span>
+                                                                        <Badge variant="outline" className="text-[10px]">
+                                                                            Target: {c.target}
+                                                                        </Badge>
                                                                     </div>
                                                                 ))}
                                                             </div>
                                                         </div>
-                                                    ))}
+                                                    )}
+
+                                                    {/* Checklist Intervensi SIKI */}
+                                                    {diag.interventions.length > 0 && (
+                                                        <div className="space-y-3 pt-1">
+                                                            <Label className="text-primary text-xs font-semibold">
+                                                                Intervensi Keperawatan (SIKI):
+                                                            </Label>
+                                                            {diag.interventions.map((intv) => (
+                                                                <div key={intv.id} className="space-y-2">
+                                                                    <p className="text-foreground text-xs font-medium">{intv.name}</p>
+                                                                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                                                                        {intv.items.map((item) => (
+                                                                            <div
+                                                                                key={item.id || item.siki_item_id}
+                                                                                className={`flex items-start gap-2.5 rounded-lg border p-2.5 text-xs transition-colors ${
+                                                                                    item.is_done ? 'bg-primary/5 border-primary/30' : 'bg-muted/10'
+                                                                                }`}
+                                                                            >
+                                                                                <Checkbox
+                                                                                    id={`siki-${item.id || item.siki_item_id}`}
+                                                                                    checked={item.is_done}
+                                                                                    onCheckedChange={() => handleToggleIntervention(item.id)}
+                                                                                    disabled={!canManage || !item.id}
+                                                                                    className="mt-0.5"
+                                                                                />
+                                                                                <div
+                                                                                    className="cursor-pointer space-y-0.5 leading-snug"
+                                                                                    onClick={() => item.id && handleToggleIntervention(item.id)}
+                                                                                >
+                                                                                    <span className="text-muted-foreground mr-1.5 text-[10px] font-semibold tracking-wider uppercase">
+                                                                                        [{item.section_label}]
+                                                                                    </span>
+                                                                                    <span
+                                                                                        className={
+                                                                                            item.is_done
+                                                                                                ? 'text-foreground font-medium'
+                                                                                                : 'text-muted-foreground'
+                                                                                        }
+                                                                                    >
+                                                                                        {item.text}
+                                                                                    </span>
+                                                                                    {item.done_at && (
+                                                                                        <p className="text-[10px] font-normal text-emerald-600 dark:text-emerald-400">
+                                                                                            ✔ Dilakukan {item.done_at}
+                                                                                        </p>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    )}
+
+                                    {/* Form Implementasi & Evaluasi */}
+                                    <div className="space-y-4 border-t pt-4">
+                                        <Label className="text-sm font-semibold">Implementasi & Evaluasi Keperawatan:</Label>
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="imp_actions">Tindakan yang Dilakukan</Label>
+                                                <Input
+                                                    id="imp_actions"
+                                                    value={mainForm.data.implementation_actions}
+                                                    onChange={(e) => mainForm.setData('implementation_actions', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Tindakan keperawatan spesifik..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="imp_education">Edukasi Pasien</Label>
+                                                <Input
+                                                    id="imp_education"
+                                                    value={mainForm.data.implementation_education}
+                                                    onChange={(e) => mainForm.setData('implementation_education', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Edukasi yang diberikan..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="imp_monitoring">Monitoring Tanda Vital</Label>
+                                                <Input
+                                                    id="imp_monitoring"
+                                                    value={mainForm.data.implementation_monitoring}
+                                                    onChange={(e) => mainForm.setData('implementation_monitoring', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Hasil monitoring..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="imp_response">Respons Pasien</Label>
+                                                <Input
+                                                    id="imp_response"
+                                                    value={mainForm.data.implementation_response}
+                                                    onChange={(e) => mainForm.setData('implementation_response', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Respons pasien..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-3">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="eval_condition">Kondisi Pasien</Label>
+                                                <Input
+                                                    id="eval_condition"
+                                                    value={mainForm.data.evaluation_condition}
+                                                    onChange={(e) => mainForm.setData('evaluation_condition', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Kondisi umum..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="eval_comp">Kelengkapan Persiapan</Label>
+                                                <Input
+                                                    id="eval_comp"
+                                                    value={mainForm.data.evaluation_completeness}
+                                                    onChange={(e) => mainForm.setData('evaluation_completeness', e.target.value)}
+                                                    disabled={!canManage}
+                                                    placeholder="Kelengkapan berkas/alat..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="readiness_status">
+                                                    Status Kesiapan Operasi <span className="text-red-500">*</span>
+                                                </Label>
+                                                <Select
+                                                    value={mainForm.data.readiness_status}
+                                                    onValueChange={(val) => mainForm.setData('readiness_status', val)}
+                                                    disabled={!canManage}
+                                                >
+                                                    <SelectTrigger id="readiness_status">
+                                                        <SelectValue placeholder="Pilih Kesiapan" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.readinessStatuses.map((r) => (
+                                                            <SelectItem key={r.value} value={r.value}>
+                                                                {r.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <InputError message={mainForm.errors.readiness_status} />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="eval_notes">Catatan Tambahan Evaluasi</Label>
+                                            <Input
+                                                id="eval_notes"
+                                                value={mainForm.data.evaluation_notes}
+                                                onChange={(e) => mainForm.setData('evaluation_notes', e.target.value)}
+                                                disabled={!canManage}
+                                                placeholder="Catatan khusus kesiapan..."
+                                            />
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {activeSurgeryProfile === 'bedah_ortopedi' ? (
+                                <PreopOrthoDetailsCard
+                                    details={mainForm.data.clinical_details}
+                                    onChange={updateClinicalField}
+                                    disabled={!canManage}
+                                />
+                            ) : (
+                                <>
+                                    <PreopNeuroDetailsCard
+                                        details={mainForm.data.clinical_details}
+                                        onChange={updateClinicalField}
+                                        disabled={!canManage}
+                                    />
+                                    <PreopOrthoDetailsCard
+                                        details={mainForm.data.clinical_details}
+                                        onChange={updateClinicalField}
+                                        disabled={!canManage}
+                                    />
+                                </>
                             )}
 
-                            {/* Form Implementasi & Evaluasi */}
-                            <div className="space-y-4 border-t pt-4">
-                                <Label className="text-sm font-semibold">Implementasi & Evaluasi Keperawatan:</Label>
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="imp_actions">Tindakan yang Dilakukan</Label>
-                                        <Input
-                                            id="imp_actions"
-                                            value={mainForm.data.implementation_actions}
-                                            onChange={(e) => mainForm.setData('implementation_actions', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Tindakan keperawatan spesifik..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="imp_education">Edukasi Pasien</Label>
-                                        <Input
-                                            id="imp_education"
-                                            value={mainForm.data.implementation_education}
-                                            onChange={(e) => mainForm.setData('implementation_education', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Edukasi yang diberikan..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="imp_monitoring">Monitoring Tanda Vital</Label>
-                                        <Input
-                                            id="imp_monitoring"
-                                            value={mainForm.data.implementation_monitoring}
-                                            onChange={(e) => mainForm.setData('implementation_monitoring', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Hasil monitoring..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="imp_response">Respons Pasien</Label>
-                                        <Input
-                                            id="imp_response"
-                                            value={mainForm.data.implementation_response}
-                                            onChange={(e) => mainForm.setData('implementation_response', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Respons pasien..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-3">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="eval_condition">Kondisi Pasien</Label>
-                                        <Input
-                                            id="eval_condition"
-                                            value={mainForm.data.evaluation_condition}
-                                            onChange={(e) => mainForm.setData('evaluation_condition', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Kondisi umum..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="eval_comp">Kelengkapan Persiapan</Label>
-                                        <Input
-                                            id="eval_comp"
-                                            value={mainForm.data.evaluation_completeness}
-                                            onChange={(e) => mainForm.setData('evaluation_completeness', e.target.value)}
-                                            disabled={!canManage}
-                                            placeholder="Kelengkapan berkas/alat..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="readiness_status">
-                                            Status Kesiapan Operasi <span className="text-red-500">*</span>
-                                        </Label>
-                                        <Select
-                                            value={mainForm.data.readiness_status}
-                                            onValueChange={(val) => mainForm.setData('readiness_status', val)}
-                                            disabled={!canManage}
-                                        >
-                                            <SelectTrigger id="readiness_status">
-                                                <SelectValue placeholder="Pilih Kesiapan" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.readinessStatuses.map((r) => (
-                                                    <SelectItem key={r.value} value={r.value}>
-                                                        {r.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <InputError message={mainForm.errors.readiness_status} />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="eval_notes">Catatan Tambahan Evaluasi</Label>
-                                    <Input
-                                        id="eval_notes"
-                                        value={mainForm.data.evaluation_notes}
-                                        onChange={(e) => mainForm.setData('evaluation_notes', e.target.value)}
-                                        disabled={!canManage}
-                                        placeholder="Catatan khusus kesiapan..."
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {activeSurgeryProfile === 'bedah_saraf' ? (
-                        <PreopNeuroDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
-                    ) : activeSurgeryProfile === 'bedah_ortopedi' ? (
-                        <PreopOrthoDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
-                    ) : (
-                        <>
-                            <PreopNeuroDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
-                            <PreopOrthoDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                            <PreopAnesthesiaCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
                         </>
                     )}
-
-                    <PreopAnesthesiaCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
 
                     {/* Tombol Simpan Bawah Form */}
                     {canManage && (
@@ -1571,65 +1654,71 @@ export default function PreopPage({
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog Tambah Diagnosis Keperawatan SDKI */}
-            <Dialog open={addDiagDialogOpen} onOpenChange={setAddDiagDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Tambah Diagnosis Keperawatan Pra-Operasi (SDKI)</DialogTitle>
-                        <DialogDescription>
-                            Pilih diagnosis standar dari katalog SDKI pra-bedah untuk menampilkan kriteria hasil SLKI dan intervensi SIKI otomatis.
-                        </DialogDescription>
-                    </DialogHeader>
+            {/* Dialog Tambah Diagnosis Keperawatan SDKI (disembunyikan untuk profil Bedah Saraf EDH sesuai SKPL) */}
+            {activeSurgeryProfile !== 'bedah_saraf' && (
+                <Dialog open={addDiagDialogOpen} onOpenChange={setAddDiagDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Tambah Diagnosis Keperawatan Pra-Operasi (SDKI)</DialogTitle>
+                            <DialogDescription>
+                                Pilih diagnosis standar dari katalog SDKI pra-bedah untuk menampilkan kriteria hasil SLKI dan intervensi SIKI
+                                otomatis.
+                            </DialogDescription>
+                        </DialogHeader>
 
-                    <form onSubmit={handleAddDiagSubmit} className="space-y-4 py-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="add_diag_id">Pilih Diagnosis SDKI</Label>
-                            <Select value={diagForm.data.nursing_diagnosis_id} onValueChange={(val) => diagForm.setData('nursing_diagnosis_id', val)}>
-                                <SelectTrigger id="add_diag_id">
-                                    <SelectValue placeholder="Pilih Diagnosis SDKI" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {options.masterNursingDiagnoses.map((d) => (
-                                        <SelectItem key={d.id} value={String(d.id)}>
-                                            [{d.code}] {d.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <InputError message={diagForm.errors.nursing_diagnosis_id} />
-                        </div>
+                        <form onSubmit={handleAddDiagSubmit} className="space-y-4 py-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="add_diag_id">Pilih Diagnosis SDKI</Label>
+                                <Select
+                                    value={diagForm.data.nursing_diagnosis_id}
+                                    onValueChange={(val) => diagForm.setData('nursing_diagnosis_id', val)}
+                                >
+                                    <SelectTrigger id="add_diag_id">
+                                        <SelectValue placeholder="Pilih Diagnosis SDKI" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {options.masterNursingDiagnoses.map((d) => (
+                                            <SelectItem key={d.id} value={String(d.id)}>
+                                                [{d.code}] {d.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={diagForm.errors.nursing_diagnosis_id} />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="custom_text">Atau Tulis Teks Diagnosis Lainnya</Label>
-                            <Input
-                                id="custom_text"
-                                value={diagForm.data.custom_text}
-                                onChange={(e) => diagForm.setData('custom_text', e.target.value)}
-                                placeholder="Contoh: Risiko ketidakseimbangan elektrolit..."
-                            />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="custom_text">Atau Tulis Teks Diagnosis Lainnya</Label>
+                                <Input
+                                    id="custom_text"
+                                    value={diagForm.data.custom_text}
+                                    onChange={(e) => diagForm.setData('custom_text', e.target.value)}
+                                    placeholder="Contoh: Risiko ketidakseimbangan elektrolit..."
+                                />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="diag_notes">Catatan Tambahan (Opsional)</Label>
-                            <Input
-                                id="diag_notes"
-                                value={diagForm.data.notes}
-                                onChange={(e) => diagForm.setData('notes', e.target.value)}
-                                placeholder="Catatan kondisi khusus..."
-                            />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="diag_notes">Catatan Tambahan (Opsional)</Label>
+                                <Input
+                                    id="diag_notes"
+                                    value={diagForm.data.notes}
+                                    onChange={(e) => diagForm.setData('notes', e.target.value)}
+                                    placeholder="Catatan kondisi khusus..."
+                                />
+                            </div>
 
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setAddDiagDialogOpen(false)}>
-                                Batal
-                            </Button>
-                            <Button type="submit" disabled={diagForm.processing}>
-                                {diagForm.processing ? 'Menyimpan...' : 'Tambahkan Diagnosis'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setAddDiagDialogOpen(false)}>
+                                    Batal
+                                </Button>
+                                <Button type="submit" disabled={diagForm.processing}>
+                                    {diagForm.processing ? 'Menyimpan...' : 'Tambahkan Diagnosis'}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            )}
         </CaseLayout>
     );
 }

@@ -36,11 +36,12 @@ class SaveInstrumentCounts
             fn (mixed $v): bool => is_string($v) && in_array($v, IntraopRecord::COUNT_DISCREPANCY_ACTIONS, true)
         ));
 
+        $activeItems = InstrumentCountItem::casesForProfile($case->surgeryProfile());
         $computedRows = [];
         $hasTs = false;
         $allFinalFilled = true;
 
-        foreach (InstrumentCountItem::cases() as $enumItem) {
+        foreach ($activeItems as $enumItem) {
             $row = $rawCounts[$enumItem->value] ?? [];
             $initial = is_numeric($row['initial_count'] ?? null) ? max(0, (int) $row['initial_count']) : 0;
             $additional = is_numeric($row['additional_count'] ?? null) ? max(0, (int) $row['additional_count']) : 0;
@@ -81,8 +82,9 @@ class SaveInstrumentCounts
         }
 
         if ($verification === CountVerification::LengkapSesuai && ! $allFinalFilled) {
+            $requiredTotal = count($activeItems);
             $errors['count_verification'] = [
-                'Seluruh 5 item hitungan akhir wajib diisi sebelum verifikasi akhir dinyatakan Lengkap & Sesuai.',
+                "Seluruh {$requiredTotal} item hitungan akhir wajib diisi sebelum verifikasi akhir dinyatakan Lengkap & Sesuai.",
             ];
         }
 
