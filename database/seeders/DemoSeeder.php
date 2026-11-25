@@ -1404,7 +1404,7 @@ class DemoSeeder extends Seeder
             ]);
         }
 
-        foreach (InstrumentCountItem::cases() as $item) {
+        foreach (InstrumentCountItem::casesForProfile(SurgeryProfile::BedahOrtopedi) as $item) {
             $isMismatch = $item === InstrumentCountItem::KasaSteril;
             InstrumentCount::query()->firstOrCreate(
                 ['case_id' => $case4->id, 'item' => $item],

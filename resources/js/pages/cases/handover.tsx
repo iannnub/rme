@@ -67,8 +67,8 @@ export default function HandoverPage({ caseHeader, canHandoverNow, summaryItems,
         });
     };
 
-    const isNeuro = caseHeader.surgery_profile === 'bedah_saraf';
-    const destinationOptions = isNeuro ? options.destinations.filter((d) => d.value !== 'lainnya') : options.destinations;
+    const isSkplProfile = caseHeader.surgery_profile === 'bedah_saraf' || caseHeader.surgery_profile === 'bedah_ortopedi';
+    const destinationOptions = isSkplProfile ? options.destinations.filter((d) => d.value !== 'lainnya') : options.destinations;
 
     const formErrors = form.errors as Record<string, string | undefined>;
 

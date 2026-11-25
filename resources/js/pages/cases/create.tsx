@@ -149,6 +149,9 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
     const selectedSurgeryOption = surgeryTypes.find((item) => String(item.id) === form.data.surgery_type_id);
     const isNeuroSelected =
         selectedSurgeryOption?.code?.toLowerCase() === 'bedah_saraf' || Boolean(selectedSurgeryOption?.name.toLowerCase().includes('saraf'));
+    const isOrthoSelected =
+        selectedSurgeryOption?.code?.toLowerCase() === 'bedah_ortopedi' || Boolean(selectedSurgeryOption?.name.toLowerCase().includes('ortopedi'));
+    const isSkplProfileSelected = isNeuroSelected || isOrthoSelected;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -317,7 +320,7 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                         <InputError message={form.errors.gender} />
                                     </div>
 
-                                    {!isNeuroSelected && (
+                                    {!isSkplProfileSelected && (
                                         <div className="grid gap-2">
                                             <Label htmlFor="phone">No. Telepon (Opsional)</Label>
                                             <Input
@@ -457,7 +460,7 @@ export default function CasesCreate({ selectedPatient, genders, medicalDiagnoses
                                 <InputError message={form.errors.origin_ward} />
                             </div>
 
-                            {!isNeuroSelected && (
+                            {!isSkplProfileSelected && (
                                 <div className="grid gap-2">
                                     <Label htmlFor="origin_class">Kelas Perawatan (Opsional)</Label>
                                     <Input

@@ -6,7 +6,6 @@ use App\Enums\AllergyStatus;
 use App\Enums\ReadinessStatus;
 use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
-use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\PreopAssessment;
@@ -50,10 +49,10 @@ class SavePreopAssessment
 
         $readinessStatus = $data['readiness_status'] ?? 'belum_siap';
         $preparation = is_array($data['preparation'] ?? null) ? $data['preparation'] : [];
-        $isNeuroEdh = $case->surgeryProfile() === SurgeryProfile::BedahSaraf;
+        $isSkplProfile = $case->surgeryProfile() !== null;
 
         if ($readinessStatus === ReadinessStatus::Siap->value) {
-            $requiredKeys = $isNeuroEdh
+            $requiredKeys = $isSkplProfile
                 ? [
                     'informed_consent_surgery',
                     'iv_access',

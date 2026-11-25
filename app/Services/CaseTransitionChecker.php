@@ -11,7 +11,6 @@ use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
 use App\Enums\SignOutStatus;
 use App\Enums\SscStatus;
-use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\InstrumentCheck;
@@ -198,8 +197,8 @@ class CaseTransitionChecker
      */
     private function pascaOpRequirements(SurgeryCase $case): array
     {
-        $isNeuro = $case->surgeryProfile() === SurgeryProfile::BedahSaraf;
-        $closingTime = $isNeuro ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
+        $usesSkplChronology = $case->surgeryProfile() !== null;
+        $closingTime = $usesSkplChronology ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
         $timesValid = $case->entered_or_at !== null
             && $case->surgery_end_at !== null
             && $closingTime !== null
@@ -244,7 +243,7 @@ class CaseTransitionChecker
             $signOutVerified = $case->readinessFlag('sign_out_verified');
         }
 
-        $timeRequirementLabel = $isNeuro
+        $timeRequirementLabel = $usesSkplChronology
             ? 'Waktu masuk OK, selesai operasi, dan selesai anestesi terisi dengan urutan kronologi menaik'
             : 'Waktu selesai operasi dan keluar kamar operasi terisi dengan urutan kronologi menaik';
 

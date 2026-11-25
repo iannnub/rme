@@ -17,13 +17,13 @@ enum InstrumentCountItem: string
 
     /**
      * Daftar item penghitungan intra-operasi sesuai profil operasi.
-     * Sesuai SKPL Revisi 1 Bedah Saraf (EDH) D.8-D.10: Kasa, Jarum, Instrumen.
+     * Sesuai SKPL Revisi 1 Bedah Saraf (EDH) & Bedah Ortopedi (Fraktur Femur): Kasa, Jarum, Instrumen.
      *
      * @return list<self>
      */
     public static function casesForProfile(?SurgeryProfile $profile): array
     {
-        if ($profile === SurgeryProfile::BedahSaraf) {
+        if (in_array($profile, [SurgeryProfile::BedahSaraf, SurgeryProfile::BedahOrtopedi], true)) {
             return [
                 self::KasaSteril,
                 self::Jarum,

@@ -2,6 +2,7 @@ import { PreopAnesthesiaCard } from '@/components/cases/preop/PreopAnesthesiaCar
 import { PreopEdhForm } from '@/components/cases/preop/PreopEdhForm';
 import { PreopNeuroDetailsCard } from '@/components/cases/preop/PreopNeuroDetailsCard';
 import { PreopOrthoDetailsCard } from '@/components/cases/preop/PreopOrthoDetailsCard';
+import { PreopOrthoForm } from '@/components/cases/preop/PreopOrthoForm';
 import { type PreopClinicalDetails, type UpdateClinicalFieldFn } from '@/components/cases/preop/types';
 import { ConcurrencyAlert } from '@/components/concurrency-alert';
 import InputError from '@/components/input-error';
@@ -535,6 +536,36 @@ export default function PreopPage({
                 <form onSubmit={handleSaveMainForm} className="space-y-6">
                     {activeSurgeryProfile === 'bedah_saraf' ? (
                         <PreopEdhForm
+                            caseHeader={caseHeader}
+                            prepProgress={
+                                prepProgress ?? {
+                                    instrument_checks_count: 0,
+                                    instrument_checks_ready: false,
+                                    ssc_sign_in_status: 'belum',
+                                    ssc_sign_in_label: 'Belum Diisi',
+                                }
+                            }
+                            data={mainForm.data}
+                            errors={mainForm.errors as Record<string, string | undefined>}
+                            options={options}
+                            canManage={canManage}
+                            onSetField={(field, value) => mainForm.setData((prev) => ({ ...prev, [field]: value }))}
+                            onUpdateClinical={updateClinicalField}
+                            onUpdateVital={(field, value) =>
+                                mainForm.setData('vital_signs', {
+                                    ...mainForm.data.vital_signs,
+                                    [field]: value,
+                                })
+                            }
+                            onTogglePrep={(field, checked) =>
+                                mainForm.setData('preparation', {
+                                    ...mainForm.data.preparation,
+                                    [field]: checked,
+                                })
+                            }
+                        />
+                    ) : activeSurgeryProfile === 'bedah_ortopedi' ? (
+                        <PreopOrthoForm
                             caseHeader={caseHeader}
                             prepProgress={
                                 prepProgress ?? {
@@ -1537,26 +1568,8 @@ export default function PreopPage({
                                 </CardContent>
                             </Card>
 
-                            {activeSurgeryProfile === 'bedah_ortopedi' ? (
-                                <PreopOrthoDetailsCard
-                                    details={mainForm.data.clinical_details}
-                                    onChange={updateClinicalField}
-                                    disabled={!canManage}
-                                />
-                            ) : (
-                                <>
-                                    <PreopNeuroDetailsCard
-                                        details={mainForm.data.clinical_details}
-                                        onChange={updateClinicalField}
-                                        disabled={!canManage}
-                                    />
-                                    <PreopOrthoDetailsCard
-                                        details={mainForm.data.clinical_details}
-                                        onChange={updateClinicalField}
-                                        disabled={!canManage}
-                                    />
-                                </>
-                            )}
+                            <PreopNeuroDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
+                            <PreopOrthoDetailsCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
 
                             <PreopAnesthesiaCard details={mainForm.data.clinical_details} onChange={updateClinicalField} disabled={!canManage} />
                         </>
@@ -1654,8 +1667,8 @@ export default function PreopPage({
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog Tambah Diagnosis Keperawatan SDKI (disembunyikan untuk profil Bedah Saraf EDH sesuai SKPL) */}
-            {activeSurgeryProfile !== 'bedah_saraf' && (
+            {/* Dialog Tambah Diagnosis Keperawatan SDKI (disembunyikan untuk profil SKPL EDH & Ortopedi) */}
+            {activeSurgeryProfile === null && (
                 <Dialog open={addDiagDialogOpen} onOpenChange={setAddDiagDialogOpen}>
                     <DialogContent>
                         <DialogHeader>

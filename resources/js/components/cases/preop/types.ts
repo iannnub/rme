@@ -101,6 +101,10 @@ export type PreopClinicalDetails = {
         medication_dose: string;
         medication_time: string;
         fluids_given: string;
+        vitals_bp?: string;
+        vitals_pulse?: string;
+        vitals_rr?: string;
+        vitals_spo2?: string;
         vitals_monitoring_note: string;
         complications: string;
     };

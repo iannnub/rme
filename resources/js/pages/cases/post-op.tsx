@@ -232,6 +232,8 @@ export default function PostopPage({
     };
 
     const isNeuro = caseHeader.surgery_profile === 'bedah_saraf';
+    const isOrtho = caseHeader.surgery_profile === 'bedah_ortopedi';
+    const isSkplProfile = isNeuro || isOrtho;
 
     const diagForm = useForm({
         nursing_diagnosis_id: '',
@@ -390,7 +392,7 @@ export default function PostopPage({
                                 <div className="text-foreground text-sm font-semibold">Tambah Observasi Pasca-Operasi Baru</div>
 
                                 {/* 1. Kondisi Umum & GCS */}
-                                <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
+                                <div className={`grid grid-cols-2 gap-3 ${isOrtho ? 'md:grid-cols-2' : 'md:grid-cols-6'}`}>
                                     <div className="col-span-2">
                                         <Label className="text-xs">Waktu Observasi *</Label>
                                         <Input
@@ -400,48 +402,52 @@ export default function PostopPage({
                                             className="min-h-10 text-xs"
                                         />
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">GCS Eye (1–4) *</Label>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            max={4}
-                                            value={obsForm.data.gcs_eye}
-                                            onChange={(e) => obsForm.setData('gcs_eye', e.target.value)}
-                                            className="min-h-10"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">GCS Verbal (1–5) *</Label>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            max={5}
-                                            value={obsForm.data.gcs_verbal}
-                                            onChange={(e) => obsForm.setData('gcs_verbal', e.target.value)}
-                                            className="min-h-10"
-                                        />
-                                    </div>
-                                    <div>
-                                        <Label className="text-xs">GCS Motor (1–6) *</Label>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            max={6}
-                                            value={obsForm.data.gcs_motor}
-                                            onChange={(e) => obsForm.setData('gcs_motor', e.target.value)}
-                                            className="min-h-10"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col justify-end">
-                                        <Badge variant="secondary" className="min-h-10 justify-center text-sm font-bold">
-                                            Total GCS: {gcsTotalLive}
-                                        </Badge>
-                                    </div>
+                                    {!isOrtho && (
+                                        <>
+                                            <div>
+                                                <Label className="text-xs">GCS Eye (1–4) *</Label>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={4}
+                                                    value={obsForm.data.gcs_eye}
+                                                    onChange={(e) => obsForm.setData('gcs_eye', e.target.value)}
+                                                    className="min-h-10"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">GCS Verbal (1–5) *</Label>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={5}
+                                                    value={obsForm.data.gcs_verbal}
+                                                    onChange={(e) => obsForm.setData('gcs_verbal', e.target.value)}
+                                                    className="min-h-10"
+                                                />
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs">GCS Motor (1–6) *</Label>
+                                                <Input
+                                                    type="number"
+                                                    min={1}
+                                                    max={6}
+                                                    value={obsForm.data.gcs_motor}
+                                                    onChange={(e) => obsForm.setData('gcs_motor', e.target.value)}
+                                                    className="min-h-10"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col justify-end">
+                                                <Badge variant="secondary" className="min-h-10 justify-center text-sm font-bold">
+                                                    Total GCS: {gcsTotalLive}
+                                                </Badge>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
 
-                                <div className={`grid grid-cols-1 gap-3 ${isNeuro ? '' : 'md:grid-cols-3'}`}>
-                                    {!isNeuro && (
+                                <div className={`grid grid-cols-1 gap-3 ${isSkplProfile ? '' : 'md:grid-cols-3'}`}>
+                                    {!isSkplProfile && (
                                         <>
                                             <div>
                                                 <Label className="text-xs">Kondisi Umum *</Label>
@@ -479,7 +485,7 @@ export default function PostopPage({
                                         </>
                                     )}
                                     <div>
-                                        <Label className="text-xs">{isNeuro ? 'Kondisi Jalan Napas *' : 'Kepatenan Jalan Napas *'}</Label>
+                                        <Label className="text-xs">{isSkplProfile ? 'Kondisi Jalan Napas *' : 'Kepatenan Jalan Napas *'}</Label>
                                         <Select value={obsForm.data.airway_patency} onValueChange={(v) => obsForm.setData('airway_patency', v)}>
                                             <SelectTrigger className="min-h-10">
                                                 <SelectValue />
@@ -560,19 +566,36 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
-                                <div className={`grid grid-cols-1 gap-3 ${isNeuro ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
-                                    {!isNeuro && (
+                                {!isOrtho && (
+                                    <div className={`grid grid-cols-1 gap-3 ${isNeuro ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+                                        {!isSkplProfile && (
+                                            <div>
+                                                <Label className="text-xs">Pola Pernapasan *</Label>
+                                                <Select
+                                                    value={obsForm.data.breathing_pattern}
+                                                    onValueChange={(v) => obsForm.setData('breathing_pattern', v)}
+                                                >
+                                                    <SelectTrigger className="min-h-10">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {options.breathingPatterns.map((o) => (
+                                                            <SelectItem key={o.value} value={o.value}>
+                                                                {o.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
                                         <div>
-                                            <Label className="text-xs">Pola Pernapasan *</Label>
-                                            <Select
-                                                value={obsForm.data.breathing_pattern}
-                                                onValueChange={(v) => obsForm.setData('breathing_pattern', v)}
-                                            >
+                                            <Label className="text-xs">{isNeuro ? 'Alat Bantu O2 / Ventilator *' : 'Penggunaan Oksigen *'}</Label>
+                                            <Select value={obsForm.data.oxygen_device} onValueChange={(v) => obsForm.setData('oxygen_device', v)}>
                                                 <SelectTrigger className="min-h-10">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {options.breathingPatterns.map((o) => (
+                                                    {options.oxygenDevices.map((o) => (
                                                         <SelectItem key={o.value} value={o.value}>
                                                             {o.label}
                                                         </SelectItem>
@@ -580,41 +603,26 @@ export default function PostopPage({
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                    )}
-                                    <div>
-                                        <Label className="text-xs">{isNeuro ? 'Alat Bantu O2 / Ventilator *' : 'Penggunaan Oksigen *'}</Label>
-                                        <Select value={obsForm.data.oxygen_device} onValueChange={(v) => obsForm.setData('oxygen_device', v)}>
-                                            <SelectTrigger className="min-h-10">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {options.oxygenDevices.map((o) => (
-                                                    <SelectItem key={o.value} value={o.value}>
-                                                        {o.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <div>
+                                            <Label className="text-xs">
+                                                Aliran O2 (1-15 LPM) {obsForm.data.oxygen_device !== 'tanpa_oksigen' ? '*' : ''}
+                                            </Label>
+                                            <Input
+                                                type="number"
+                                                min={1}
+                                                max={15}
+                                                disabled={obsForm.data.oxygen_device === 'tanpa_oksigen'}
+                                                value={obsForm.data.oxygen_flow_lpm}
+                                                onChange={(e) => obsForm.setData('oxygen_flow_lpm', e.target.value)}
+                                                className="min-h-10"
+                                            />
+                                            <InputError message={obsForm.errors.oxygen_flow_lpm} />
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">
-                                            Aliran O₂ (1–15 LPM) {obsForm.data.oxygen_device !== 'tanpa_oksigen' ? '*' : ''}
-                                        </Label>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            max={15}
-                                            disabled={obsForm.data.oxygen_device === 'tanpa_oksigen'}
-                                            value={obsForm.data.oxygen_flow_lpm}
-                                            onChange={(e) => obsForm.setData('oxygen_flow_lpm', e.target.value)}
-                                            className="min-h-10"
-                                        />
-                                        <InputError message={obsForm.errors.oxygen_flow_lpm} />
-                                    </div>
-                                </div>
+                                )}
 
                                 {/* 3. Nyeri NRS & 4. Luka */}
-                                <div className={`grid grid-cols-1 gap-3 border-t pt-3 ${isNeuro ? '' : 'md:grid-cols-5'}`}>
+                                <div className={`grid grid-cols-1 gap-3 border-t pt-3 ${isSkplProfile ? '' : 'md:grid-cols-5'}`}>
                                     <div>
                                         <Label className="text-xs">Skala Nyeri (NRS 0–10) *</Label>
                                         <Input
@@ -626,7 +634,7 @@ export default function PostopPage({
                                             className="min-h-10"
                                         />
                                     </div>
-                                    {!isNeuro && (
+                                    {!isSkplProfile && (
                                         <>
                                             <div>
                                                 <Label className="text-xs">Lokasi Nyeri</Label>
@@ -765,16 +773,18 @@ export default function PostopPage({
                                             className="min-h-10"
                                         />
                                     </div>
-                                    <div>
-                                        <Label className="text-xs">Perdarahan (ml)</Label>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            value={obsForm.data.bleeding_ml}
-                                            onChange={(e) => obsForm.setData('bleeding_ml', e.target.value)}
-                                            className="min-h-10"
-                                        />
-                                    </div>
+                                    {!isSkplProfile && (
+                                        <div>
+                                            <Label className="text-xs">Perdarahan (ml)</Label>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                value={obsForm.data.bleeding_ml}
+                                                onChange={(e) => obsForm.setData('bleeding_ml', e.target.value)}
+                                                className="min-h-10"
+                                            />
+                                        </div>
+                                    )}
                                     <div>
                                         <Label className="text-xs">Cairan Drain (ml)</Label>
                                         <Input
@@ -845,7 +855,7 @@ export default function PostopPage({
                                             />
                                             <span>Mual / Muntah</span>
                                         </label>
-                                        {!isNeuro && (
+                                        {!isSkplProfile && (
                                             <label className="flex cursor-pointer items-center gap-2">
                                                 <Checkbox
                                                     checked={obsForm.data.shivering_hypothermia}
@@ -866,7 +876,7 @@ export default function PostopPage({
                                     </div>
                                 </div>
 
-                                {!isNeuro && (
+                                {!isSkplProfile && (
                                     <div className="space-y-1.5">
                                         <Label className="text-xs font-semibold">Komplikasi Pasca-Operasi (centang bila ada)</Label>
                                         <div className="flex flex-wrap gap-3">
@@ -1290,8 +1300,8 @@ export default function PostopPage({
                     </CardContent>
                 </Card>
 
-                {/* B. Diagnosis Keperawatan Pasca-Op + SLKI/SIKI (disembunyikan untuk Bedah Saraf EDH sesuai SKPL) */}
-                {!isNeuro && (
+                {/* B. Diagnosis Keperawatan Pasca-Op + SLKI/SIKI (disembunyikan untuk profil SKPL EDH & Ortopedi) */}
+                {!isSkplProfile && (
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-base">
@@ -1414,7 +1424,7 @@ export default function PostopPage({
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <ClipboardCheck className="text-primary h-5 w-5" />
-                            {isNeuro
+                            {isSkplProfile
                                 ? 'B. Pemindahan Pasien & Kondisi Sebelum Dipindahkan'
                                 : 'C. Kondisi Pasien Sebelum Dipindahkan (Wajib Sebelum Serah Terima - KF-17)'}
                         </CardTitle>
@@ -1614,7 +1624,7 @@ export default function PostopPage({
                             <div>
                                 <CardTitle className="flex items-center gap-2 text-base">
                                     <ShieldCheck className="text-primary h-5 w-5" />
-                                    {isNeuro
+                                    {isSkplProfile
                                         ? 'C. Verifikasi & Koreksi Dokter (Pasca-Operasi - KF-38)'
                                         : 'D. Verifikasi & Koreksi Dokter (Pasca-Operasi - KF-38)'}
                                 </CardTitle>

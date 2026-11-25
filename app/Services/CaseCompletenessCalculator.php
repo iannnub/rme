@@ -11,7 +11,6 @@ use App\Enums\SignoffKind;
 use App\Enums\SignoffSection;
 use App\Enums\SignOutStatus;
 use App\Enums\SscStatus;
-use App\Enums\SurgeryProfile;
 use App\Enums\VitalSignPhase;
 use App\Models\CaseSignoff;
 use App\Models\InstrumentCheck;
@@ -104,7 +103,7 @@ class CaseCompletenessCalculator
             && $verification !== null
             && ((! $hasTs && $verification === CountVerification::LengkapSesuai) || ($verification === CountVerification::TidakSesuai && $discrepancyActions !== []));
 
-        $closingTime = $profile === SurgeryProfile::BedahSaraf ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
+        $closingTime = $profile !== null ? ($case->anesthesia_end_at ?? $case->left_or_at) : $case->left_or_at;
         $intraopComplete = $case->entered_or_at !== null
             && $case->surgery_end_at !== null
             && $closingTime !== null

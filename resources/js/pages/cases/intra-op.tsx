@@ -1,4 +1,5 @@
 import { IntraopEdhView } from '@/components/cases/intraop/IntraopEdhView';
+import { IntraopOrthoView } from '@/components/cases/intraop/IntraopOrthoView';
 import {
     IntraopProcedureDetailsCard,
     type IntraopImplantRow,
@@ -552,6 +553,24 @@ export default function IntraopPage({
 
                 {caseHeader.surgery_profile === 'bedah_saraf' ? (
                     <IntraopEdhView
+                        caseHeader={caseHeader}
+                        chronology={chronology}
+                        positionArea={positionArea}
+                        vitalSigns={vitalSigns}
+                        fluids={fluids}
+                        nursingActions={nursingActions}
+                        instrumentCounts={instrumentCounts}
+                        specimenComplication={specimenComplication}
+                        procedureDetails={procedureDetails}
+                        options={options}
+                        permissions={permissions}
+                        pressureLabels={PRESSURE_LABELS}
+                        antisepticLabels={ANTISEPTIC_LABELS}
+                        discrepancyLabels={DISCREPANCY_LABELS}
+                        nowWibLocalInput={nowWibLocalInput}
+                    />
+                ) : caseHeader.surgery_profile === 'bedah_ortopedi' ? (
+                    <IntraopOrthoView
                         caseHeader={caseHeader}
                         chronology={chronology}
                         positionArea={positionArea}

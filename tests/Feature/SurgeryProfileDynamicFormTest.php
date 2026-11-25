@@ -480,3 +480,173 @@ test('skpl bedah saraf edh menyederhanakan preop tanpa cemas, 3 item hitung intr
 
     expect($case->fresh()->status)->toBe(CaseStatus::PascaOp);
 });
+
+test('skpl bedah ortopedi fraktur femur menyederhanakan preop c.2, 3 item hitung intraop, menjaga implan saat merge, dan transisi tanpa keluar ok', function () {
+    $sirkuler = User::factory()->perawat(NurseType::Sirkuler)->create(['name' => 'Ns. Sirkuler Orto']);
+    $instrumen = User::factory()->perawat(NurseType::Instrumen)->create();
+    $surgeon = User::factory()->dokterOperator()->create();
+    $anesthesiologist = User::factory()->dokterAnestesi()->create();
+
+    $orthoType = SurgeryType::query()->where('code', SurgeryProfile::BedahOrtopedi->value)->firstOrFail();
+    $diagnosis = MedicalDiagnosis::query()->where('name', 'like', '%Fraktur Femur%')->first() ?? MedicalDiagnosis::query()->firstOrFail();
+    $anesthesia = AnesthesiaType::query()->firstOrFail();
+
+    $case = SurgeryCase::factory()->create([
+        'surgery_type_id' => $orthoType->id,
+        'medical_diagnosis_id' => $diagnosis->id,
+        'anesthesia_type_id' => $anesthesia->id,
+        'surgeon_id' => $surgeon->id,
+        'anesthesiologist_id' => $anesthesiologist->id,
+        'scrub_nurse_id' => $instrumen->id,
+        'circulating_nurse_id' => $sirkuler->id,
+        'created_by' => $sirkuler->id,
+        'status' => CaseStatus::PreOp,
+    ]);
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/pre-op", [
+            'medical_diagnosis_id' => (string) $diagnosis->id,
+            'anesthesia_type_id' => (string) $anesthesia->id,
+            'surgery_site' => 'Femur Dekstra 1/3 Tengah',
+            'chief_complaint' => 'Nyeri paha kanan setelah kecelakaan',
+            'allergy_status' => AllergyStatus::TidakAda->value,
+            'fasting_status' => false,
+            'readiness_status' => ReadinessStatus::Siap->value,
+            'preparation' => [
+                'informed_consent_surgery' => true,
+                'iv_access' => true,
+                'site_marked' => true,
+            ],
+            'clinical_details' => [
+                'anesthesia_exec' => [
+                    'anesthesia_method' => 'Spinal',
+                    'vitals_bp' => '122/78 mmHg',
+                    'vitals_pulse' => '82 x/mnt',
+                    'vitals_rr' => '16 x/mnt',
+                    'vitals_spo2' => '99%',
+                ],
+            ],
+            'vital_signs' => [
+                'bp_systolic' => 124,
+                'bp_diastolic' => 80,
+                'pulse' => 84,
+                'respiratory_rate' => 18,
+                'temperature' => 36.7,
+                'spo2' => 98,
+                'consciousness' => 'compos_mentis',
+            ],
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $case->refresh();
+    expect($case->preopAssessment?->clinical_details['anesthesia_exec']['vitals_bp'] ?? null)->toBe('122/78 mmHg');
+
+    $case->forceFill(['status' => CaseStatus::IntraOp])->save();
+    SscSignIn::factory()->create(['case_id' => $case->id, 'status' => SscStatus::Selesai]);
+    SscTimeOut::factory()->create(['case_id' => $case->id, 'status' => SscStatus::Selesai]);
+    SscSignOut::factory()->create(['case_id' => $case->id, 'status' => SignOutStatus::Terverifikasi]);
+
+    $this->actingAs($sirkuler)
+        ->get("/kasus/{$case->id}/intra-op")
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('cases/intra-op')
+            ->has('instrumentCounts.rows.kasa_steril')
+            ->has('instrumentCounts.rows.jarum')
+            ->has('instrumentCounts.rows.instrumen_set')
+            ->missing('instrumentCounts.rows.pisau_bisturi')
+            ->missing('instrumentCounts.rows.implant')
+        );
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/detail-tindakan", [
+            'procedure_details' => [
+                'fracture_location' => 'Shaft Femur Dekstra',
+                'fixation_method' => 'Broad LCP Plate 10 Hole',
+            ],
+            'implants' => [
+                [
+                    'implant_type' => 'Plate',
+                    'size' => '10 Hole',
+                    'planned_qty' => '1',
+                    'brand' => 'OrthoMed',
+                    'serial_lot' => 'LOT-ORTO-77',
+                    'placement_site' => 'Lateral Femur',
+                    'used_qty' => '1',
+                    'unused_doc' => '-',
+                ],
+            ],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/detail-tindakan", [
+            'procedure_details' => [
+                'cautery_usage' => 'Monopolar 35 W aman',
+            ],
+        ])
+        ->assertSessionHasNoErrors();
+
+    $case->refresh();
+    expect($case->intraopRecord?->implants)->toHaveCount(1);
+    expect($case->intraopRecord?->procedure_details['fixation_method'] ?? null)->toBe('Broad LCP Plate 10 Hole');
+    expect($case->intraopRecord?->procedure_details['cautery_usage'] ?? null)->toBe('Monopolar 35 W aman');
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/kronologi", [
+            'operation_plan_actual' => 'ORIF Fraktur Femur',
+            'postop_diagnosis' => 'Post ORIF Fraktur Femur Dekstra',
+            'entered_or_at' => '2026-11-23T09:00',
+            'anesthesia_start_at' => '2026-11-23T09:10',
+            'incision_at' => '2026-11-23T09:25',
+            'surgery_end_at' => '2026-11-23T11:10',
+            'anesthesia_end_at' => '2026-11-23T11:25',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($anesthesiologist)
+        ->post("/kasus/{$case->id}/intra-op/ttv", [
+            'recorded_at' => '2026-11-23T09:30',
+            'bp_systolic' => 118,
+            'bp_diastolic' => 76,
+            'pulse' => 78,
+            'temperature' => 36.5,
+            'respiratory_rate' => 16,
+            'spo2' => 99,
+            'breathing_pattern' => 'eupnea',
+            'oxygen_device' => 'tanpa_oksigen',
+        ])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($sirkuler)
+        ->put("/kasus/{$case->id}/intra-op/hitung-instrumen", [
+            'counts' => [
+                'kasa_steril' => ['initial_count' => 20, 'additional_count' => 0, 'final_count' => 20],
+                'jarum' => ['initial_count' => 6, 'additional_count' => 0, 'final_count' => 6],
+                'instrumen_set' => ['initial_count' => 45, 'additional_count' => 0, 'final_count' => 45],
+            ],
+            'count_verification' => CountVerification::LengkapSesuai->value,
+        ])
+        ->assertSessionHasNoErrors();
+
+    foreach (['perawat_sirkuler' => $sirkuler, 'perawat_instrumen' => $instrumen, 'dokter_anestesi' => $anesthesiologist, 'dokter_operator' => $surgeon] as $role => $signer) {
+        CaseSignoff::query()->create([
+            'case_id' => $case->id,
+            'section' => SignoffSection::IntraOp,
+            'kind' => SignoffKind::Signoff,
+            'role_label' => $role,
+            'user_id' => $signer->id,
+            'signed_at' => now(),
+        ]);
+    }
+
+    $this->actingAs($sirkuler)
+        ->post("/kasus/{$case->id}/lanjut-status", [
+            'target_status' => CaseStatus::PascaOp->value,
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    expect($case->fresh()->status)->toBe(CaseStatus::PascaOp);
+});

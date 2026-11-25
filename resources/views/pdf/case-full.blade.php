@@ -115,6 +115,8 @@
     {{-- 1. IDENTITAS PASIEN & KASUS --}}
     @php
         $isNeuroPdf = $surgeryProfile === 'bedah_saraf';
+        $isOrthoPdf = $surgeryProfile === 'bedah_ortopedi';
+        $isSkplPdf = $isNeuroPdf || $isOrthoPdf;
         $pInc = $preopClinical['incident'] ?? [];
         $pNeuro = $preopClinical['neurological'] ?? [];
         $pExt = $preopClinical['extremity_physical'] ?? [];
@@ -201,7 +203,7 @@
             <tr>
                 <th>Riwayat Penyakit</th>
                 <td>
-                    @if($isNeuroPdf)
+                    @if($isSkplPdf)
                         {{ $pre->past_illness_history ?: '-' }}
                     @else
                         Sekarang: {{ $pre->current_illness_history ?: '-' }}<br>Dahulu: {{ $pre->past_illness_history ?: '-' }}
@@ -211,7 +213,7 @@
                 <td>{{ $pre->fasting_status ? 'Ya, sejak '.($pre->fasting_since?->timezone('Asia/Jakarta')->format('d M Y H:i') ?? '-') : 'Tidak' }}</td>
             </tr>
             <tr>
-                @if(!$isNeuroPdf)
+                @if(!$isSkplPdf)
                     <th>Asesmen Psikologis</th>
                     <td>Kecemasan: {{ $pre->anxiety_level->label() }}<br>Kesiapan Mental: {{ $pre->mental_readiness ?: '-' }}</td>
                     <th>Status Kesiapan &amp; GDS</th>
@@ -219,8 +221,14 @@
                 @else
                     <th>Status Kesiapan</th>
                     <td><strong>{{ $pre->readiness_status->label() }}</strong><br><span class="small">{{ $pre->evaluation_notes ?: '-' }}</span></td>
-                    <th>Gula Darah Sewaktu (GDS)</th>
-                    <td>{{ $pVit['gds'] ?: '-' }}</td>
+                    <th>@if($isNeuroPdf) Gula Darah Sewaktu (GDS) @else Berat / Tinggi Badan @endif</th>
+                    <td>
+                        @if($isNeuroPdf)
+                            {{ $pVit['gds'] ?: '-' }}
+                        @else
+                            {{ $preVitals->last()?->weight_kg ?? '-' }} kg / {{ $preVitals->last()?->height_cm ?? '-' }} cm
+                        @endif
+                    </td>
                 @endif
             </tr>
         </table>
@@ -301,7 +309,11 @@
                 <td>
                     Jalan Napas: {{ $pAnPre['airway_exam'] ?: '-' }} • Kardiopulmonal: {{ $pAnPre['cardiopulmonary'] ?: '-' }} • ASA: {{ $pAnPre['asa_class'] ?: '-' }} • Rencana: {{ $pAnPre['planned_anesthesia'] ?: '-' }}<br>
                     Metode: {{ $pAnExec['anesthesia_method'] ?: '-' }} ({{ $pAnExec['anesthesia_start_time'] ?: '-' }} - {{ $pAnExec['anesthesia_end_time'] ?: '-' }}) • ETT: {{ $pAnExec['ett_type_size'] ?: '-' }} ({{ $pAnExec['ett_depth_cm'] ?: '-' }} cm)@if(!$isNeuroPdf) / {{ $pAnExec['airway_aid'] ?: '-' }}@endif<br>
-                    Ventilator: {{ $pAnExec['ventilator_setting'] ?: '-' }} • Obat/Dosis: {{ $pAnExec['medications_summary'] ?: '-' }} ({{ $pAnExec['medication_dose'] ?: '-' }} @ {{ $pAnExec['medication_time'] ?: '-' }}) • Cairan: {{ $pAnExec['fluids_given'] ?: '-' }} • Komplikasi: {{ $pAnExec['complications'] ?: '-' }}
+                    @if($isOrthoPdf)
+                        Ventilator: {{ $pAnExec['ventilator_setting'] ?: '-' }} • Obat/Dosis: {{ $pAnExec['medications_summary'] ?: '-' }} ({{ $pAnExec['medication_dose'] ?: '-' }} @ {{ $pAnExec['medication_time'] ?: '-' }}) • Cairan: {{ $pAnExec['fluids_given'] ?: '-' }} • TTV: TD {{ $pAnExec['vitals_bp'] ?? '-' }}, N {{ $pAnExec['vitals_pulse'] ?? '-' }}, RR {{ $pAnExec['vitals_rr'] ?? '-' }}, SpO2 {{ $pAnExec['vitals_spo2'] ?? '-' }} • Komplikasi: {{ $pAnExec['complications'] ?: '-' }}
+                    @else
+                        Ventilator: {{ $pAnExec['ventilator_setting'] ?: '-' }} • Obat/Dosis: {{ $pAnExec['medications_summary'] ?: '-' }} ({{ $pAnExec['medication_dose'] ?: '-' }} @ {{ $pAnExec['medication_time'] ?: '-' }}) • Cairan: {{ $pAnExec['fluids_given'] ?: '-' }} • Komplikasi: {{ $pAnExec['complications'] ?: '-' }}
+                    @endif
                 </td>
             </tr>
         </table>
@@ -462,7 +474,7 @@
             <th>Mulai Anestesi</th>
             <th>Mulai Insisi</th>
             <th>Selesai Operasi</th>
-            @if(!$isNeuroPdf)<th>Keluar OK</th>@endif
+            @if(!$isSkplPdf)<th>Keluar OK</th>@endif
             <th>Selesai Anestesi</th>
         </tr>
         <tr>
@@ -470,7 +482,7 @@
             <td>{{ $case->anesthesia_start_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->incision_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
             <td>{{ $case->surgery_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
-            @if(!$isNeuroPdf)<td>{{ $case->left_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>@endif
+            @if(!$isSkplPdf)<td>{{ $case->left_or_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>@endif
             <td>{{ $case->anesthesia_end_at?->timezone('Asia/Jakarta')->format('H:i') ?? '-' }} WIB</td>
         </tr>
     </table>
@@ -481,7 +493,7 @@
             $ip = $intraopProcedure ?? [];
         @endphp
         <table>
-            @if($isNeuroPdf)
+            @if($isSkplPdf)
                 <tr>
                     <th style="width: 22%;">Posisi Pembedahan</th>
                     <td>{{ $ir->position?->label() ?? '-' }}</td>
